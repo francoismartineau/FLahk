@@ -1,0 +1,7 @@
+Ahk
+BGInfo
+Python
+    - modules?
+    Ffmpeg
+    Tesseract
+    

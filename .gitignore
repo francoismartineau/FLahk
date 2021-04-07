@@ -1,0 +1,5 @@
+*.psd
+*.png
+.VSCodeCounter/
+.vscode/
+knobSaves.ini
