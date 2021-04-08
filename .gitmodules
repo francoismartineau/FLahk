@@ -1,0 +1,6 @@
+[submodule "my_ahk_lib"]
+	path = my_ahk_lib
+	url = git@github.com:francoismartineau/my_ahk_lib.git
+[submodule "fl_studio_midi_scripts"]
+	path = fl_studio_midi_scripts
+	url = git@github.com:francoismartineau/fl_studio_midi_scripts.git
