@@ -1,11 +1,9 @@
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
 global debugWindowHistory := False
 
-
 Test()
 {
-
-    winHistoryRemovePluginsExceptLast()
+    
 }
 
 Test2()

@@ -67,7 +67,7 @@ midiRequest(req, param=0, timeout=2)
             midiAnswer := ""
         }
         else
-            midiO2.controlChange(cc, param, channel)
+            midiO_2.controlChange(cc, param, channel)
 
         midiRequesting := False
         Tooltip

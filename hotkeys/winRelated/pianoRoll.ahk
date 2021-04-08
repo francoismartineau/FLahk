@@ -6,6 +6,10 @@ m::
 r::
     freezeExecute("randomizeStamp")
     return
+
+LWin & XButton1::
+    freezeExecute("activatePianoRollLoop", True, False, False)
+    return
 #If
 
 

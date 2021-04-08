@@ -62,32 +62,46 @@ Shift Up::
 !WheelUp::
     if (isStepSeq() or (isPlugin() and !isMasterEdison()))
         moveWinUp()
-    else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", False, False, True)
     else if (isMixer())
         Send {Left}  
-    else if (isPlaylist())      
-        scrollPlaylistTab("left")
     return
+
 !WheelDown::
     if (isStepSeq() or (isPlugin() and !isMasterEdison()))
         moveWinDown()
-    else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", True, False, False)
     else if (isMixer())
         Send {Right}        
-    else if (isPlaylist())      
-        scrollPlaylistTab("right")
+    return
+; --------
+
+
+; --    Win    --------------------------------------
+LWin & WheelUp::
+    if (isPlaylist())     
+        scrollTab("left", "playlist")
+    else if (isPianoRoll())     
+        scrollTab("left", "pianoroll")
     return
 
-#If scrollingPlaylistTab and isPlaylist()
-~Alt::
+LWin & WheelDown::
+    if (isPlaylist())     
+        scrollTab("right", "playlist")
+    else if (isPianoRoll())     
+        scrollTab("right", "pianoroll")
     return
-Alt Up::
-    scrollPlaylistTabStop()
+
+#If scrollingTab and (isPlaylist() or isPianoRoll())
+~LWin::
     return
-#If
+
+LWin Up::
+    scrollTabStop()
+    return
+#If    
 ; --------
+
+
+
 
 ; --    ^    --------------------------------------
 ^WheelUp::

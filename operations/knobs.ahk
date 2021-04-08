@@ -31,15 +31,7 @@ applyMinMaxLinkController(key = "")
 
     mult := max - min
     mult := Round(mult, 4)
-    function = %min% {Shift Down}={Shift Up} Input {Shift Down}8{Shift Up} %mult%
-/*
-link min max
-
-.si pas crochet Link to controller, il faut dérouler le menu des controles
- et faire un choix. (accept abort, mouse frozen). Sinon, on skip le choix.
-Accept Abort sur [Accept] pour pouvoir replacer la souris
-
-*/    
+    function = %min% {Shift Down}={Shift Up} Input {Shift Down}8{Shift Up} %mult%  
     linkKnob(function, True, False, 0, False)
 }
 

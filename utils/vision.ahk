@@ -48,10 +48,8 @@ colorsMatch(x, y, cols, colVar = 0, hint = "", debug = False, reverse = False)
     {
         if (colVar > 0)
         {
-            PixelSearch, xps, yps, %x%, %y%, %x%, %y%, %col% , %colVar%, RGB    ; regarde 1 seul pixel
-            success := xps != "" and yps != ""
-            if (hint or debug) 
-                PixelGetColor, resCol, %x%, %y% , RGB               
+            diff := hexColorVariation(decimal2hex(col), resCol)
+            success := diff <= colVar
         }
         else
             success := col == resCol
@@ -60,15 +58,14 @@ colorsMatch(x, y, cols, colVar = 0, hint = "", debug = False, reverse = False)
             moveMouse(x, y)
             ToolTipColor(resCol)
             col := decimal2hex(col)
-            msg := "no match"
             if (success)
                 msg := "success"
-            msgTip("col:     " col "               res: " resCol "                     (" x ", " y "):     " msg, 1000)
-            ToolTip
+            else
+                msg := "no match"
+            if (colVar == 0)
+                diff := "-"
+            msgTip("col:     " col "               res: " resCol "            diff: " diff "              (" x ", " y "):     " msg, 1000)
         }
-        ;if (callback)
-        ;    params := [i, success, resCol]
-        ;    execFunc(callback, params*)
         if (success)
             break
     }

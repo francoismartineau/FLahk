@@ -2,11 +2,7 @@
 #pip intall opencv_python
 #pip intall desktopmagic
 #pip intall pywin32
-
-
-#from __future__ import log_function
 import os, sys, cv2, pytesseract, ctypes, time
-
 from PIL import Image
 from desktopmagic.screengrab_win32 import getScreenAsImage
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract'

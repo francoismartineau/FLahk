@@ -1,3 +1,5 @@
+global concatAudioScriptPath := "C:\Util2\FLahk\concatAudio\"
+
 pickConcatAudioPaths(n)
 {
     Switch n
@@ -62,7 +64,7 @@ disableConcatAudioPath(n)
 
 getRandomSoundDir()
 {
-    dir := SysCommand("python C:\Util2\concat_audio\getRandomSoundDir.py")
+    dir := SysCommand("python " concatAudioScriptPath "getRandomSoundDir.py")
     return dir
 }
 
@@ -97,7 +99,7 @@ concatAudioRun()
         len := 0
     }
     cmd = cmd.exe /q /c python
-    cmd = %cmd% C:\Util2\concat_audio\concat_audio.py
+    cmd = %cmd% %concatAudioScriptPath%concatAudio.py
     cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
     ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
 }

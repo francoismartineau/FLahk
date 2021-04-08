@@ -120,6 +120,28 @@ NumpadDiv Up::                                  ; render in place
     freezeExecute("renderInPlace")              
     return
 
+NumpadMult::                                    ; activate loop (playlist: start)
+    if (isPlaylist())
+        freezeExecute("setPlaylistLoop", True, False, "start")
+    else if (isPianoRoll())
+        freezeExecute("activatePianoRollLoop", True, False, True)
+    return
+
+NumpadSub::                                     ; activate loop (playlist: end)
+    if (isPlaylist())
+        freezeExecute("setPlaylistLoop", True, False, "end")
+    else if (isPianoRoll())
+        freezeExecute("activatePianoRollLoop", True, False, True)
+    return
+
+LWin & NumpadMult::                             ; deactivate loop / playlist tab
+LWiN & NumpadSub::
+    if (isPlaylist())
+        freezeExecute("deleteNextPlaylist")
+    else if (isPianoRoll())
+        freezeExecute("activatePianoRollLoop", True, False, False)
+    return
+
 Numpad7::                                       ; mixer
     freezeExecute("bringMixer", False)
     return

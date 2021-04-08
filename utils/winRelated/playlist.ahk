@@ -60,10 +60,6 @@ mouseOverPlaylistTrackNames()
         WinGetPos, winX, winY, winW, winH, ahk_id %winId%
         mX := mX - winX
         mY := mY - winY
-        ;msgBox(mx < 270)
-        ;msgBox(169 < mx)
-        ;msgBox(270 < my)
-        ;msgBox(my < 991)
         res := (mx < 270 and 169 < mx) and (69 < my and my < 991)
     }
     return res
@@ -115,10 +111,36 @@ setPlaylistLoop(mode)
         waitNewWindowOfClass("TNameEditForm", playlistId)
         typeText(name)
         Send {Enter}
+        fineTuneLoopPos(mX)
     }
 }
 
-deleteNextPlaylistTab()
+fineTuneLoopPos(mX)
+{
+    scrollingTab := True
+
+    incr := 7
+    x := mX-20
+    timeLineY := 80
+    w := 40
+    colVar := 10
+    timelineCol := [0x1B272E, 0xA25B5D]
+    tabX := scanColorRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
+
+    MouseMove, %tabX%, %timeLineY%, 0
+    Send {LButton down}
+
+    clickAlsoAccepts := True
+    unfreezeMouse()
+    playlistToolTip("Click when done")
+    waitAcceptAbort()
+    toolTip()
+
+    Send {LButton up}
+    scrollingTab := False
+}
+
+deleteNextPlaylist()
 {
     playlistId := bringPlaylist(False)
     MouseGetPos, mX, mY
@@ -138,71 +160,6 @@ deleteNextPlaylistTab()
     }
 }
 
-global scrollingPlaylistTab := False
-global scrollingPlaylitMx
-global scrollingPlaylitMy
-scrollPlaylistTab(dir)
-{
-    if (!scrollingPlaylistTab)
-        scrollPlaylistTabStart()
-
-    incr := 10
-    Switch dir
-    {
-    Case "left":
-        x := -incr
-    Case "right":
-        x := incr
-    }    
-    MouseMove, %x%, 0, 0, R
-}
-
-scrollPlaylistTabStart()
-{
-    scrollingPlaylistTab := True
-    playlistId := bringPlaylist(False)
-    MouseGetPos, scrollingPlaylitMx, scrollingPlaylitMy
-    timeLineY:= 80
-    freezeMouse()
-    mX := scanColorRight(scrollingPlaylitMx , timeLineY, 100, [0x1C272F], 10, 5, "", False, True)
-    if (mX)
-    {
-        MouseMove, %mX%, %timeLineY%, 1
-        Sleep, 100
-        Send {LButton down}
-    }    
-}
-
-scrollPlaylistTabStop()
-{
-    Send {LButton Up}
-    scrollingPlaylistTab := False
-    MouseMove, %scrollingPlaylitMx%, %scrollingPlaylitMy%, 0
-    unfreezeMouse()
-}
-
-
-/*
-setPlaylistLoop()
-{
-    Send {CtrlDown}{LButton Down}{CtrlUp}
-    KeyWait, LButton
-    savePlaylistSongPos()
-    Send {LButton Up}
-    Sleep, 100
-    loadSavedPlaylistSongPos()
-}
-
-savePlaylistSongPos()
-{
-    midiRequest("save_load_song_pos", 1)
-}
-
-loadSavedPlaylistSongPos()
-{
-    midiRequest("save_load_song_pos", 0)
-}
-*/
 ; ----
 ; --------------------------------
 global xbutton1Released := True
@@ -213,7 +170,6 @@ advanceInSong(rewind = False)
     if (toolWinActive)
     {
         WinGet, toolWinId, ID, A
-        ;bringPlaylist(False)        
         bringStepSeq(False)
     }
 
@@ -224,7 +180,6 @@ advanceInSong(rewind = False)
     
     i := 100 
     while ((InStr(A_ThisHotkey, "XButton1") and !xbutton1Released) or (InStr(A_ThisHotkey, "XButton2") and !xbutton2Released))
-    ;while ((A_ThisHotkey == "XButton1" and !xbutton1Released) or (A_ThisHotkey == "XButton2" and !xbutton2Released))
     {
         if (i > 1)
             i := i - 10

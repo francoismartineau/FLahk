@@ -73,7 +73,6 @@ FileEncoding, UTF-8
 #Include operations/Layer.ahk
 #Include operations/bigScrollMixer.ahk
 #Include operations/resetSoundDevice.ahk
-;#Include operations/REV.ahk
 #Include operations/DelB.ahk
 #Include operations/Filter.ahk
 #Include operations/browser.ahk
@@ -94,8 +93,8 @@ FileEncoding, UTF-8
 
 global midiI := new Midi()
 midiI.OpenMidiIn(0)
-global midiO := new MidiOut(1)
-global midiO2 := new MidiOut(2)
+global midiO_1 := new MidiOut(1)
+global midiO_2 := new MidiOut(2)
 
 
 
@@ -108,8 +107,6 @@ global midiO2 := new MidiOut(2)
 debugOn := False
 makeWindow()
 bringFL()
-;freezeExecute("moveWindows")
-;turnOffLeftScreenWindows() 
 
 #Include AutoHotInterception/AutoHotInterception.ahk
 #Include hotkeys/AutoHotInterception.ahk 
@@ -125,7 +122,6 @@ bringFL()
 
 #Include hotkeys/winRelated/pianoRoll.ahk
 #Include hotkeys/winRelated/pianoRollToolWindows.ahk
-#Include hotkeys/winRelated/eventEditor.ahk
 #Include hotkeys/winRelated/stepSeq.ahk
 #Include hotkeys/winRelated/playlist.ahk
 #Include hotkeys/winRelated/mixer.ahk
@@ -134,5 +130,4 @@ bringFL()
 #Include hotkeys/winRelated/audacity.ahk
 #Include hotkeys/winRelated/instr.ahk
 
-#Include %A_MyDocuments%/AutoHotkey/Lib/mesHotkeys.ahk
-#Include goto.ahk
+#Include run/goto.ahk

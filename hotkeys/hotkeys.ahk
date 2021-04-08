@@ -6,11 +6,10 @@ Enter::
 
 
 
-NumpadEnter::
+NumpadEnter::           ; with shift also for selectSourceForAllSelectedClips()
     acceptPressed := True
     return
 
-; with shift also for selectSourceForAllSelectedClips()
 +NumpadEnter::
     acceptPressed := True
     return
@@ -40,7 +39,6 @@ NumpadEnter::
     return
 #If
 
-
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and isEventEditForm()
 Enter::
     return
@@ -54,6 +52,8 @@ MButton::
     Send {Enter}
     return
 #If
+; ----
+
 
 ; -- Esc ------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and freezeExecuting
@@ -102,21 +102,9 @@ Esc::
     freezeExecute("activateLastFlWin")
     return
 #If
+; ----
 
-lastFlWin := currFlWin
-
-; -- misc ------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and !IsEdison()
-^n::
-    WinActivate, ahk_class TFruityLoopsMainForm
-    WinGet, winId, ID, A
-    Click, 16, 15
-    Send {Down}{Enter}
-    promptWinId := waitNewWindow(winId)
-    centerMouse(promptWinId)
-    return
-#If
-
+; -- Space -----------------------------------------
 #If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm")
 Space::
     midiRequest("toggle_play_pause")
@@ -134,9 +122,22 @@ Space::
     freezeExecute("masterEdisonTransport", True, True, "stop")
     return
 #If
+; ----
+
+; -- misc ------------------------------------------
+#If WinActive("ahk_exe FL64.exe") and !IsEdison()
+^n::                                                            ; new
+    WinActivate, ahk_class TFruityLoopsMainForm
+    WinGet, winId, ID, A
+    Click, 16, 15
+    Send {Down}{Enter}
+    promptWinId := waitNewWindow(winId)
+    centerMouse(promptWinId)
+    return
+#If
 
 #If WinActive("ahk_exe FL64.exe")
-^s Up::
+^s Up::                                                         ; save
     lastSaveTime := timeOfDaySeconds()
     freezeExecute("saveKnobSavesToFile")
     Send {CtrlDown}s{CtrlUp}
@@ -146,13 +147,14 @@ Space::
     lastSaveTime := timeOfDaySeconds()
     return
 
-^z::
+^z::                                                            ; undo
     Send {Ctrl Down}{Alt Down}z{Alt Up}{Ctrl Up}
     return
 
-^y::
+^y::                                                            ; redo
     Send {Ctrl Down}z{Ctrl Up}
     return
+; ----
 
 ; -- Win History -------------------
 Tab::
@@ -172,18 +174,14 @@ CapsLock::
     return
 
 +Tab::
-    ;;;;;;;;;;;;;;;;; Alt Caps: le pouce sur alt, on risque d'overwriter après (!1 !2 etc)
     incrLoadKnobPosIndex()
     freezeExecute("loadKnobPos", False)
     return
-
-;^CapsLock::
-;    decrLoadKnobPosIndex()
-;    freezeExecute("loadKnobPos", False)
-;    return
 #If
-; -------------
+; ----
 
+
+; -- Conflictual keys ---------------------------
 #If WinActive("ahk_exe FL64.exe") and isInstr()
 e::
     Send {m down}
@@ -198,9 +196,22 @@ e Up::
 s::
     return
 #If
+; ----
 
-
+; -- Event Editor tools ----------------------------------
 #If WinActive("ahk_exe FL64.exe") and (isPlaylist() or isPianoRoll())
+q::
+    freezeExecute("activatePencilTool")
+    return
+
+w::
+    freezeExecute("activateBrushTool")
+    return
+
+e::
+    freezeExecute("activateMuteTool")
+    return
+
 c::
     freezeExecute("cutUnderMouse")
     return
@@ -233,3 +244,4 @@ p::
 ~c::
     return
 #If
+; -----

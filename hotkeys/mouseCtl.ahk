@@ -51,7 +51,7 @@ sendMidiCtl(cc, val)
     {
         val := Floor(val/mCtlRatio)
         updateGuiMouseCtl(cc, val)
-        midiO.controlChange(cc, val, 2)
+        midiO_1.controlChange(cc, val, 2)
     }
 }
 

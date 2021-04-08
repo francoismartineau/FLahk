@@ -67,7 +67,7 @@ centerMouse(winId = "", speed = 1.5)
 
 playlistToolTip(msg)
 {
-    Tooltip, %msg%, 240, 60
+    Tooltip, %msg%, 280, 60
 }
 
 
