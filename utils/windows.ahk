@@ -28,7 +28,7 @@ moveWinIfOverPos(posX, posY, winID)
     global Mon1Left, Mon2Right
     WinGetPos, winX, winY, winW, winH, ahk_id %winID%
     movedWin := False
-    winHoversOriPos := posX > winX and posX < winX+winW and posY > winY and posY < winY+winH
+    winHoversOriPos := posX >= winX and posX <= winX+winW and posY >= winY and posY <= winY+winH
     if (winHoversOriPos)
     {
         if (posX + 10 + winW > Mon2Right)

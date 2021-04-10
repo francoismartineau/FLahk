@@ -1,25 +1,27 @@
 ; -- Enter / NumpadEnter / MButton ------------------------------------------
+
+; Accept abort
 #If WinActive("ahk_exe FL64.exe") and !acceptPressed and !numpad1Context.IsActive
-Enter::
+Enter Up::
     acceptPressed := True
     return
 
 
 
-NumpadEnter::           ; with shift also for selectSourceForAllSelectedClips()
+NumpadEnter Up::           ; with shift also for selectSourceForAllSelectedClips()
     acceptPressed := True
     return
 
-+NumpadEnter::
++NumpadEnter Up::
     acceptPressed := True
     return
 
-+Enter::
++Enter Up::
     acceptPressed := True
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and mouseOverMixerSlotSection()
+#If WinActive("ahk_exe FL64.exe") and !numpad1Context.IsActive and acceptPressed and mouseOverMixerSlotSection()
 Enter::
     mixerOpenSlot()
     return
@@ -29,7 +31,8 @@ NumpadEnter::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and mouseOverBrowser()
+/*
+#If WinActive("ahk_exe FL64.exe") and !numpad1Context.IsActive and acceptPressed and mouseOverBrowser()
 Enter::
     clickBrowser()
     return
@@ -38,8 +41,9 @@ NumpadEnter::
     clickBrowser()
     return
 #If
+*/
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isEventEditForm()
+#If WinActive("ahk_exe FL64.exe") and !numpad1Context.IsActive and acceptPressed and isEventEditForm()
 Enter::
     return
 
@@ -47,7 +51,7 @@ NumpadEnter::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and !isEventEditForm() and !isStepSeq() and !mouseOverMixerSlotSection() or WinActive("ahk_exe ahk.exe")
+#If WinActive("ahk_exe Code.exe") or WinActive("ahk_exe FL64.exe") and acceptPressed and !isEventEditForm() and !isStepSeq() and !mouseOverMixerSlotSection() or WinActive("ahk_exe ahk.exe")
 MButton::
     Send {Enter}
     return
@@ -57,6 +61,7 @@ MButton::
 
 ; -- Esc ------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and freezeExecuting
+F4::
 Esc::
     stopExec := True
     return
@@ -139,7 +144,13 @@ Space::
 #If WinActive("ahk_exe FL64.exe")
 ^s Up::                                                         ; save
     lastSaveTime := timeOfDaySeconds()
-    freezeExecute("saveKnobSavesToFile")
+    if (fileSavedToggleEnabled)
+    {
+        if (savesFilePath == "")
+            freezeExecute("getCurrentProjSaveFilePath")
+        saveKnobSavesToFile()
+        saveWinHistoryToFile()
+    }
     Send {CtrlDown}s{CtrlUp}
     return
 

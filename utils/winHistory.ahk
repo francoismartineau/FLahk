@@ -1,8 +1,12 @@
-global windowHistory := []
+﻿global windowHistory := []
 global windowHistoryIndex := 1
 global duringWinHistoryTic := False
 global currFlWin
 global lastFlWin
+
+global debugWindowHistory := False
+
+global masterEdisonId
 
 winHistoryTic()
 {
@@ -20,6 +24,8 @@ winHistoryTic()
                     removeWinFromHistory(index)
 
                 registerWinToHistory(id)
+                if (isMasterEdison(id))
+                    masterEdisonId := id
             }
             lastFlWin := currFlWin
             currFlWin := id
@@ -85,6 +91,7 @@ activatePrevWin()
     global windowHistory, windowHistoryIndex
     found := False
     index := windowHistoryIndex
+    
     if (!currentIndexWinIsActive())
     {
         found := True
@@ -92,7 +99,7 @@ activatePrevWin()
     }
     else
     {
-        while (windowHistory.MaxIndex()>1 and !found)
+        while (windowHistory.MaxIndex() > 1 and !found)
         {
             index := index + 1
             if (index > windowHistory.MaxIndex())
@@ -104,15 +111,31 @@ activatePrevWin()
                 removeWinFromHistory(index)
         }
     }
+    
     if (found)
     {
         windowHistoryIndex := index
         WinActivate, ahk_id %id%
         centerMouse(id)
     }
+    else
+        activateRandomlyFoundPlugin()
     return id
 }
 
+activateRandomlyFoundPlugin()
+{
+    WinGet, id, ID, ahk_class TPluginForm
+    WinGetTitle, title, ahk_id %id%
+    clipboard := title
+    
+    if (title != "Control Surface (knobs)")
+    {
+        WinActivate, ahk_id %id%
+        centerMouse(id)
+
+    }
+}
 
 activateNextWin()
 {
@@ -209,7 +232,71 @@ closeAllWinHistory(closeStepSeq = True)
             WinClose, ahk_id %winId%
     }    
 }
+
+findInWinHistory(filterFunction = "isPlugin")
+{
+    found := False
+    index := windowHistoryIndex
+    i := 1
+    while (windowHistory.MaxIndex() > 1 and !found and i <= windowHistory.MaxIndex())
+    {
+        i := i + 1
+        index := index + 1
+        if (index > windowHistory.MaxIndex())
+            index := 1            
+        id := windowHistory[index]
+        if (WinExist("ahk_id " id))
+        {
+            if (%filterFunction%(id))
+                found := True
+        }
+        else
+            removeWinFromHistory(index)
+    }
+    if (found)
+        return id
+}
+
+loadWinHistory()
+{
+    windowTitles := loadDumpedToFile(savesFilePath, currProjPath, "windowTitles")
+    loadWindowHistoryFromTitles(windowTitles)
+}
+
+loadWindowHistoryFromTitles(windowTitles)
+{
+    for _, title in windowTitles
+    {
+        WinGet, id, ID, %title%
+        if (id)
+        {
+            WinGet, exe, ProcessName, ahk_id %id%
+            if (exe == "FL64.exe")
+                windowHistory.Push(id)
+        }
+    }
+}
+
+windowsIdToTitle(windowIds)
+{
+    windowTitles := []
+    for _, id in windowIds
+    {
+        WinGetTitle, title, ahk_id %id%
+        windowTitles.Push(title)
+    }
+    return windowTitles
+}
+
+saveWinHistoryToFile()
+{
+    windowTitles := windowsIdToTitle(windowHistory)
+    dumpToFile(windowTitles, savesFilePath, currProjPath, "windowTitles")
+}
 ; ----
+
+
+
 
 ; -- Clear from history --------------------------
 winHistoryRemoveMainWins()
@@ -268,3 +355,26 @@ winHistoryRemovePluginsExceptLast(n = 3)
 }
 ; ----
 
+
+; -- Find in hostory ----------------------------
+windowsCoveringLocations(positions)
+{
+    windows := []
+    i := 1
+    while (i <= windowHistory.MaxIndex())
+    {   
+        winId := windowHistory[i]
+        WinGetPos, winX, winY, winW, winH, ahk_id %winId%
+        for _, pos in positions
+        {
+            x := pos[1]
+            y := pos[2]
+            winOverPos := winX <= x and winX+winW >= x and winY <= y and winY+winH >= y
+            if (winOverPos)
+                windows.Push(winId)            
+        }
+        i := i + 1
+    }
+    return windows
+}
+; ----

@@ -1,6 +1,7 @@
 global toolTipChoiceIndex := 1
 global whileToolTipChoice := False
 global tooTipChoices := []
+global toolTipTitle := ""
 
 incrToolTipChoiceIndex()
 {
@@ -19,19 +20,23 @@ decrToolTipChoiceIndex()
     displayToolTipChoice()
 }
 
-toolTipChoice(choices)
+toolTipChoice(choices, title = "", initIndex = 1)
 {
+    toolTipChoiceIndex := initIndex
     tooTipChoices := choices
     clickAlsoAccepts := True
     acceptPressed := False
     abortPressed := False
     whileToolTipChoice := True
+    toolTipTitle := title
     displayToolTipChoice()
 
     while (!(acceptPressed or abortPressed))
         Sleep, 200
 
     toolTip()
+    tooTipChoices := []
+    toolTipTitle := ""
     whileToolTipChoice := False
     clickAlsoAccepts := False
     if (acceptPressed)
@@ -47,6 +52,8 @@ toolTipChoice(choices)
 displayToolTipChoice()
 {
     msg := ""
+    if (toolTipTitle)
+        msg := toolTipTitle "`r`n"
     for i, choice in tooTipChoices
     {
         if (i == toolTipChoiceIndex)

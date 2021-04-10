@@ -71,12 +71,13 @@ mixerOpenSlot()
         CoordMode, Mouse, Client
         clickAlsoAccepts := True
         unfreezeMouse()
-        action := waitAcceptAbort()
+        action := waitAcceptAbort(False)
         freezeMouse()
         Switch action
         {
         Case "accept":
-            Send {Enter}
+            if (!acceptedWithClick)
+                Send {Enter}
             pluginId := waitNewWindowOfClass("TPluginForm", "", 1000)
             if (pluginId)
                 centerMouse(pluginId)        

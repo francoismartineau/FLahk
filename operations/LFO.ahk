@@ -1,27 +1,42 @@
 LFO()
 {
     WinGetClass, class, A
-    if (class == "TPluginForm")
+    WinGetClass, class, A
+    if (isPlugin())
     {
-        copyName()
+        minMax := knobCopyMinMax()
+        Sleep, 20
+        pluginName := copyName()
         lfoID := applyController(4, False, OcrToggleEnabled, 3)
-
-        setLFOParams(lfoID)
-        pasteName("LFO", False)
+        lfoName := makeControllerName("LFO", pluginName, randString(1))
+        rename(lfoName)
+        adjustLfo(minMax)
     }
     else 
     {
         lfoID := loadFx(4)
-        setLFOParams(lfoID, False)
-        rename("LFO", True)
+        adjustLfo()
+        rename("LFO " randString(1), True)
     }
 }
 
-setLFOParams(lfoID, pasteValue = True)
+adjustLfo(minMax = "")
 {
-    WinActivate, ahk_id %lfoID%
-    randomizePlugin(lfoID)              ; one preset name starts with r so "Randomize" is the 2nd R choice
-    moveMouse(235, 77)                  ; set Base value to ori knob value
-    if (pasteValue)
-        pasteKnob(False)                    
+    randomizeLfo(True)
+
+    if (IsObject(minMax))
+    {
+        min := minMax[1]
+        max := minMax[2]
+
+        lfoBaseX := 235
+        lfoBaseY := 81
+        base := min
+        setKnobValue(lfoBaseX, lfoBaseY, base)  
+
+        lfoVolX := 281
+        lfoVolY := 79    
+        vol := .5 + (max-min)*.5
+        setKnobValue(lfoVolX, lfoVolY, vol)  
+    }
 }

@@ -23,23 +23,35 @@ revealPatcherDirectWave(samplerID)
     return directwaveId
 }
 
-dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, directwaveId)
+dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, directwaveId, activateLoop = False)
 {
     WinActivate, ahk_id %oriWin%
     CoordMode, Mouse, Screen
     MouseMove, %oriX%, %oriY%
+    
     toolTip("Click down")
     Click, down                     ;msgTip("click down", 3000)
     CoordMode, Mouse, Client
+
 
     WinActivate, ahk_id %directwaveId%
     moveMouse(118, 464)             ;;msgTip("over internal sample", 3000)
     toolTip("Click down")
     
+
+
     Sleep, 30 
     toolTip("Click up")
     Click, up                       ; msgTip("click up", 3000)
     midiRequest("toggle_play_pause_twice")
+
+    if (activateLoop)
+    {
+        moveMouse(456, 634)
+        Click
+        Send f
+    }
+
 }
 
 hideInternalSampler(internalPluginId, samplerID)
@@ -74,6 +86,8 @@ samplerLfoSetTime(whichLfo)
 {
     WinGet, samplerId, ID, A
     MouseGetPos, oriX, oriY
+    moveMouse(oriX, oriY-30)
+    currVal := copyKnob(False)
     MouseMove, 72, 92, 0                    ; Map
     Click
 
@@ -93,12 +107,12 @@ samplerLfoSetTime(whichLfo)
     lfoId := waitNewWindowOfClass("TWrapperPluginForm", samplerId)
     WinMove, ahk_id %lfoId%,, 188, 222
     WinActivate, ahk_id %lfoId%
-    knobVal := lfoSetTime()
+    newVal := lfoSetTime("", False, currVal)
     WinClose, ahk_id %lfoId%
     WinActivate, ahk_id %samplerId%
     MouseMove, 128, 89                      ; Surface
     Click    
-    setKnobValue(oriX, oriY-30, knobVal, "patcher") 
+    setKnobValue(oriX, oriY-30, newVal, "patcher") 
 }
 
 /*

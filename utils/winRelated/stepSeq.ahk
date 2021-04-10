@@ -201,7 +201,7 @@ pasteChannelNotes()
 
 
 ; -- Channels ----------------
-openChannelUnderMouse()
+openChannelUnderMouse(centerM = True)
 {
     WinGet, id, ID, A
     closeFirst := channelUnderMouseAlreadyOpen()
@@ -209,8 +209,21 @@ openChannelUnderMouse()
         Send {LButton}
     SendInput {AltDown}{LButton}{AltUp}
     pluginId := waitNewWindowOfClass("TPluginForm", id)
-    centerMouse(pluginId)
+    if (centerM)
+        centerMouse(pluginId)
+    return pluginId
 }
+
+openChannelUnderMouseInPianoRoll(centerM = True)
+{
+    WinClose, Piano roll - ahk_class TEventEditForm
+    WinGet, id, ID, A
+    Send {RButton}{WheelDown}{LButton}
+    pianoRollId := waitNewWindowOfClass("TEventEditForm", id, 100)
+    if (centerM)
+        centerMouse(pianoRollId)
+}
+
 
 channelUnderMouseAlreadyOpen()
 {
@@ -316,15 +329,6 @@ openSelectedChannel(stepSeqId = "")
 }
 */
 
-openChannelUnderMouseInPianoRoll(centerM = True)
-{
-    WinClose, Piano roll - ahk_class TEventEditForm
-    WinGet, id, ID, A
-    Send {RButton}{WheelDown}{LButton}
-    pianoRollId := waitNewWindowOfClass("TEventEditForm", id, 100)
-    if (centerM)
-        centerMouse(pianoRollId)
-}
 
 openMixerInsert()
 {
@@ -375,4 +379,39 @@ findSelectedChannelsY()
         y := getFirstSelChannelY(y+channelHeight)
     }
     return selChannelsY
+}
+
+
+; ------------
+stepSeqMaximized(ssId = "")
+{
+    res := False
+    if (ssId == "")
+        WinGet, ssId, ID, ahk_class TStepSeqForm
+    if (ssId != "")
+    {
+        WinGetPos,,, ssW, ssh, ahk_id %ssId%
+        if (ssh >= 126)
+        {
+            scrollBarX := ssW - 15
+            scrollBarY := 52
+            greyBackground := [0x5F686D]
+            res := colorsMatch(scrollBarX, scrollBarY, greyBackground)
+        }
+    }
+    return res
+}
+
+maximizeStepSeq(ssId = "")
+{
+    if (ssId == "")
+        WinGet, ssId, ID, ahk_class TStepSeqForm
+    if (ssId != "")
+    {    
+        WinGetPos,,, ssW, ssH, ahk_id %ssId%
+        moveMouse(ssW/2, ssH-4)
+        Send {LButton down}
+        moveMouse(10, 1080, "Screen")
+        Send {LButton up}
+    }        
 }

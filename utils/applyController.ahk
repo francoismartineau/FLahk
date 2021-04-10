@@ -1,10 +1,9 @@
-applyController(n, isInstr = False, autoChooseCtl = False, nRowsUnderWord = 0)
+applyController(n, isInstr = False, autoChooseLink = False, nRowsUnderWord = 0)
 {
     ctlID := 
     MouseGetPos knobX, knobY, currWinID
     if (!WinActive(currWinID))
         WinActivate, ahk_id %currWinID%
-    copyKnob(False)
     if (isInstr)
         ctlID := loadInstr(n)
     else
@@ -14,7 +13,8 @@ applyController(n, isInstr = False, autoChooseCtl = False, nRowsUnderWord = 0)
     {
         WinActivate, ahk_id %currWinID%
         moveMouse(knobX, knobY)
-        linkKnob(False, True, autoChooseCtl, nRowsUnderWord)
+        setChooseLinkInitScrolls(n, isInstr)
+        linkKnob(False, True, autoChooseLink, nRowsUnderWord)
         WinActivate, ahk_id %ctlID%
     }
     return ctlID
@@ -25,46 +25,79 @@ linkControllerOnly()
     linkKnob()
 }
 
-
-;;;; fonction utilisée seuelement par les deux boutons c c
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;; faire des mod ici
-
-linkKnob(function = False, autoClickAccept = True, autoChooseCtl = False, nRowsUnderWord = 0, chooseCtl = True)
+knobCopyMinMax()
 {
-    MouseGetPos, mouseX, mouseY, winId
-    WinGetPos, winX, winY,,, ahk_id %winID%
-    res := openKnobCtxMenu(mouseX, mouseY, winX, winY, winID)
+    operationHotKey := StrSplit(A_ThisHotkey, A_Space)[1]
+    choices := ["max", "min"]
+    res := toolTipChoice(choices, "Curr value is:", randInt(1,2))
+    if (res == "accept")
+    {
+        saveMousePos()
+        initVal := copyKnob(False)
+        retrieveMousePos()
+        
+        toolTip("Set " choices[1+(2-toolTipChoiceIndex)] " and press hotkey again")
+        unfreezeMouse()
+
+        KeyWait, %operationHotKey%, D
+        KeyWait, %operationHotKey%
+
+        freezeMouse()
+        retrieveMousePos()
+        secVal := copyKnob(False)
+        retrieveMousePos()
+        toolTip()
+        if (toolTipChoiceIndex == 1)
+        {
+            max := initVal
+            min := secVal
+        }
+        else if (toolTipChoiceIndex == 2)
+        {
+            min := initVal
+            max := secVal
+        }
+        return [min, max]      
+    }
+}
+
+linkKnob(function = False, autoClickAccept = True, autoChooseLink = False, nRowsUnderWord = 0, chooseCtl = True)
+{
+    MouseGetPos, knobX, knobY, pluginId
+    WinGetPos, pluginX, pluginY,,, ahk_id %pluginId%
+    res := openKnobCtxMenu(knobX, knobY, pluginX, pluginY, pluginId)
     movedWin := res[1]
     openedCtxMenu := res[2]
     if (openedCtxMenu)
     {
+        saveKnobPos(knobX, knobY, pluginId)
         if (!linkControllerChecked())
             chooseCtl := True
 
-        ctlWinId := clickLinkController()
+        clickLinkController()
         unfreezeMouse()
         if (WinActive("ahk_class TMIDIInputForm"))
         {
-            isLongCtlWin := checkIfLongControllerWindow()
+            isLongLinkWin := checkIfLongLinkWindow()
             if (chooseCtl)
             {
-                clickControllerChoice(isLongCtlWin)
-                chooseController(autoChooseCtl, nRowsUnderWord)
+                clickLinkChoice(isLongLinkWin)
+                chooseLink(autoChooseLink, nRowsUnderWord)
             }
             if (function)
-                setLinkFunction(function, isLongCtlWin)
+                setLinkFunction(function, isLongLinkWin)
             ;WinActivate, ahk_class TMIDIInputForm
             ;Sleep, 50
-            acceptLink(isLongCtlWin, autoClickAccept)
+            acceptLink(isLongLinkWin, autoClickAccept)
         }
     }
     if (movedWin)
-        WinMove, ahk_id %winID%,, %winX%, %winY%
+        WinMove, ahk_id %pluginId%,, %winX%, %winY%
 }
 
-setLinkFunction(function, isLongCtlWin)
+setLinkFunction(function, isLongLinkWin)
 {
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         y := 281
     else
         y := 251
@@ -90,11 +123,34 @@ movePluginWindowIfNecessary(knobY, title)
 
 
 ;---------------------------------------------------------------------------------------------------------------
-chooseController(autoChooseCtl = False, nRowsUnderWord = 0)
+global chooseLinkInitScrolls := 0
+setChooseLinkInitScrolls(n, isInstr = False)
 {
-    if (!autoChooseCtl)
+    Switch n . isInstr
     {
-        Send {WheelDown}{WheelUp}
+    Case "21":          ; enVC
+        chooseLinkInitScrolls := 8
+    Case "40":          ; lfo
+        chooseLinkInitScrolls := 1
+    Default:
+        chooseLinkInitScrolls := 0
+    }
+}
+
+chooseLink(autoChooseLink = False, nRowsUnderWord = 0)
+{
+    if (!autoChooseLink)
+    {
+        if (chooseLinkInitScrolls == 0)
+            Send {WheelDown}{WheelUp}
+        else
+        {
+            Loop %chooseLinkInitScrolls%
+            {
+                Sleep, 10
+                Send {WheelUp}
+            }
+        }
         clickAlsoAccepts := True
         res := waitAcceptAbort(False)
         if (res == "accept")
@@ -135,7 +191,7 @@ chooseController(autoChooseCtl = False, nRowsUnderWord = 0)
 }
 
 
-checkIfLongControllerWindow()
+checkIfLongLinkWindow()
 {
     cols:= [0x292E32]                         ; regarder si la box Link 1 existe
     x := 183
@@ -145,7 +201,7 @@ checkIfLongControllerWindow()
     return colorsMatch(x,y,cols,colVar,hint)
 }
 
-clickControllerChoice(isLong)
+clickLinkChoice(isLong)
 {
     if (isLong)
         y := 200

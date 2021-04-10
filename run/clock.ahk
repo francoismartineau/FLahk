@@ -14,7 +14,7 @@ stopWinHistoryClock() {
     SetTimer, WINDOW_HISTORY_CLOCK, Off           
 }
 
-startWinMenusClock(speed = 300) {
+startWinMenusClock(speed = 400) {
     SetTimer, WINDOW_MENUS_CLOCK, %speed%
 }
 

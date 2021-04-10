@@ -16,9 +16,11 @@ assign2()
     Click
     if (chan == "----")
     {
-        if (!colorsMatch(682, 274, [0x8BB6CC]))
+        MouseGetPos, mX, mY
+        isLocked := colorsMatch(mX+71, mY, [0x302d75], 30)
+        if (isLocked)
         {
-            MouseMove, 682, 274 , 0
+            MouseMove, 71, 0, 0, R
             Click
         }
         else
@@ -57,8 +59,7 @@ assign2()
 getAssign2Chan()
 {
     choices := ["----", 2, 3, 4, "keyboard"]
-    toolTipChoiceIndex := 1
-    res := toolTipChoice(choices)
+    res := toolTipChoice(choices, "", 1)
     return [res, choices[toolTipChoiceIndex]]
 }
 

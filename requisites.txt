@@ -1,3 +1,9 @@
+(Faire un install guide
+ .toutes les dépendances
+ .Résolution écran requise, disposition des écrans)
+ --------------------------------------------------
+
+
 Ahk
 BGInfo
 Python
@@ -5,3 +11,9 @@ Python
     Ffmpeg
     Tesseract
     
+Screen resolution
+Relative position
+
+Browser organization
+.Devices pid / vid
+ (numpad model suggestion)

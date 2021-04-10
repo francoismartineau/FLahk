@@ -1,9 +1,11 @@
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
-global debugWindowHistory := False
+debugOn := False
 
 Test()
 {
-    
+    p1 := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\gen_3"
+    p2 := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_gen3"
+    msg(" " fileNumInDir("C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_gen3"))
 }
 
 Test2()

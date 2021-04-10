@@ -6,7 +6,7 @@ recOnPlay()
         if (edisonArmed())
             setOnInput(winId)
         else
-            setOnPlay(winId)
+            setMasterEdisonOnPlay(winId)
         toggleArmEdison()        
     }
     else
@@ -22,7 +22,7 @@ recOnPlayCreatePlugin(currWinId)
     placePlayHead()
     edisonID := loadFx(7)       ; Edison
     registerWinToHistory(edisonID)
-    setOnPlay(edisonID)
+    setMasterEdisonOnPlay(edisonID)
     toggleArmEdison()
     pasteName("recOnPlay", True)
     WinActivate, ahk_id %currWinId%

@@ -1,5 +1,5 @@
 ; -- Randomize plugin -------------------------------
-randomizePlugin(winId = "", rOnly = False, pluginName = "")
+randomizePlugin(winId = "", rOnly = False)
 {
     if (winId == "")
         WinGet, winId, ID, A
@@ -198,12 +198,25 @@ randomize3xosc()
     Click, 34, 48           ; main panel
 }
 
-randomizeLfo()
+randomizeLfo(deactPeak = False)
 {
     presetButtX := 462
     moveMouse(presetButtX, 17)
     Click, Right
     Send rr{Enter}
+
+    if (deactPeak)
+    {
+        peakBaseX := 40
+        peakBaseY := 80
+        setKnobValue(peakBaseX, peakBaseY, 0)
+        peakVolX := 86
+        peakVolY := 81
+        setKnobValue(peakVolX, peakVolY, .5)
+    }
+    ; probability of every choices in the speed possibilities
+    valIndex := weightedRandomChoiceIndexOnly([1,1,1,1,2,3,5,7,10,7,8,7,10,7,10,6,7,3,3,1,1])
+    lfoSetTime(valIndex, True)
 }
 
 randomizeRev()
@@ -328,8 +341,7 @@ openPresetPlugin(n, pluginId = "")
         Sleep, 100
         WinGetPos,,, winW,, A
         presetButtPosX := winW - 77
-        MouseMove, %presetButtPosX%, 17, 0
-        ;moveMouse(presetButtX, 17)
+        moveMouse(presetButtPosX, 17)
         MouseClick, Right
         Loop, %n%
         {
@@ -361,28 +373,6 @@ openPluginMainCtxMenu()
 }
 ; ----
 
-
-; --- Master Edison ---------------------------------------------
-masterEdisonTransport(mode)
-{
-    bringMasterEdison(False)
-    Switch mode
-    {
-        ;142, 47     85, 47     173, 48     
-    Case "stop":
-        mX := 142
-        mY := 47
-    Case "playPause":
-        mX := 85
-        mY := 47
-    Case "rec":
-        mX := 173
-        mY := 48
-    }
-    moveMouse(mX, mY)
-    Click
-}
-; ----
 
 
 ; --- Delay -----------------------------------------------------
@@ -416,7 +406,7 @@ delayIsTempo()
 ; ----
 
 ; --- LFO -------------------------------------------------------
-lfoSetTime()
+lfoSetTime(valIndex = "", displayRes = False, currVal = "")
 {
     phaseX := 494
     phaseY := 80 
@@ -425,10 +415,26 @@ lfoSetTime()
     vals := [0.899504101835191, 0.845200195908546, 0.79916125908494, 0.757591526955366, 0.699109219945967, 0.657692543230951 , 0.599608179181814, 0.55849761236459, 0.501255051232874, 0.46100159175694, 0.366000367328525, 0.405044691637158, 0.312890290282667, 0.276998898014426, 0.227852945216, 0.181997673586011, 0.154156973585486, 0.119995102286339, 0.0958583327010274, 0.0670074690133333, 0.0566762583330274]
     choices := ["4       --------- b4rs", "3      ", "2      ", "1.5      ", "4       --------- bars", "3      ", "2      ", "1.5", "4       --------- beats", "3    ", "2    ", "1.5", "1       ---------  beat", "3/4  ", "1/2        ----", "1/3  ", "1/4        ----", "1/6  ", "1/8  ", "1/12 ", "1/16 "]
     MouseMove, %speedX%, %speedY%, 0
-    knobVal := copyKnob(False)
-    MouseMove, %speedX%, %speedY%, 0
-    toolTipChoiceIndex := indexOfClosestValue(knobVal, vals)
-    res := toolTipChoice(choices)
+    if (valIndex == "")
+    {
+        currVal := copyKnob(False)
+        MouseMove, %speedX%, %speedY%, 0
+        initIndex := indexOfClosestValue(currVal, vals)
+        res := toolTipChoice(choices, "", initIndex)
+    }
+    else if (currVal != "")
+    {
+        initIndex := indexOfClosestValue(currVal, vals)
+        res := toolTipChoice(choices, "", initIndex)
+    }
+    else
+    {
+        toolTipChoiceIndex := valIndex
+        if (displayRes)
+            msgTip(choices[toolTipChoiceIndex], 500)
+        res := "accept"
+    }
+
     if (res == "accept")
     {
         val := vals[toolTipChoiceIndex]

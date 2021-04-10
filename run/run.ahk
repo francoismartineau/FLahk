@@ -7,14 +7,16 @@ CoordMode, Mouse, Client
 SetTitleMatchMode, 2
 SetDefaultMouseSpeed, 2
 FileEncoding, UTF-16            ; necessary to save strange win name to file
+CoordMode, Pixel, Client
+global pixelCoordMode := "Client"
 
 savedMouseX := 
 savedMouseY := 
 currentWindow :=
 prevWindow :=
 
+
 global retrieveMouse :=
-sendEnterKeyToFL := True
 clickUpDisabled := False
 clipboardSave :=
 

@@ -232,6 +232,15 @@ F6::
 #If
 ; -------
 
+
+; ---- Piano roll windows ------------------------
+#If WinActive("ahk_exe FL64.exe") and isPianorollRand()
+1::
+    freezeExecute("changeSeed")
+    return
+#If
+; -------
+
 /*
 #If WinActive("ahk_exe FL64.exe")
 ~e::

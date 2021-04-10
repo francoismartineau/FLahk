@@ -7,7 +7,7 @@ WheelUp::
         scrollPatternUp()
     else if (isPianorollLen() and mouseOverPianorollLenOptions())
         Send {LButton}{WheelUp}
-    else if (!isMixer())
+    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or mouseOverStepSeqMixerInserts())
         Send {WheelUp}
     return
 
@@ -18,7 +18,7 @@ WheelDown::
         scrollPatternDown()
     else if (isPianorollLen() and mouseOverPianorollLenOptions())
         Send {LButton}{WheelDown}     
-    else if (!isMixer())
+    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or mouseOverStepSeqMixerInserts())
         Send {WheelDown}
     return
 
@@ -28,11 +28,11 @@ WheelDown::
     if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", False, False, "up")
     else if (isPianoRoll())
-        pianoRollScrollInstr()
-    else if (pianoRollScrollingInstr or isStepSeq())
+        eventEditorScrollInstr("pianoRoll")
+    else if (isPlaylist())
+        eventEditorScrollInstr("playlist")
+    else if (eventEditorScrollingInstr or isStepSeq()) 
         scrollChannels("up")
-    else if (mouseOverBrowser())
-        freezeExecute("browserMove", False, False, "up", 1)
     return
 
 
@@ -40,19 +40,19 @@ WheelDown::
     if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", False, False, "down")
     else if (isPianoRoll())
-        pianoRollScrollInstr()
-    else if (pianoRollScrollingInstr or isStepSeq())
+        eventEditorScrollInstr("pianoRoll")
+    else if (isPlaylist())
+        eventEditorScrollInstr("playlist")
+    else if (eventEditorScrollingInstr or isStepSeq())
         scrollChannels("down")
-    else if (mouseOverBrowser())
-        freezeExecute("browserMove", False, False, "down", 1)
     return
 
 ~Shift::
     return
 
 Shift Up::
-    if (pianoRollScrollingInstr)
-        pianoRollScrollInstrStop()
+    if (eventEditorScrollingInstr)
+        eventEditorScrollInstrStop()
     return
 ; --------
 
@@ -75,56 +75,109 @@ Shift Up::
 ; --------
 
 
+
 ; --    Win    --------------------------------------
 LWin & WheelUp::
-    if (isPlaylist())     
+    if (whileToolTipChoice)
+       incrToolTipChoiceIndex()
+    else if (isPlaylist())     
         scrollTab("left", "playlist")
     else if (isPianoRoll())     
         scrollTab("left", "pianoroll")
+    else if (isMasterEdison())
+        Sleep, 1
+    else if (!browsingFiles and !mouseOverBrowser())
+        freezeExecute("browseRandomGenFolder", False)        
+    else
+    {
+        if (GetKeyState("Shift"))
+            incr := 8
+        else
+            incr := 1        
+        freezeExecute("browserMoveFromCurrentMousePos", False, False, "up", incr)
+    }
     return
 
 LWin & WheelDown::
-    if (isPlaylist())     
+    if (whileToolTipChoice)
+       decrToolTipChoiceIndex()
+    else if (isPlaylist())     
         scrollTab("right", "playlist")
     else if (isPianoRoll())     
         scrollTab("right", "pianoroll")
-    return
+    else if (isMasterEdison())
+        freezeExecute("dragSampleFromMasterEdison", False)        
+    else if (!browsingFiles and !mouseOverBrowser())
+        freezeExecute("browseRandomGenFolder", False)
+    else
+    {
+        if (GetKeyState("Shift"))
+            incr := 8
+        else
+            incr := 1
+        freezeExecute("browserMoveFromCurrentMousePos", False, False, "down", incr)
 
-#If scrollingTab and (isPlaylist() or isPianoRoll())
+    }
+    return
+#If
+
+#If scrollingTab and !browsingFiles and (isPlaylist() or isPianoRoll())
 ~LWin::
     return
 
-LWin Up::
+~LWin Up::
     scrollTabStop()
-    return
+    return 
 #If    
+
+#If WinActive("ahk_exe FL64.exe") and browsingFiles
+~LWin Up::
+    if (mouseOverBrowser() or isMasterEdison())
+        freezeExecute("dragSample", False)
+    else
+        stopDragSample()
+    return 
+#If  
+
+#If !freezeExecuting and WinActive("ahk_exe FL64.exe") and !browsingFiles and (mouseOverBrowser() or mouseOverEdisonDrag())
+LWin Up::
+    freezeExecute("dragSample", False)
+    return
+#If  
 ; --------
 
 
 
 
+#If WinActive("ahk_exe FL64.exe")
 ; --    ^    --------------------------------------
 ^WheelUp::
+    if (isMasterEdison())
+        freezeExecute("setMasterEdisonOnPlay")
     return
 ^WheelDown::
+    if (isMasterEdison())
+        freezeExecute("setMasterEdisonOnInput")    
     return
 ; --------
 
 ; --     ^+     ---------------------------------
+^+WheelUp::
+    if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
+        freezeExecute("insertPattern")
+    else if (eventEditorScrollingInstr or isStepSeq())
+        scrollChannels("up")        
+    return
+
 ^+WheelDown::
     if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())    
         freezeExecute("clonePattern", True, True)
     else if (isInstr())
         freezeExecute("cloneActiveInstr")
-    else if (mouseOverStepSeqInstrOrScore())
-        freezeExecute("cloneChannelUnderMouse")
+    else if (eventEditorScrollingInstr or isStepSeq())
+        scrollChannels("down")
     else if (mouseOverMixerDuplicateTrackRegion())
         freezeUnfreezeMouse("cloneMixerTrackState")
-    return
-
-^+WheelUp::
-    if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
-        freezeExecute("insertPattern")
     return
 ; --------
 

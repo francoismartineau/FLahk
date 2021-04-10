@@ -33,17 +33,18 @@
 
 
 #If WinActive("ahk_exe FL64.exe") and !acceptPressed
-MButton::
+MButton Up::
     acceptPressed := True
     return
 
-+MButton::      ; with shift also for selectSourceForAllSelectedClips()
++MButton  Up::      ; with shift also for selectSourceForAllSelectedClips()
     acceptPressed := True
     return
 #If
 
 #If WinActive("ahk_exe FL64.exe") and !acceptPressed and clickAlsoAccepts
-LButton::
+LButton Up::
+    acceptedWithClick := True
     acceptPressed := True
     return
 
@@ -73,7 +74,7 @@ LButton::
 
 
 ; -- XButton ---------------------------
-#If WinActive("ahk_exe FL64.exe")
+#If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Code.exe")
 ^!XButton1 Up::
     freezeExecute("sendDelete")
     return

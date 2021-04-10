@@ -202,7 +202,10 @@ moveWinRight(key)
             y := y - Mon1Top
         }
         WinMove, ahk_id %id%,, %x%, %y%
-        centerMouse(id)
+        if (!isStepSeq(id))
+            centerMouse(id)
+        else
+            moveMouse(14, 37)   ; avoid clicking on sel chan
         pressing := GetKeyState(key)
     }
 }
@@ -229,7 +232,10 @@ moveWinLeft(key)
             y := y + Mon1Top
         }
         WinMove, ahk_id %id%,, %x%, %y%
-        centerMouse(id)
+        if (!isStepSeq(id))
+            centerMouse(id)
+        else
+            moveMouse(14, 37)   ; avoid clicking on sel chan
         pressing := GetKeyState(key)
     }
 }
@@ -240,4 +246,16 @@ upperMenuMoveWindowIfNecessary()
     WinGetPos,, y,,, ahk_class TPluginForm
     if ((x >= 0 and y > 550) or (x < 0 and y > 1210))
         WinMove, ahk_class TPluginForm,,, 550
+}
+
+moveWinsOver(positions, newWinX, newWinY)    ;; coord mode Screen
+{
+    wins := windowsCoveringLocations(positions)
+    nudge := 10 + randInt(1, 10)
+    for i, winId in wins
+    {
+        WinMove, ahk_id %winId%,, %newWinX%, %newWinY%
+        newWinX := newWinX + nudge + randInt(1, 10)
+        newWinY := newWinY + nudge + randInt(1, 10)
+    }
 }

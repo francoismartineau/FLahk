@@ -162,11 +162,16 @@ renderInPlace()
 }
 
 
-moveMouse(x, y, mode = "Client", speed = 0)
+moveMouse(x="", y="", mode = "Client", speed = 0)
 {
     CoordMode, Mouse, Screen
     static := betweenScreensX := 0
     static := betweenScreensY := 870
+
+    if (x == "")
+        MouseGetPos, x
+    else if (y == "")
+        MouseGetPos,, y
 
     if (mode == "Client")
     {
@@ -218,34 +223,78 @@ mouseOverEventEditorZoomSection()
     return res
 }
 
-openAudacity()
-{
-    Run, "C:\Program Files (x86)\Audacity\audacity.exe"
-    WinGet, id, ID, A
-    waitNewWindowOfClass(id, "wxWindowNR")
-    audacityId := WinExist("Audacity ahk_exe audacity.exe ahk_class wxWindowNR")
-    WinClose, Master Edison
-    WinRestore, ahk_id %audacityId%
-    WinActivate, ahk_id %audacityId%
-    WinMove, ahk_id %audacityId%,, -1928, 565, 1936, 469
-    centerMouse(audacityId)   
-}
 
+
+; ----
 sendDelete()
 {
     waitForModifierKeys()
     isMEd := isMasterEdison()
     if (isMEd)
     {
-        MouseGetPos, mX, mY
-        moveMouse(1761, 20)
-        Click
+        mEdKeysActivated := colorsMatch(1762, 17, [0xD3D8DC])
+        if (!mEdKeysActivated)
+        {
+            MouseGetPos, mX, mY
+            moveMouse(1761, 20)
+            Click
+        }
     }
     Send {Delete}
-    if (isMEd)
+    if (isMEd and !mEdKeysActivated)
     {
         moveMouse(1761, 20)
         Click
         moveMouse(mX, mY)
     }
+}
+
+getCurrentProjSaveFilePath()
+{
+    res := False
+    Send {CtrlDown}{ShiftDown}s{ShiftUp}{CtrlUp}
+    savePromptId := waitNewWindowOfClass("#32770", id)
+    if (savePromptId)
+    {
+        cliboardSave := clipboard
+        Sleep, 50
+        Send {CtrlDown}c{CtrlUp}
+        projName := clipboard
+        if (projName != "untitled.flp")
+        {
+            WinMove, ahk_id %savePromptId%,,,, 642, 579
+            quickClick(313, 19)
+            Send {CtrlDown}c{CtrlUp}
+            folderName := clipboard
+            currProjPath := folderName "\" projName
+            createSaveFilePath(folderName, projName)
+            res := currProjPath
+        }
+        WinClose, ahk_id %savePromptId%
+        clipboard := cliboardSave
+    }
+    return currProjPath
+}
+
+createSaveFilePath(folderName, projName)
+{
+    folderNameList := StrSplit(folderName, "\")
+    folderName := folderNameList[folderNameList.MaxIndex()]
+    if (folderName == "")
+        folderName := folderNameList[folderNameList.MaxIndex()-1]
+
+    savesFileFolder := savesFolderPath "\" folderName
+    if (FileExist(savesFileFolder) != "D")
+        FileCreateDir, %savesFileFolder%
+
+    projName := StrSplit(projName, ".")[1]
+    
+    savesFilePath := savesFileFolder "\" projName ".ini"
+    return savesFilePath
+}
+
+setPixelCoordMode(mode)
+{
+    pixelCoordMode := mode
+    CoordMode, Pixel, %mode%
 }

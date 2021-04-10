@@ -2,7 +2,7 @@ global ctxMenuColors := [0xBBC3C8, 0xb7bfc4, 0x5d6b74, 0xbac1c0, 0xb8c0c5]
 global ctxMenuSepCol := [0x939d9c]
 
 
-scanColorDown(x, y, h, cols, colVar = 0, incr = 4, hint = " ", debug = False, reverse = False)
+scanColorDown(x, y, h, cols, colVar = 0, incr = 4, hint = "", debug = False, reverse = False)
 {
     found := False
     maxY := y + h
@@ -20,7 +20,7 @@ scanColorDown(x, y, h, cols, colVar = 0, incr = 4, hint = " ", debug = False, re
     return y
 }
 
-scanColorRight(x, y, w, cols, colVar = 0, incr = 4, hint = " ", debug = False, reverse = False)
+scanColorRight(x, y, w, cols, colVar = 0, incr = 4, hint = "", debug = False, reverse = False)
 {
     found := False
     maxX := x + w
@@ -39,9 +39,11 @@ scanColorRight(x, y, w, cols, colVar = 0, incr = 4, hint = " ", debug = False, r
     return x
 }
 
+global colorsMatchDebug := False
 colorsMatch(x, y, cols, colVar = 0, hint = "", debug = False, reverse = False)
 {
     success := False
+    debug := colorsMatchDebug or debug
 
     PixelGetColor, resCol, %x%, %y% , RGB
     for i, col in cols
@@ -55,7 +57,7 @@ colorsMatch(x, y, cols, colVar = 0, hint = "", debug = False, reverse = False)
             success := col == resCol
         if (debug)
         {
-            moveMouse(x, y)
+            moveMouse(x, y, pixelCoordMode)
             ToolTipColor(resCol)
             col := decimal2hex(col)
             if (success)
@@ -65,6 +67,7 @@ colorsMatch(x, y, cols, colVar = 0, hint = "", debug = False, reverse = False)
             if (colVar == 0)
                 diff := "-"
             msgTip("col:     " col "               res: " resCol "            diff: " diff "              (" x ", " y "):     " msg, 1000)
+            ;clipboard := resCol
         }
         if (success)
             break

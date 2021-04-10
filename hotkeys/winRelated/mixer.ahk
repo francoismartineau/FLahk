@@ -1,3 +1,11 @@
+; -- External Mixer Slots References------------------------------
+#If WinActive("ahk_exe FL64.exe") and doubleClicked() and (mouseOverStepSeqMixerInserts() or mouseOverInstrMixerInsert())
+~LButton::
+    freezeExecute("openMixerInsert")
+    return
+#If
+;-- 
+
 ; -- Open Slot LMButton ------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and mouseOverMixerSlotSection()
 MButton::
@@ -22,8 +30,13 @@ RButton::
 
 
 ; -- Mixer Menu Clicks ------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and isMixer() and mouseOnMixerMenu()
-LButton::
+#If WinActive("ahk_exe FL64.exe") and isMixer("", True)
+LButton::           ;;;; be able to click on hidden mixer menu without loading effect
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and mouseOnMixerMenu() and isMixer()
+LButton Up::
     pos := mouseOnMixerMenuSection()
     waitKey("LButton")
     Switch pos
@@ -76,6 +89,8 @@ LButton::
         freezeExecute("loadGross")
     Case "F6_2":
         freezeExecute("loadNewTime")         
+    Default:
+        Click
     }
     return
 #If

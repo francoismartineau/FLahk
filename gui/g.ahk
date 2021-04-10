@@ -16,6 +16,8 @@ global GuiMouseCtlL, GuiMouseCtlR, GuiMouseCtlActive, GuiMouseCtlIncrMode, GuiMo
 
 global OcrToggleGui
 global OcrToggleEnabled := 0
+global FileSavedToggleGui
+global fileSavedToggleEnabled := 0
 
 makeWindow()
 {
@@ -78,6 +80,7 @@ makeWindowRow2()
     Gui, Main2:Add, Text, x+10 w45 w50 gTOGGLE_MOUSE_CTL_INTERPOLATION_MODE vGuiMouseCtlIncrMode, stop
     Gui, Main2:Add, Text, x+10 w45 w100, ^(+)mclick
     Gui, Main2:Add, CheckBox, x+10 vOcrToggleGui gOCR_TOGGLE, OCR
+    Gui, Main2:Add, CheckBox, x+10 vFileSavedToggleGui gFILE_SAVED_TOGGLE, File saved
 
     Gui, Main2:Add, Text, x438 y20 w100 vGuiMouseCtlActive, ^
     Gui, Main2:Add, Text, x+10 y20 w200 vGuiMouseCtlIncrActive, L0 R0

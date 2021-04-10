@@ -56,7 +56,7 @@ midiRequest(req, param=0, timeout=2)
         channel := 15
         if (needAnswer)
         {
-            midiO.controlChange(cc, param, channel)
+            midiO_2.controlChange(cc, param, channel)
             t1 := A_Now
             while (midiAnswer == "" and (t2-t1 <= timeout))
             {
@@ -67,7 +67,7 @@ midiRequest(req, param=0, timeout=2)
             midiAnswer := ""
         }
         else
-            midiO_2.controlChange(cc, param, channel)
+            midiO_1.controlChange(cc, param, channel)
 
         midiRequesting := False
         Tooltip

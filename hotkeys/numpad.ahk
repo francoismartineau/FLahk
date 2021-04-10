@@ -93,7 +93,7 @@ NumpadDot Up::                              ; Note length
     freezeExecute("hoveredNoteLength", True, True)       
     return
 
-~NumpadEnter::
+NumpadEnter::
     return
     
 NumpadEnter Up::                            ; Lock channel
@@ -185,7 +185,12 @@ Numpad6::                                       ; rec
     return
 
 !Numpad6::                                      ; Edison rec
+LWin & Numpad6::
     freezeExecute("masterEdisonTransport", True, True, "rec")
+    return
+
+^!Numpad6::                                     ; Move to Master Edison drag
+    freezeExecute("moveToMasterEdisonDrag", False, False)
     return
 
 Numpad2::                                       ; step seq
@@ -198,6 +203,7 @@ Numpad1::                                       ; play pause
     return
 
 !Numpad1::                                      ; Edison play pause
+LWin & Numpad1::
     freezeExecute("masterEdisonTransport", True, True, "playPause")
     return
 
@@ -206,6 +212,7 @@ Numpad3::                                       ; stop
     return
 
 !Numpad3::                                      ; Edison stop
+LWin & Numpad3:: 
     freezeExecute("masterEdisonTransport", True, True, "stop")
     return
 

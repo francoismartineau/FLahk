@@ -4,12 +4,15 @@
 
 waitForUserToMakeTimeSelection()
 {
-    MouseGetPos, x
-    MouseMove, %x%, 60
-    playlistToolTip("Make a time selection and press Enter")
+    MouseGetPos, mX
+    moveMouse(mX, 60)
+    playlistToolTip("Make a time selection and accept")
     unfreezeMouse()
     waitAcceptAbort()
+    freezeMouse()
     ToolTip
+    MouseGetPos, timeSelEndX
+    return timeSelEndX
 }
 
 waitForModifierKeys()
@@ -20,6 +23,8 @@ waitForModifierKeys()
         KeyWait, Alt
     if (getKeyState("Shift", "D"))
         KeyWait, Shift
+    if (getKeyState("LWin", "D"))
+        KeyWait, LWin
 }
 
 waitKey(key)
@@ -31,8 +36,10 @@ waitKey(key)
 global acceptPressed := True
 global abortPressed := True
 global clickAlsoAccepts := False
+global acceptedWithClick := False
 waitAcceptAbort(pressEnterOrEsc = False, hint = False)
 {
+    acceptedWithClick := False    
     res := ""
    
     if (hint)
@@ -132,6 +139,24 @@ waitNewWindowOfClass(class, currWinId, timeout = 3000)
         t2 := A_TickCount
     }
     if (resClass == class)
+        WinGet, id , ID, A
+    else
+        id := ""
+    return id
+}
+
+waitNewWindowOfProcess(exe, currWinId, timeout = 3000)
+{
+    t1 := A_TickCount
+    t2 := t1
+    while ((!InStr(resExe, exe) or id == currWinId) and (t2 - t1 <= timeout))
+    {
+        Sleep, 10   
+        WinGet, resExe, ProcessName, A
+        WinGet, id , ID, A
+        t2 := A_TickCount
+    }
+    if (resExe == exe)
         WinGet, id , ID, A
     else
         id := ""

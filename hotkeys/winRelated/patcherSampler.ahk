@@ -1,4 +1,4 @@
-#If WinActive("ahk_exe FL64.exe") and isPatcherSampler("", True)
+#If WinActive("ahk_exe FL64.exe") and (isPatcherSampler("", True) or isPatcherGranular("", True))
 ~!LButton Up::
     waitForModifierKeys()
     overLfoSpeedSet := mouseOverSamplerLfoSpeedSet()

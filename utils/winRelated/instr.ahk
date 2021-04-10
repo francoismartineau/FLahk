@@ -115,6 +115,12 @@ scrollWrenchPanel()
 setInstrDelaySpeed()
 {
     alreadyOpen := clickInstrWrench()
+    if (!delayActivated())
+    {
+        feed := expRand(.1, .9, 3)
+        setKnobValue(350, 230, feed)    
+    }
+
     delX := 536
     y := 228
     static vals := [1, .75, .5, .375, .25, .166666, .125, .083333, .0625, .041666, .03125]
@@ -138,9 +144,15 @@ setInstrDelaySpeed()
 setInstrArpSpeed()
 {
     alreadyOpen := clickInstrWrench()
+    if (!arpActivated())
+    {
+        setKnobValue(96, 196, randInt(1,4)/5)               ; dir
+        setKnobValue(225, 284, randomChoice([0, 0.02222]))  ; chord
+    }
+
     arpX := 110
     y := 228
-    static vals := [1, 0.910732196643949, 0.786359077319503, 0.663991975598037, 0.575727181509137, 0.464393179538616, 0.371113340370357, 0.27382146474, 0.176529589109123]
+    static vals := [0.998996990732849, 0.910732196643949, 0.786359077319503, 0.663991975598037, 0.575727181509137, 0.464393179538616, 0.371113340370357, 0.27382146474, 0.176529589109123]
     static choices := ["1       ---------  beat", "3/4  ", "1/2        ----", "1/3  ", "1/4        ----", "1/6  ", "1/8  ", "1/12 ","1/16 "]
 
     MouseMove, %arpX%, %y%, 0
@@ -291,6 +303,15 @@ mouseOnRightWindowSide()
 {
     return !mouseOnLeftWindowSide()
 }
+
+mouseOverInstrMixerInsert()
+{
+    ; 3xosc's mixer track boxer is slightly offset from patcher for ex
+    ; not precise, but quick
+    MouseGetPos, mX, mY
+    WinGetPos,,, instrW,, ahk_id %winId%
+    return mY <= 59 and mX >= instrW-53 and mY >= 36 and mX <= instrW-13
+}
 ; ------------
 
 
@@ -302,4 +323,49 @@ openInstrInPianoRoll()
     bringStepSeq(False)
     moveMouseToSelY()
     openChannelUnderMouseInPianoRoll()
+}
+
+openInstrInMixer()
+{
+    if (instrHasNoMixerChannel())
+        assignMixerTrack()
+    else
+        bringMixer()
+}
+
+instrHasNoMixerChannel()
+{
+    WinGetPos,,, instrW,, A
+    debug := False
+    drakSectionCol := [0x191f23]
+    darkSectionY := scanColorDown(instrW-30, 24, 5, drakSectionCol, 0, 1)
+    darkSectionRightX := scanColorRight(instrW-3, 40, 5, drakSectionCol, 0, -1)
+    threeLinesY := darkSectionY + 20
+
+    ;threeLinesY := 47  ;;; rel to upper grey bar
+    charCols := [0xBAC7B1, 0xE2E0B5]
+    ;threeLinesY := 47
+    colVar := 20
+    res := colorsMatch(darkSectionRightX-33, threeLinesY, charCols, colVar, "", debug)            ; line 1
+    if (res)
+    {
+        res :=  colorsMatch(darkSectionRightX-25, threeLinesY, charCols, colVar, "", debug)       ; line 3
+        if (res)
+        {
+            redCol := [0x7C464D]
+            colVar := 5
+            upperY := 40
+            res := colorsMatch(darkSectionRightX-32, upperY, redCol, colVar, "", debug)          ; up left red spot
+            if (res)
+            {
+                res := colorsMatch(darkSectionRightX-21, upperY, redCol, colVar, "", debug)      ; up right red spot
+                if (res)
+                {
+                    lowerY := 53
+                    res := colorsMatch(darkSectionRightX-22, lowerY, redCol, colVar, "", debug)  ; down middle red spot
+                }
+            }
+        }
+    }
+    return res
 }

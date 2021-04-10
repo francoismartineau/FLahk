@@ -19,14 +19,20 @@ isWindowHistoryExclude(winId = "")
 
 }
 
-isMixer(winId = "")
+isMixer(winId = "", underMouse = False)
 {
     if (!winId)
-        WinGetClass, class, A
-    else
-        WinGetClass, class, ahk_id %winId%
+    {
+        if (underMouse)
+            MouseGetPos,,, winId
+        else
+            WinGet, winId, ID, A
+    }
+    WinGetClass, class, ahk_id %winId%
     return class == "TFXForm"
 }
+
+
 
 isStepSeq(winId = "")
 {
@@ -230,6 +236,11 @@ isPlugin(id = "")
     return class == "TPluginForm" 
 }
 
+isOneOfTheSamplers(id = "", underMouse = False)
+{
+    return isPatcherSampler(id, underMouse) or isPatcherSlicex(id, underMouse) or isPatcherGranular(id)
+}
+
 isPatcherSampler(id = "", underMouse = False)
 {
     if (id == "")
@@ -239,7 +250,14 @@ isPatcherSampler(id = "", underMouse = False)
         else
             WinGet, id, ID, A
     }
-    return colorsMatch(380, 120, [0x353A4A], 0, "")    
+    x := 380
+    y := 120 + 4
+    col := [0x353A4A]
+    WinGetPos, winX, winY,,, ahk_id %id%
+    setPixelCoordMode("Screen")
+    res := colorsMatch(winX + x, winY + y, col) 
+    setPixelCoordMode("Client")
+    return res  
 }
 
 isPatcherSlicex(id = "", underMouse = False)
@@ -251,14 +269,40 @@ isPatcherSlicex(id = "", underMouse = False)
         else
             WinGet, id, ID, A
     }
-    return colorsMatch(103, 116, [0x8D4E86])
+    x := 103
+    y := 116
+    col := [0x8D4E86]
+    WinGetPos, winX, winY,,, ahk_id %id%
+    setPixelCoordMode("Screen")
+    res := colorsMatch(winX + x, winY + y, col) 
+    setPixelCoordMode("Client")
+    return res    
 }
 
-isPatcherGranular(id = "")
+isPatcherGranular(id = "", underMouse = False)
 {
     if (id == "")
-        WinGet, id, ID, A
-    return colorsMatch(30, 162, [0x574D5A]) and colorsMatch(48, 161, [0x2D4E52])  
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
+    x := 30
+    y := 162
+    col := [0x574D5A]
+    WinGetPos, winX, winY,,, ahk_id %id%
+    setPixelCoordMode("Screen")
+    res := colorsMatch(winX + x, winY + y, col) 
+    if (res)
+    {
+        x := 48
+        y := 161
+        col := [0x2D4E52]    
+        res := res and colorsMatch(winX + x, winY + y, col) 
+    }
+    setPixelCoordMode("Client")
+    return res  
 }
 
 isPatcher4(id = "")

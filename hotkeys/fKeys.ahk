@@ -1,4 +1,4 @@
-#If WinActive("ahk_exe FL64.exe")
+#If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Melodyne singletrack.exe")
 ;F1::
 ;    freezeExecute("newPatt")
 ;    return
@@ -73,6 +73,11 @@ F4::
     return
 #If
 
+#If WinActive("ahk_exe FL64.exe") and isPlugin()
+F12 Up::
+    freezeExecute("randomizePlugin")
+    return
+#If
 
 /*
 ; toggle pat / song

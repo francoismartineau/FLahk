@@ -94,6 +94,16 @@ OCR_TOGGLE:
     OcrToggleEnabled := checked
     return
 
+FILE_SAVED_TOGGLE:
+    GuiControlGet, checked,, FileSavedToggleGui
+    fileSavedToggleEnabled := checked
+    if (fileSavedToggleEnabled and savesFilePath == "")
+    {
+        getCurrentProjSaveFilePath()
+        loadWinHistory()
+        loadKnobSaves()
+    }
+    return
 
 RAND_PLUGIN:
     bringFL()

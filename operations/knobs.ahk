@@ -1,34 +1,12 @@
 global knobValueSave
 
 
-applyMinMaxLinkController(key = "")
+applyMinMaxLinkController()
 {
     
-    if (key == "")
-        key := StrSplit(A_ThisHotkey, A_Space)[1]
-
-    Tooltip, set min and press again
-    unfreezeMouse()
-    KeyWait, %key%, D 
-    KeyWait, %key%
-    freezeMouse()
-    saveMousePos()
-    min := copyKnob(False)
-    retrieveMousePos()
-    Tooltip
-
-
-    Tooltip, set max and press again
-    unfreezeMouse()
-    KeyWait, %key%, D 
-    KeyWait, %key%
-    ToolTip
-    freezeMouse()
-    saveMousePos()
-    max := copyKnob(False)
-    retrieveMousePos()
-    Tooltip
-
+    minMax := knobCopyMinMax()
+    min := minMax[1]
+    max := minMax[2]
     mult := max - min
     mult := Round(mult, 4)
     function = %min% {Shift Down}={Shift Up} Input {Shift Down}8{Shift Up} %mult%  
@@ -74,9 +52,9 @@ knobResetCtl()
     res := openKnobCtxMenu(mouseX, mouseY, winX, winY, winID)
     movedWin := res[1]
     ctlWinId := clickLinkController()
-    isLongCtlWin := checkIfLongControllerWindow()
+    isLongLinkWin := checkIfLongLinkWindow()
     x := 64
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         y := 437
     else
         y := 389
@@ -105,11 +83,11 @@ knobSetMouseCtl(whichCtl = "L")
     movedWin := res[1]
 
     ctlWinId := clickLinkController()
-    isLongCtlWin := checkIfLongControllerWindow()
-    setCcInCtlWin(cc, isLongCtlWin)
-    setChannelInCtlWin(mCtlChan, isLongCtlWin)
-    setPortInCtlWin(1, isLongCtlWin)    
-    acceptLink(isLongCtlWin, True)
+    isLongLinkWin := checkIfLongLinkWindow()
+    setCcInCtlWin(cc, isLongLinkWin)
+    setChannelInCtlWin(mCtlChan, isLongLinkWin)
+    setPortInCtlWin(1, isLongLinkWin)    
+    acceptLink(isLongLinkWin, True)
 
     if (movedWin)
         WinMove, ahk_id %winID%,, %winX%, %winY%
@@ -125,35 +103,35 @@ knobSetExternalCtl(x, y, cc, chan, port, needToInitialize = True, ccConflictIncr
     movedWin := res[1]
 
     ctlWinId := clickLinkController()
-    isLongCtlWin := checkIfLongControllerWindow()
-    setCcInCtlWin(cc, isLongCtlWin)
-    setChannelInCtlWin(chan, isLongCtlWin, needToInitialize)
-    setPortInCtlWin(port, isLongCtlWin, needToInitialize)
+    isLongLinkWin := checkIfLongLinkWindow()
+    setCcInCtlWin(cc, isLongLinkWin)
+    setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
+    setPortInCtlWin(port, isLongLinkWin, needToInitialize)
     
     if (ccConflictIncr)
     {
-        while (ctlWinConflict(isLongCtlWin))
+        while (ctlWinConflict(isLongLinkWin))
         {
             cc := cc + ccConflictIncr
             if (cc + ccConflictIncr > 127)
             {
                 cc := 1
                 chan := chan + 1
-                setChannelInCtlWin(chan, isLongCtlWin, needToInitialize)
+                setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
             }
-            setCcInCtlWin(cc, isLongCtlWin)
+            setCcInCtlWin(cc, isLongLinkWin)
         }
     }
     
-    acceptLink(isLongCtlWin, True)               ; Accept
+    acceptLink(isLongLinkWin, True)               ; Accept
     if (movedWin)
         WinMove, ahk_id %winID%,, %winX%, %winY%
     return [cc, chan]
 }
 
-setCcInCtlWin(cc, isLongCtlWin)
+setCcInCtlWin(cc, isLongLinkWin)
 {
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         y := 99
     else
         y := 72
@@ -170,9 +148,9 @@ setCcInCtlWin(cc, isLongCtlWin)
     }
 }
 
-setChannelInCtlWin(channel, isLongCtlWin, needToInitialize = True)
+setChannelInCtlWin(channel, isLongLinkWin, needToInitialize = True)
 {
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         y := 99
     else
         y := 72  
@@ -192,9 +170,9 @@ setChannelInCtlWin(channel, isLongCtlWin, needToInitialize = True)
     }
 }
 
-setPortInCtlWin(port, isLongCtlWin, needToInitialize = True)
+setPortInCtlWin(port, isLongLinkWin, needToInitialize = True)
 {
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         y := 99
     else
         y := 72  
@@ -217,10 +195,10 @@ setPortInCtlWin(port, isLongCtlWin, needToInitialize = True)
     }    
 }
 
-ctlWinConflict(isLongCtlWin)
+ctlWinConflict(isLongLinkWin)
 {
     Sleep, 10
-    if (isLongCtlWin)
+    if (isLongLinkWin)
         res := colorsMatch(230, 392, [0xBF3E35], 20)
     else
         res := colorsMatch(235, 359, [0xD03C22], 20)

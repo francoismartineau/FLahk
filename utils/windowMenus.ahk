@@ -3,9 +3,12 @@ global EventEditorMenuShown := False
 global MixerMenuShown := False
 global StepSeqMenusShown := False
 
+global freezeWindowMenuClock := False
 
 windowMenusTic()
 {
+    if (freezeWindowMenuClock)
+        return
     dontHide := []
     WinGet, id, ID, A
     if (isEventEditor(id))
@@ -71,14 +74,14 @@ showMixerMenu()
 
 hideMixerMenu()
 {
-    Gui, MixerMenu:Hide
     MixerMenuShown := False
+    Gui, MixerMenu:Hide
 }
 
 mouseOnMixerMenu()
 {
     MouseGetPos, mx,, winId
-    return winId == MixerMenuId and mx > 568 and MixerMenuShown
+    return MixerMenuShown and winId == MixerMenuId and mx > 568
 }
 
 

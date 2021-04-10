@@ -1,5 +1,6 @@
 ﻿Layer()
 {
+    ;;;;;; suggest a name in the box
     name := prompLayerName()
     res := groupChannels(name)
     if (!res)
@@ -20,7 +21,8 @@
 prompLayerName()
 {
     unfreezeMouse()
-    InputBox, name , Layer name,,,,100, 100, 500, 500
+    n := randString(2)
+    InputBox, name , Layer name,,,,100, 100, 500, 500,,,, %n%
     return name
 }
 

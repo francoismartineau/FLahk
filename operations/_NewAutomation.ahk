@@ -1,100 +1,79 @@
 newAutomation()
 {
-    MouseGetPos, mouseX, mouseY, winId
+    MouseGetPos, knobX, knobY, pluginId
     if (WinExist("A") != winId)
         WinActivate, ahk_id %winId%
     
-    minMax := newControllerCopyMinMax()
-    copyName()
+    minMax := knobCopyMinMax()
+    pluginName := copyName()
     
-    
-    bringPlaylist(True)
-    waitForUserToMakeTimeSelection()
-    freezeMouse()
-
-
-    WinActivate, ahk_id %winId%
-    MouseMove, %mouseX%, %mouseY%
-    WinGetPos, winX, winY,,, ahk_id %winID%
-    res := openKnobCtxMenu(mouseX, mouseY, winX, winY, winID)
-    movedWin := res[1]
-    waitCtxMenuUnderMouse()
-    ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
+    bringPlaylist(False)
+    timeSelEndX := waitForUserToMakeTimeSelection()
+    if (knobCreateAutomation(knobX, knobY, pluginId))
     {
-    Case "patcherTimeRelated":
-        y := 197
-    Case "patcher":
-        y := 178
-    Case "timeRelated":
-        y := 169
-    Case "other":
-        y := 149
+        saveKnobPos(knobX, knobY, pluginId)
+        autwinId := bringAutomationWindow()
+        registerWinToHistory(autwinId)     ; to customize autom ( user can press tab to bring back autom)
+        pasteColor()
+        adjustAutomation(autwinId, minMax)
+        autName := copyName()
+        autName := makeControllerName("autom", pluginName, "", autName)
+        rename(autName)
+        bringPlaylist(False)
+        moveMouse(timeSelEndX-30, 60)
+        retrieveMouse = False
     }
-    MouseMove, 28, %y% ,, R                                         ; Create new Automation
-    Click
-
-    autWinID := bringAutomationWindow()
-    ;msgTip("automation window in front? id: " autWinID, 3000)
-    Sleep, 500
-    adjustAutomation(autWinID, minMax)
-    return
-    pasteName("autom", False)
-    waitAcceptAbort(True)
-    bringPlaylist(True)
-    retrieveMouse = False
-    if (movedWin)
-        WinMove, ahk_id %winID%,, %winX%, %winY%    
 }
 
-newControllerCopyMinMax()
+knobCreateAutomation(knobX, knobY, pluginId)
 {
-    key := StrSplit(A_ThisHotkey, A_Space)[1]
-    Tooltip, set max and press again
-    saveMousePos()
-    unfreezeMouse()
-    KeyWait, %key%, D 
-    KeyWait, %key%
-    ToolTip
-    freezeMouse()
-    max := copyKnob(False)
-    retrieveMousePos()
-    Tooltip
-
-    Tooltip, set min and press again
-    saveMousePos()
-    unfreezeMouse()
-    KeyWait, %key%, D 
-    KeyWait, %key%
-    ToolTip
-    freezeMouse()
-    min := copyKnob(False)
-    retrieveMousePos()
-    Tooltip
-
-    return [min, max]
+    WinActivate, ahk_id %pluginId%
+    WinGetPos, pluginX, pluginY,,, ahk_id %pluginId%
+    MouseMove, %knobX%, %knobY%    
+    res := openKnobCtxMenu(knobX, knobY, pluginX, pluginY, pluginId)
+    movedWin := res[1]
+    openedCtxMenu := res[2]
+    if (openedCtxMenu)
+    {    
+        ctxMenuLen := getKnobCtxMenuLength()
+        Switch ctxMenuLen
+        {
+        Case "patcherTimeRelated":
+            y := 197
+        Case "patcher":
+            y := 178
+        Case "timeRelated":
+            y := 169
+        Case "other":
+            y := 149
+        }
+        MouseMove, 28, %y% ,, R                                       
+        Click
+    }
+    if (movedWin)
+        WinMove, ahk_id %pluginId%,, %pluginX%, %pluginY%       
+    return openedCtxMenu
 }
 
 bringAutomationWindow()
 {
-    WinActivate, ahk_class TStepSeqForm
-    WinGetPos,,,, h, ahk_class TStepSeqForm
-    WinGet, stepSeqID, ID, A
-    moveWinLeftScreen(stepSeqID)
-    y := h - 60
+    ssId := bringStepSeq(False)
+    WinGetPos,,,, h, ahk_id %ssId%
+    lastPluginY := h - 60
     Sleep, 100
-    MouseClick, Left, 147, %y%
-    id := waitNewWindowOfClass("TPluginForm", stepSeqID)
-    return id
+    moveMouse(147, lastPluginY)
+    autwinId := openChannelUnderMouse()
+    Sleep, 500
+    return autwinId
 }
 
-adjustAutomation(autWinID, minMax)
+adjustAutomation(autwinId, minMax)
 {
     min := minMax[1]
     max := minMax[2]
     ;pasteName()
 
-    WinGetPos, winX, winY,,, ahk_id %autWinID%
+    WinGetPos, winX, winY,,, ahk_id %autwinId%
     moveMouse(winX, winY, "Screen")
     ;msgTip("Mouse at aut window    X: " winX "  Y: " winY)
     setKnobValue(384, 45, min, "other")
@@ -108,3 +87,13 @@ adjustAutomation(autWinID, minMax)
     ;MouseClick, Left, 20, 88            ; LFO
 }
 
+makeControllerName(prefix, oriPluginName, suffix = "", autoAutomationName = "")
+{
+    pluginName := StrSplit(oriPluginName, " ")[1]
+    if (autoAutomationName)
+    {
+        autoAutomationName := StrSplit(autoAutomationName, " ")
+        suffix := autoAutomationName[autoAutomationName.MaxIndex()]
+    }
+    return prefix " " pluginName " " suffix
+}

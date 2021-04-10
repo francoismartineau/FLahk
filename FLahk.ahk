@@ -26,6 +26,7 @@ FileEncoding, UTF-8
 #Include utils/samplers.ahk 
 #Include utils/saveReminder.ahk 
 #Include utils/knobSaves.ahk 
+#Include utils/transferSounds.ahk 
 #Include utils/winRelated/eventEditor.ahk
 #Include utils/winRelated/pianoRoll.ahk
 #Include utils/winRelated/pianoRollToolWindows.ahk
@@ -83,30 +84,33 @@ FileEncoding, UTF-8
 #Include gui/g.ahk
 #Include gui/concatAudio.ahk
 #Include gui/windowMenusGuis.ahk
+#Include gui/splashScreen.ahk
 #Include Test.ahk
 
-; -- midi i/0
+; -- midi I/O
 #Include midi/MidiIn.ahk
 #Include midi/MidiOut.ahk
 #Include midi/midiRequest.ahk
 #Include hotkeys/mouseCtl.ahk
-
-global midiI := new Midi()
-midiI.OpenMidiIn(0)
-global midiO_1 := new MidiOut(1)
-global midiO_2 := new MidiOut(2)
+#Include midi/midiInit.ahk
 
 
 
 
 
 
-; -- program start ----------------------------
+
+; -- program start ----------------------------------------------------------------
 #Include run/run.ahk
 #Include run/clock.ahk
-debugOn := False
+splashScreenToggle := False
+toolTip("starting")
+showSplashScreen()
 makeWindow()
-bringFL()
+hideSplashScreen()
+WinActivate, ahk_exe FL64.exe
+bringStepSeq(True)
+toolTip()
 
 #Include AutoHotInterception/AutoHotInterception.ahk
 #Include hotkeys/AutoHotInterception.ahk 

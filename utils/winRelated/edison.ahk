@@ -1,3 +1,51 @@
+; --- Master Edison ---------------------------------------------
+masterEdisonTransport(mode)
+{
+    bringMasterEdison(False)
+    Switch mode
+    {
+    Case "stop":
+        mX := 142
+        mY := 47
+    Case "playPause":
+        mX := 85
+        mY := 47
+    Case "rec":
+        mX := 173
+        mY := 48
+    }
+    moveMouse(mX, mY)
+    Click
+}
+
+moveToMasterEdisonDrag()
+{
+    bringMasterEdison(False)
+    mX := 1833
+    mY := 100  
+    moveMouse(mX, mY)
+}
+
+mouseOverEdisonDrag()
+{
+    MouseGetPos, mX, mY, winId
+    return isMasterEdison(winId) and mX >= 1814 and mY <= 115 and my >= 85 and mX <= 1852
+}
+
+dragSampleFromMasterEdison()
+{
+    moveToMasterEdisonDrag()
+    toolTip("release")
+    unfreezeMouse()
+    waitForModifierKeys()
+    toolTip()
+    freezeMouse()
+    if (mouseOverEdisonDrag())
+        dragSample(False)
+}
+; ----
+
+
 scrollMasterEdison(dir)
 {
     MouseGetPos, mX, mY
@@ -61,14 +109,39 @@ edisonArmed()
     col := [0xB62B08]
     colVar := 0
     hint := ""
-    return colorsMatch(x, y, col, colVar, hint)
+    ;colorsMatchDebug := True
+    res := colorsMatch(x, y, col, colVar, hint)
+    ;colorsMatchDebug := False
+    return res
 }
 
-setOnPlay(edisonID)
+setMasterEdisonOnPlay(edisonID = "")
 {
-    WinActivate, ahk_id %edisonID%
-    Click, 233, 50
-    Click, 225, 127
+    if (edisonID == "")
+        WinGet, edisonID, ID, A
+    if (isMasterEdison(edisonID))
+    {
+        WinActivate, ahk_id %edisonID%
+        Click, 233, 50
+        Click, 225, 127
+        if (!edisonArmed())
+            toggleArmEdison()  
+    }
+}
+
+setMasterEdisonOnInput(edisonID = "")
+{
+    if (edisonID == "")
+        WinGet, edisonID, ID, A
+    if (isMasterEdison(edisonID))
+    {
+        WinActivate, ahk_id %edisonID%
+        Click, 238, 52
+        Click, 234, 107  
+        armed := edisonArmed() 
+        if (armed)
+            toggleArmEdison()  
+    }
 }
 
 setOnInput(edisonID)

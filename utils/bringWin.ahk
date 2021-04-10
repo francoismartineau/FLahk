@@ -1,10 +1,10 @@
-global masterEdisonLastWindow = ""
+global masterEdisonId = ""
 
 
 
 bringMasterEdison(moveMouse = True)
 {
-    global masterEdisonLastWindow
+    global masterEdisonId
     WinGet, currWinId, ID, A
     WinGet, edisonId, ID, Master Edison
     currentlyEdison := edisonId == currWinId
@@ -24,16 +24,16 @@ bringMasterEdison(moveMouse = True)
         else
             WinActivate, ahk_id %edisonId%
 
-        masterEdisonLastWindow := currWinId
+        masterEdisonId := currWinId
         if (moveMouse)
             centerMouse(edisonId)
     }
-    else if (masterEdisonLastWindow != "")
+    else if (masterEdisonId != "")
     {
-        msgTip("bringMasterEdison situation bizarre?")
-        WinActivate, ahk_id %masterEdisonLastWindow%
+        ;msgTip("bringMasterEdison situation bizarre?")
+        WinActivate, ahk_id %masterEdisonId%
         if (moveMouse)
-            centerMouse(masterEdisonLastWindow)
+            centerMouse(masterEdisonId)
     }
 
     return edisonId
@@ -112,12 +112,16 @@ bringStepSeq(moveMouse = True)
         WinGet, currId, ID, A
         Send {F6}
         stepSeqId := waitNewWindowOfClass("TStepSeqForm", currId)
+        if (!stepSeqId)
+            return
     }
     else
         WinActivate, ahk_id %stepSeqId%
     
-    ;bringStepSeq(moveMouse)
-    ;msgTip("est-ce que le win gui vole la classe de l'autre? c'est quoi le glitch?")
+
+    if (!stepSeqMaximized(stepSeqId))
+        maximizeStepSeq(stepSeqId)
+
     if (moveMouse)
         centerMouse(stepSeqId)
         

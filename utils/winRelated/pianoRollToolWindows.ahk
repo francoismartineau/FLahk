@@ -164,3 +164,9 @@ scrollPianorollRand()
 
     MouseMove, %mx%, %my%, 0
 }
+
+changeSeed()
+{
+    moveMouse(256, 240)
+    Click
+}

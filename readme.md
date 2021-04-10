@@ -2,5 +2,4 @@
      alt="FLahk"
      style="float: left; margin-right: 10px;" />
 
-FLahk improves the FL Studio workflow. In depth overview coming relatively soon.
-
+FLahk provides a better workflow in FL Studio. In depth overview coming soon.

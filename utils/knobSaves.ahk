@@ -47,7 +47,7 @@ decrLoadKnobPosIndex()
 loadKnobPos()
 {
     MouseGetPos, mX, mY, winId
-    loadPotentialAssociatedKnobSaves(mX, mY, winId)  
+    ;loadPotentialAssociatedKnobSaves(mX, mY, winId)  
 
     if (numKnobPos == 0)
         return
@@ -119,6 +119,18 @@ loadKnobPos()
     searchForNextPosNumCalls := 0
 }
 
+saveKnobPos(knobX, knobY, winId)        ; winId must be active
+{
+    ;loadPotentialAssociatedKnobSaves(knobX, knobY, winId)
+    WinGetTitle, winTitle, ahk_id %winId%
+    if (isInstr(winId))
+        panelId := getActivePanel() 
+    else
+        panelId := 1          
+    success := saveKnob(winTitle, panelId, knobX, knobY, "", False)
+    return success
+}
+
 global searchForNextPosNumCalls := 0
 searchForNextPos()
 {
@@ -139,7 +151,7 @@ searchForNextPos()
 saveLoadKnob(mode, saveSlot = "")
 {
     MouseGetPos, mX, mY, winId
-    loadPotentialAssociatedKnobSaves(mX, mY, winId)
+    ;loadPotentialAssociatedKnobSaves(mX, mY, winId)
     WinGetPos, winX, winY,,, ahk_id %winId%
     WinGetTitle, winTitle, ahk_id %winId%
     res := openKnobCtxMenu(mX, mY, winX, winY, winID)
@@ -153,7 +165,7 @@ saveLoadKnob(mode, saveSlot = "")
         else
             panelId := 1    
         if (mode == "save")
-            success := saveKnob(winTitle, panelId, mX, mY, saveSlot)
+            success := saveKnob(winTitle, panelId, mX, mY, saveSlot, openedCtxMenu)
         else if (mode == "load")
             success := loadKnob(winTitle, panelId, mX, mY, saveSlot)
         if (success)
@@ -162,7 +174,7 @@ saveLoadKnob(mode, saveSlot = "")
             unfreezeMouse()
             retrieveMouse := False
             freezeExecuting := False
-            msgTip(mode " " saveSlot)
+            msgTip(mode " knob " saveSlot)
         }
         clipboard := clipboardSave
     }
@@ -199,14 +211,14 @@ loadKnob(winTitle, panelId, mX, mY, saveSlot)
     return success
 }
 
-saveKnob(winTitle, panelId, mX, mY, saveSlot)
+saveKnob(winTitle, panelId, mX, mY, saveSlot = "", ctxMenuOpen = True) ; if saveSlot is ommited, only Position is saved
 {
     if (saveSlot != "")
     {
         clickCopy()
         val := clipboard  
     }
-    else
+    else if (ctxMenuOpen)
         Send {Esc}
 
     success := False
@@ -345,59 +357,28 @@ createNewWinData(panelId, mX, mY, saveSlot, val)
 
 
 ; -- File -------------------------------------------------
-global knobSavesFilePath := "C:\Util2\FLahk\_knobSaves\knobSaves.ini"
+global savesFolderPath := "C:\Util2\FLahk\saves"
+global savesFilePath := ""
 global knobSavesLoaded := False
 global currProjPath := ""
 
-loadPotentialAssociatedKnobSaves(mX, mY, winId)
+loadKnobSaves()
 {
-    if (!knobSavesLoaded or !currProjPath)
+    res := loadDumpedToFile(savesFilePath, currProjPath, "knobSaves")
+    if (IsObject(res))
     {
-        getCurrProjPath()
-        if (currProjPath and !knobSavesLoaded)
-        {
-            res := loadDumpedToFile(knobSavesFilePath, currProjPath, "knobSaves")
-            if (IsObject(res))
-                knobSaves := res
-
-            countNumKnobPos()
-            knobSavesLoaded := True
-        }
-        WinActivate, ahk_id %winId%
-        moveMouse(mX, mY)
+        knobSaves := res
+        countNumKnobPos()
+        knobSavesLoaded := True    
     }
 }
 
 saveKnobSavesToFile()
 {
-    if (knobSaves.Count() and (currProjPath or getCurrProjPath()))
-        dumpToFile(knobSaves, knobSavesFilePath, currProjPath, "knobSaves")
+    if (knobSaves.Count())
+        dumpToFile(knobSaves, savesFilePath, currProjPath, "knobSaves")
 }
 
-getCurrProjPath()
-{
-    res := False
-    Send {CtrlDown}{ShiftDown}s{ShiftUp}{CtrlUp}
-    savePromptId := waitNewWindowOfClass("#32770", id)
-    if (savePromptId)
-    {
-        cliboardSave := clipboard
-        Sleep, 50
-        Send {CtrlDown}c{CtrlUp}
-        projName := clipboard
-        if (projName != "untitled.flp")
-        {
-            WinMove, ahk_id %savePromptId%,,,, 642, 579
-            quickClick(313, 19)
-            Send {CtrlDown}c{CtrlUp}
-            folderName := clipboard
-            currProjPath := folderName "\" projName
-            res := currProjPath
-        }
-        WinClose, ahk_id %savePromptId%
-        clipboard := cliboardSave
-    }
-}
 
 countNumKnobPos()
 {

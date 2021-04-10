@@ -22,6 +22,10 @@
 ^LButton::
     freezeExecute("openInstrInPianoRoll")
     return
+
++LButton::
+    freezeExecute("openInstrInMixer")
+    return
 #If
 
 

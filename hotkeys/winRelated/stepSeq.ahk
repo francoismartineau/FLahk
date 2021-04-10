@@ -83,27 +83,12 @@ XButton2::
 
 #If
 
-/*
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isStepSeq()
-Enter::
-    freezeExecute("openSelectedChannel")
-    return
-    
-NumpadEnter::
-    freezeExecute("openSelectedChannel")
-    return
 
-MButton::
-    freezeExecute("openSelectedChannel")
-    return
-#If
-*/
-
-#If WinActive("ahk_exe FL64.exe") and !pianoRollScrollingInstr and mouseOverStepSeqInstruments()
+#If WinActive("ahk_exe FL64.exe") and !eventEditorScrollingInstr and mouseOverStepSeqInstruments()
 +RButton::
     return
 
-;Ne pas mettre Up parce conflits quand drag knobs
+; Dont set it to Up otherwise stopping to drag a knob over a channel triggers it
 LButton::
     freezeExecute("openChannelUnderMouse")
     return
@@ -126,13 +111,6 @@ LButton::
     return
 #If
 
-
-
-#If WinActive("ahk_exe FL64.exe") and doubleClicked() and mouseOverStepSeqMixerInserts()
-~LButton::
-    freezeExecute("openMixerInsert")
-    return
-#If
 
 #If WinActive("ahk_exe FL64.exe") and isStepSeq() and mouseOverStepSeqInstruments()
 l::

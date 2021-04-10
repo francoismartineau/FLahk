@@ -58,11 +58,13 @@ loadChords()
     centerMouse(winId)
 }
 
-loadGranular()
+loadGranular(centerM = True)
 {
     winId := loadInstr(1, 3)
     rename("Gra " randString(randInt(1, 4)), True)
-    centerMouse(winId)
+    if (centerM)
+        centerMouse(winId)
+    return winId
 }
 
 loadK()
