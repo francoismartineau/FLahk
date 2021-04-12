@@ -40,12 +40,14 @@ winHistoryTic()
 justChangedWindow(id)
 {
     global windowHistory, windowHistoryIndex
+    ;;;;; not curr hist plugin or curr hist mainWin
     return id != "" and id != windowHistory[windowHistoryIndex]
 }
 
 inWinHistory(id)
 {
     global windowHistory
+    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
     index := HasVal(windowHistory, id)
     return index
 }
@@ -53,6 +55,7 @@ inWinHistory(id)
 removeWinFromHistory(index)
 {
     global windowHistory, windowHistoryIndex
+    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
     windowHistory.RemoveAt(index)
     if (windowHistoryIndex >= index) {
         windowHistoryIndex := windowHistoryIndex - 1
@@ -62,12 +65,14 @@ removeWinFromHistory(index)
 registerWinToHistory(id)
 {
     global windowHistory, windowHistoryIndex
+    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
     windowHistory.InsertAt(windowHistoryIndex, id)
 }
 
 displayHistoryContent(msg = "")
 {
     global windowHistory, windowHistoryIndex
+    ;;;; 2 row: pluginWinHistory and mainWinHistory
     lookingBackInHistory := windowHistoryIndex > 1
     n := windowHistory.MaxIndex()
     msg = %msg% `r`n displayHistoryContent %n%     looking back: %lookingBackInHistory%
@@ -89,6 +94,7 @@ displayHistoryContent(msg = "")
 activatePrevWin()
 {
     global windowHistory, windowHistoryIndex
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     found := False
     index := windowHistoryIndex
     
@@ -119,27 +125,23 @@ activatePrevWin()
         centerMouse(id)
     }
     else
-        activateRandomlyFoundPlugin()
+        activateAhkFoundPlugin()
     return id
 }
 
-activateRandomlyFoundPlugin()
+;;;;; remplacer ça?
+activateLastFlWin()
 {
-    WinGet, id, ID, ahk_class TPluginForm
-    WinGetTitle, title, ahk_id %id%
-    clipboard := title
-    
-    if (title != "Control Surface (knobs)")
-    {
-        WinActivate, ahk_id %id%
-        centerMouse(id)
-
-    }
+    WinActivate, ahk_id lastFlWin
+    centerMouse(lastFlWin)
+    if (isMixer(lastFlWin))
+        moveMouseOnMixerSlot()    
 }
 
 activateNextWin()
 {
     global windowHistory, windowHistoryIndex
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     found := False
     index := windowHistoryIndex
     if (!currentIndexWinIsActive())
@@ -172,6 +174,7 @@ activateNextWin()
 activatePrevNextWinFlag := False
 activatePrevNextWin()
 {
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     ;; currently doesn't use currentIndexWinIsActive() which I made in case a win that isn't saved to history is active)
     global windowHistory, windowHistoryIndex
     global activatePrevNextWinFlag
@@ -184,11 +187,25 @@ activatePrevNextWin()
     }
     return id
 }
+
+activateAhkFoundPlugin()
+{
+    WinGet, id, ID, ahk_class TPluginForm
+    WinGetTitle, title, ahk_id %id%
+    clipboard := title
+    if (title != "Control Surface (knobs)")
+    {
+        WinActivate, ahk_id %id%
+        centerMouse(id)
+    }
+}
+
 ; ----
 
 ; ---------------------------------------------------
 currentIndexWinIsActive()
 {
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     global windowHistory, windowHistoryIndex
     WinGet, id, ID, A
     return id == windowHistory[windowHistoryIndex]
@@ -196,6 +213,7 @@ currentIndexWinIsActive()
 
 bringHistoryWins()
 {
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     global windowHistory, windowHistoryIndex
     i := 1
     n := windowHistory.MaxIndex()
@@ -213,16 +231,10 @@ bringHistoryWins()
     centerMouse(id)
 }
 
-activateLastFlWin()
-{
-    WinActivate, ahk_id lastFlWin
-    centerMouse(lastFlWin)
-    if (isMixer(lastFlWin))
-        moveMouseOnMixerSlot()    
-}
 
 closeAllWinHistory(closeStepSeq = True)
 {
+    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
     global windowHistory
     for i, winId in windowHistory
     {
@@ -235,6 +247,7 @@ closeAllWinHistory(closeStepSeq = True)
 
 findInWinHistory(filterFunction = "isPlugin")
 {
+    ; mode plugin or mainWin
     found := False
     index := windowHistoryIndex
     i := 1
@@ -259,12 +272,14 @@ findInWinHistory(filterFunction = "isPlugin")
 
 loadWinHistory()
 {
+    ;; two fields
     windowTitles := loadDumpedToFile(savesFilePath, currProjPath, "windowTitles")
     loadWindowHistoryFromTitles(windowTitles)
 }
 
 loadWindowHistoryFromTitles(windowTitles)
 {
+    ;; two fields
     for _, title in windowTitles
     {
         WinGet, id, ID, %title%
@@ -279,6 +294,7 @@ loadWindowHistoryFromTitles(windowTitles)
 
 windowsIdToTitle(windowIds)
 {
+    ;; two fields
     windowTitles := []
     for _, id in windowIds
     {
@@ -290,6 +306,7 @@ windowsIdToTitle(windowIds)
 
 saveWinHistoryToFile()
 {
+    ;; two fields
     windowTitles := windowsIdToTitle(windowHistory)
     dumpToFile(windowTitles, savesFilePath, currProjPath, "windowTitles")
 }
@@ -299,6 +316,7 @@ saveWinHistoryToFile()
 
 
 ; -- Clear from history --------------------------
+; remove this function
 winHistoryRemoveMainWins()
 {
     i := 1
@@ -314,6 +332,7 @@ winHistoryRemoveMainWins()
 
 winHistoryClosePluginsExceptLast(n = 3)
 {
+    ;; use only plugin hist
     currIndexWinId := windowHistory[windowHistoryIndex]
     index := windowHistoryIndex
     
@@ -356,6 +375,7 @@ winHistoryClosePluginsExceptLast(n = 3)
 ; ----
 
 
+/*
 ; -- Find in hostory ----------------------------
 windowsCoveringLocations(positions)
 {
@@ -378,3 +398,4 @@ windowsCoveringLocations(positions)
     return windows
 }
 ; ----
+*/
