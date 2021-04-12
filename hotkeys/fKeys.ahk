@@ -12,8 +12,6 @@ F3::
     freezeExecute("moveWindows")
     return
 
-
-
 F5 UP::
     Test()
     return

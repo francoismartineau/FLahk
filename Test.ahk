@@ -3,10 +3,9 @@ debugOn := False
 
 Test()
 {
-    p1 := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\gen_3"
-    p2 := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_gen3"
-    msg(" " fileNumInDir("C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_gen3"))
+    ;freezeExecute("cellphoneWavToMidi", False)
 }
+
 
 Test2()
 {
@@ -20,7 +19,6 @@ if (A_ScriptName == "Test.ahk")
     ;msgTip(a)s
     ;ExitApp
 }
-
 
 ;;;;  TESTS   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -77,14 +77,18 @@ FileEncoding, UTF-8
 #Include operations/DelB.ahk
 #Include operations/Filter.ahk
 #Include operations/browser.ahk
+#Include operations/dragSamples.ahk
 #Include operations/assign2.ahk
 
-; -- other
+; -- lib
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
+; -- gui
 #Include gui/g.ahk
 #Include gui/concatAudio.ahk
 #Include gui/windowMenusGuis.ahk
 #Include gui/splashScreen.ahk
+#Include gui/highlight.ahk
+; -- Test
 #Include Test.ahk
 
 ; -- midi I/O
@@ -96,15 +100,12 @@ FileEncoding, UTF-8
 
 
 
-
-
-
-
-; -- program start ----------------------------------------------------------------
+; -- program start -------------------------
+toolTip("starting")
 #Include run/run.ahk
 #Include run/clock.ahk
 splashScreenToggle := False
-toolTip("starting")
+setFlahkWallpaper()
 showSplashScreen()
 makeWindow()
 hideSplashScreen()
@@ -112,6 +113,9 @@ WinActivate, ahk_exe FL64.exe
 bringStepSeq(True)
 toolTip()
 
+
+
+; -- hotkeys
 #Include AutoHotInterception/AutoHotInterception.ahk
 #Include hotkeys/AutoHotInterception.ahk 
 #Include hotkeys/numpad.ahk
@@ -134,4 +138,5 @@ toolTip()
 #Include hotkeys/winRelated/audacity.ahk
 #Include hotkeys/winRelated/instr.ahk
 
+; -- goto
 #Include run/goto.ahk

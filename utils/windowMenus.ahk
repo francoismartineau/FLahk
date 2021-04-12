@@ -70,6 +70,8 @@ showMixerMenu()
 {
     MixerMenuShown := True 
     Gui, MixerMenu:Show, NoActivate
+    
+
 }
 
 hideMixerMenu()

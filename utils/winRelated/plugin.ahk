@@ -371,6 +371,15 @@ openPluginMainCtxMenu()
     ;MouseClick, Left, 17, 16
     Sleep, 50
 }
+
+deactivateNewTimeToneKeyInput(winId)
+{
+    WinGetPos,,, winW,, ahk_id %winId%
+    x := winW - 72
+    MouseMove, %x%, 12, 0
+    Click
+    Sleep, 500
+}
 ; ----
 
 
@@ -390,12 +399,9 @@ delaySetTime()
     MouseMove, %timeX%, %timeY%, 0
 
     toolTipChoiceIndex := indexOfClosestValue(knobVal, vals)
-    res := toolTipChoice(choices)
-    if (res == "accept")
-    {
-        val := vals[toolTipChoiceIndex]
+    val := toolTipChoice(choices)
+    if (val != "")
         pasteKnob(False, val, "timeRelated")
-    }
     return val
 }
 
@@ -420,28 +426,83 @@ lfoSetTime(valIndex = "", displayRes = False, currVal = "")
         currVal := copyKnob(False)
         MouseMove, %speedX%, %speedY%, 0
         initIndex := indexOfClosestValue(currVal, vals)
-        res := toolTipChoice(choices, "", initIndex)
+        val := toolTipChoice(choices, "", initIndex)
     }
     else if (currVal != "")
     {
         initIndex := indexOfClosestValue(currVal, vals)
-        res := toolTipChoice(choices, "", initIndex)
+        val := toolTipChoice(choices, "", initIndex)
     }
     else
     {
-        toolTipChoiceIndex := valIndex
+        val := choices[toolTipChoiceIndex]
         if (displayRes)
-            msgTip(choices[toolTipChoiceIndex], 500)
-        res := "accept"
+            msgTip(val, 500)
     }
 
-    if (res == "accept")
+    if (val != "")
     {
-        val := vals[toolTipChoiceIndex]
         pasteKnob(False, val, "timeRelated")
         MouseMove, %phaseX%, %phaseY%, 0
         pasteKnob(False, 0, "other")
     }
     return val
+}
+; ----
+
+; --- Sample Clip -----------------------------------------------
+getReadyToDragFromSampleClip()
+{
+    readyToDrag := True
+    startHighlight("sampleClip")
+    moveMouse(275, 388)
+}
+
+mouseOverSampleClipSound()
+{
+    res := False
+    MouseGetPos, mX, mY
+    if (isSampleClip())
+        res := mY > 326 and mY < 455 and mX > 11 and mX < 556
+    return res
+}
+; ----
+
+
+; --- 3xGross ---------------------------------------------------
+mouseOn3xGrossReveal()
+{
+    res := False
+    MouseGetPos, mX, mY, winId
+    if (is3xGross(winId))
+    {
+
+        res := colorsMatch(mX, mY, [0x335A74])
+    }
+    return res
+}
+
+reveal3xGross()
+{
+    MouseGetPos, mX, mY, gross3xId
+    QuickClick(68, 45)              ; Map
+    Send {AltDown}
+    if (mY < 195)
+        QuickClick(409, 155)        ; 1
+    else if (my < 283)
+        QuickClick(410, 327)        ; 2
+    else
+        QuickClick(409, 503)        ; 3
+    Send {AltUp}
+
+    grossId := waitNewWindowOfClass("TWrapperPluginForm", gross3xId)
+    ToolTip, Accept when done, 0, 0
+    unfreezeMouse()
+    waitAcceptAbort()
+    freezeMouse()
+    toolTip()
+    WinClose, ahk_id %grossId%
+    WinActivate, ahk_id %gross3xId%
+    QuickClick(130, 43)       ; Surface
 }
 ; ----

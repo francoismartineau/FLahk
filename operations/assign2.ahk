@@ -1,9 +1,8 @@
 assign2()
 {
-    res := getAssign2Chan()
-    if (res[1] == "abort")
+    chan := getAssign2Chan()
+    if (chan == "")
         return
-    chan := res[2]
 
     Click, Right
 
@@ -59,8 +58,7 @@ assign2()
 getAssign2Chan()
 {
     choices := ["----", 2, 3, 4, "keyboard"]
-    res := toolTipChoice(choices, "", 1)
-    return [res, choices[toolTipChoiceIndex]]
+    return toolTipChoice(choices, "", 1)
 }
 
 unassign2()

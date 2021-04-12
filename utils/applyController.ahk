@@ -29,8 +29,8 @@ knobCopyMinMax()
 {
     operationHotKey := StrSplit(A_ThisHotkey, A_Space)[1]
     choices := ["max", "min"]
-    res := toolTipChoice(choices, "Curr value is:", randInt(1,2))
-    if (res == "accept")
+    choice := toolTipChoice(choices, "Curr value is:", randInt(1,2))
+    if (choice != "")
     {
         saveMousePos()
         initVal := copyKnob(False)
@@ -47,15 +47,14 @@ knobCopyMinMax()
         secVal := copyKnob(False)
         retrieveMousePos()
         toolTip()
-        if (toolTipChoiceIndex == 1)
+        Switch choice
         {
+        Case "max":
             max := initVal
-            min := secVal
-        }
-        else if (toolTipChoiceIndex == 2)
-        {
+            min := secVal        
+        Case "min":
             min := initVal
-            max := secVal
+            max := secVal        
         }
         return [min, max]      
     }

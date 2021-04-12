@@ -5,6 +5,6 @@
 .VSCodeCounter/
 .vscode/
 numpad/
-_knobSaves/
+saves/
 knobSaves.ini
 Test.*

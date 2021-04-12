@@ -84,7 +84,7 @@ XButton2::
 #If
 
 
-#If WinActive("ahk_exe FL64.exe") and !eventEditorScrollingInstr and mouseOverStepSeqInstruments()
+#If WinActive("ahk_exe FL64.exe") and !scrollingInstr and mouseOverStepSeqInstruments()
 +RButton::
     return
 

@@ -298,3 +298,108 @@ setPixelCoordMode(mode)
     pixelCoordMode := mode
     CoordMode, Pixel, %mode%
 }
+
+
+; ----
+mute()
+{
+    midiO_1.controlChange(116, 0, 2)
+}
+
+unmute()
+{
+    midiO_1.controlChange(116, 100, 2)
+}
+; ----
+
+
+; -- Wallpaper ---
+setFlahkWallpaper()
+{
+    wallPaperFolder := "C:\Util2\FLahk\wallpapers\"
+    wallpapers := ["hotkeys"] ;, "mixer"]
+    w := wallPaperFolder . randomChoice(wallpapers) ".bgi"
+    cmd = C:\Util3\Bginfo.exe %w% /silent /timer 0
+    Run, %cmd%
+}
+
+setBlackWallpaper()
+{
+    cmd = C:\Util3\Bginfo.exe C:\Util2\FLahk\wallpapers\wallpaperBlack.bgi /silent /timer 0
+    Run, %cmd%
+
+}
+;-------
+
+exitFlahk()
+{  
+    msg("close", 100) 
+	sendAllKeysUp()
+    setBlackWallpaper() 
+	GuiClose:
+    WinGet, codeId, ID, ahk_exe Code.exe
+    if (codeId)
+    {
+        WinActivate, ahk_id %codeId%
+        centerMouse(codeId)
+    }
+	ExitApp
+}
+
+keepNumLockOn()
+{
+    if (!GetKeyState("NumLock", "T"))
+        SetNumLockState, On
+}
+
+; ---- hideShow FLahk ---------------------------------------
+hideShowFLahk()
+{
+    global FLahkGuiId1, FLahkGuiId2 ;, FLahkBackgroundGuiId
+    global leftScreenWindowsShown
+
+    if (!WinExist("ahk_exe FL64.exe"))
+        ExitApp    
+
+    usingFL := WinActive("ahk_exe FL64.exe") or WinActive("ahk_id "FLahkGuiId1) or WinActive("ahk_id "FLahkGuiId2) or WinActive("ahk_class #32770 ahk_exe ahk.exe")
+    FLahkOpen := FLahkIsOpen()
+    maxedWin := rightScreenMaximizedWin()
+
+    if (usingFL and !FLahkOpen and !maxedWin)
+    {
+        WinShow, ahk_id %FLahkGuiId1%
+        WinShow, ahk_id %FLahkGuiId2%
+        ;if (leftScreenWindowsShown)
+        ;    WinActivate, ahk_id %FLahkBackgroundGuiId%
+        WinActivate, ahk_exe FL64.exe
+        startWinMenusClock()
+        startWinHistoryClock()
+        startMouseCtlClock()
+    }
+    else if ((!usingFL or maxedWin) and FLahkOpen)
+    {
+        ;WinHide, ahk_id %FLahkBackgroundGuiId%
+        WinHide, ahk_id %FLahkGuiId1%
+        WinHide, ahk_id %FLahkGuiId2%
+        stopWinMenusClock()
+        stopWinHistoryClock()
+        stopMouseCtlClock()
+    }
+}
+
+rightScreenMaximizedWin()
+{
+    WinGet, winId, ID, A
+    WinGetPos, winX, winY, winW, winH, ahk_id %winId%
+    return winX == 0 and winY == 0 and !isMainFlWindow(winId) and winW == Mon2Width and winH == Mon2Height
+}
+
+FLahkIsOpen()
+{
+    WinGet, Style, Style, ahk_id %FLahkGuiId1%
+    Transform, Result1, BitAnd, %Style%, 0x10000000 ; 0x10000000  = is WS_VISIBLE.
+    WinGet, Style, Style, ahk_id %FLahkGuiId2%
+    Transform, Result2, BitAnd, %Style%, 0x10000000
+    return Result1 <> 0 and Result2 <> 0
+}
+; ----

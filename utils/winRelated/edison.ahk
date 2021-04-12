@@ -1,4 +1,4 @@
-; --- Master Edison ---------------------------------------------
+; --- Set Master Edison ------------------------------------------
 masterEdisonTransport(mode)
 {
     bringMasterEdison(False)
@@ -18,6 +18,58 @@ masterEdisonTransport(mode)
     Click
 }
 
+setMasterEdisonOnPlay(edisonID = "")
+{
+    if (edisonID == "")
+        WinGet, edisonID, ID, A
+    if (isMasterEdison(edisonID))
+    {
+        WinActivate, ahk_id %edisonID%
+        Click, 233, 50
+        Click, 225, 127
+        if (!edisonArmed())
+            toggleArmEdison()  
+    }
+}
+
+setMasterEdisonOnInput(edisonID = "")
+{
+    if (edisonID == "")
+        WinGet, edisonID, ID, A
+    if (isMasterEdison(edisonID))
+    {
+        WinActivate, ahk_id %edisonID%
+        Click, 238, 52
+        Click, 234, 107  
+        armed := edisonArmed() 
+        if (armed)
+            toggleArmEdison()  
+    }
+}
+
+setOnInput(edisonID)
+{
+    WinActivate, ahk_id %edisonID%
+    Click, 233, 50
+    Click, 237, 83
+}
+
+toggleArmEdison()
+{
+    MouseMove, 182, 49
+    MouseClick
+}
+; ----
+
+
+; -- Mouse move ------------------------------------------------
+getReadyToDragFromMasterEdison()
+{
+    readyToDrag := True
+    startHighlight("edisonDrag")     
+    moveToMasterEdisonDrag()
+}
+
 moveToMasterEdisonDrag()
 {
     bringMasterEdison(False)
@@ -26,25 +78,26 @@ moveToMasterEdisonDrag()
     moveMouse(mX, mY)
 }
 
-mouseOverEdisonDrag()
+dragSampleToEdison(mX, mY)
 {
-    MouseGetPos, mX, mY, winId
-    return isMasterEdison(winId) and mX >= 1814 and mY <= 115 and my >= 85 and mX <= 1852
+    if (!isMasterEdison(masterEdisonId))
+        masterEdisonId := bringMasterEdison(False)
+    if (isMasterEdison(masterEdisonId))
+    {
+        moveMouse(mX, mY, "Screen")
+        Send {LButton down}
+        toolTip("Click down")
+        Sleep, 30
+        WinActivate, ahk_id %masterEdisonId%
+        moveMouse(926, 285)
+        toolTip("Click down")
+        Sleep, 30
+        Send {LButton up}
+        toolTip("Click up")
+        Sleep, 30
+        toolTip()
+    }
 }
-
-dragSampleFromMasterEdison()
-{
-    moveToMasterEdisonDrag()
-    toolTip("release")
-    unfreezeMouse()
-    waitForModifierKeys()
-    toolTip()
-    freezeMouse()
-    if (mouseOverEdisonDrag())
-        dragSample(False)
-}
-; ----
-
 
 scrollMasterEdison(dir)
 {
@@ -100,8 +153,10 @@ scrollMasterEdison(dir)
     }
     MouseMove, %mX%, %mY%, 0
 }
+; ----
 
 
+; -- Vision -----------------------------------------------------
 edisonArmed()
 {
     x := 174
@@ -114,45 +169,23 @@ edisonArmed()
     ;colorsMatchDebug := False
     return res
 }
+; ----
 
-setMasterEdisonOnPlay(edisonID = "")
+
+; -- Mouse position ---------------------------------------------
+mouseOverEdisonDrag()
 {
-    if (edisonID == "")
-        WinGet, edisonID, ID, A
-    if (isMasterEdison(edisonID))
+    res := False
+    CoordMode, Mouse, Screen
+    MouseGetPos, mX, mY, winId
+    CoordMode, Mouse, Client
+    if (isMasterEdison(winId))
     {
-        WinActivate, ahk_id %edisonID%
-        Click, 233, 50
-        Click, 225, 127
-        if (!edisonArmed())
-            toggleArmEdison()  
+        WinGetPos, winX, winY,,, ahk_id %winId%
+        mX := mX - winX
+        mY := mY - winY
+        res := mX >= 1814 and mY <= 115 and my >= 85 and mX <= 1852
     }
+    return res
 }
-
-setMasterEdisonOnInput(edisonID = "")
-{
-    if (edisonID == "")
-        WinGet, edisonID, ID, A
-    if (isMasterEdison(edisonID))
-    {
-        WinActivate, ahk_id %edisonID%
-        Click, 238, 52
-        Click, 234, 107  
-        armed := edisonArmed() 
-        if (armed)
-            toggleArmEdison()  
-    }
-}
-
-setOnInput(edisonID)
-{
-    WinActivate, ahk_id %edisonID%
-    Click, 233, 50
-    Click, 237, 83
-}
-
-toggleArmEdison()
-{
-    MouseMove, 182, 49
-    MouseClick
-}
+; ----

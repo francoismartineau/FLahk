@@ -37,19 +37,31 @@ global acceptPressed := True
 global abortPressed := True
 global clickAlsoAccepts := False
 global acceptedWithClick := False
-waitAcceptAbort(pressEnterOrEsc = False, hint = False)
+global winAlsoAccepts := False
+global acceptAbortSpecialKey := ""
+waitAcceptAbort(pressEnterOrEsc = False, hint = False, specialKey = "")
 {
     acceptedWithClick := False    
     res := ""
    
     if (hint)
-        toolTip("Enter / Esc")    
+        toolTip("Enter / Esc")   
+
+    acceptAbortSpecialKey := specialKey
     
     acceptPressed := False
     abortPressed := False
 
     while (!(acceptPressed or abortPressed))
-        Sleep, 200
+    {
+        if (acceptAbortSpecialKey != "")
+        {
+            acceptPressed := acceptPressed or GetKeyState(acceptAbortSpecialKey)
+            Sleep, 100
+        }
+        else
+            Sleep, 200
+    }
 
     if (abortPressed)
     {
@@ -67,6 +79,8 @@ waitAcceptAbort(pressEnterOrEsc = False, hint = False)
     acceptPressed := True
     abortPressed := True
     clickAlsoAccepts := False
+    winAlsoAccepts := False
+    acceptAbortSpecialKey := ""
     if (hint)
         toolTip("")
 

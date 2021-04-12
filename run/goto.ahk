@@ -245,6 +245,12 @@ SPLIT_PATTERN:
     freezeExecute("splitPattern")
     return
 
+; -- Highlight ---------------------------------------------
+HIGHLIGHT_TICK:
+    highlightTick()
+    return
+
+
 ; -- Mouse Midi --------------------------------------------
 MOUSE_CTL_TICK:
     mouseCtlTick()

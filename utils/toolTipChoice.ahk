@@ -20,33 +20,26 @@ decrToolTipChoiceIndex()
     displayToolTipChoice()
 }
 
-toolTipChoice(choices, title = "", initIndex = 1)
+toolTipChoice(choices, title = "", initIndex = 1, specialKey = "")
 {
     toolTipChoiceIndex := initIndex
     tooTipChoices := choices
     clickAlsoAccepts := True
-    acceptPressed := False
-    abortPressed := False
     whileToolTipChoice := True
     toolTipTitle := title
     displayToolTipChoice()
 
-    while (!(acceptPressed or abortPressed))
-        Sleep, 200
+    res := waitAcceptAbort(False, False, specialKey)
+    if (res == "accept")
+        choice := choices[toolTipChoiceIndex]
+    else if (res == "abort")
+        choice := ""
 
     toolTip()
     tooTipChoices := []
     toolTipTitle := ""
     whileToolTipChoice := False
-    clickAlsoAccepts := False
-    if (acceptPressed)
-        res := "accept"
-    else if (abortPressed)
-        res := "abort"
-    acceptPressed := True
-    abortPressed := True        
-    clickAlsoAccepts := False
-    return res
+    return choice
 }
 
 displayToolTipChoice()

@@ -32,12 +32,18 @@
 
 
 
-#If WinActive("ahk_exe FL64.exe") and !acceptPressed
+#If !acceptPressed
 MButton Up::
     acceptPressed := True
     return
 
 +MButton  Up::      ; with shift also for selectSourceForAllSelectedClips()
+    acceptPressed := True
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and !acceptPressed and winAlsoAccepts
+~LWin Up::
     acceptPressed := True
     return
 #If
@@ -71,6 +77,15 @@ LButton::
 ~!LButton Up::
     freezeExecute("delBSetTime")
     return
+; ----
+
+; -- 3xGross -----------------------------------------------
+#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOn3xGrossReveal()
+~!LButton Up::
+    freezeExecute("reveal3xGross", True, True)
+    return
+#If
+; ----
 
 
 ; -- XButton ---------------------------

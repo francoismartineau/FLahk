@@ -71,12 +71,7 @@ dragSoundFromAudacity()
 ; ----
 
 
-; ---- 
-melodyneMidi()
-{
-
-}
-
+; -- Melodyne ----------------------------
 edisonToTransfer()                 ; from edison, save a sound file to _transfer. Then another program can access the file.
 {
     WinGet, id, ID, A
@@ -109,7 +104,7 @@ runMelodyne()
     return melodyneId
 }
 
-melodyneLoadSound(melodyneId)
+melodyneLoadSound(melodyneId, fileName = "latestTransferFile.wav")
 {
     SendInput, ^o
     openWinId := waitNewWindowOfClass("#32770", melodyneId)
@@ -132,7 +127,7 @@ melodyneLoadSound(melodyneId)
     Sleep, 100
     Send {Enter}            ; packs
  
-    MouseMove, 151, 184     ; _melodyne
+    MouseMove, 146, 218     ; _transfert
     Sleep, 100
     Click
     Send {Enter}
@@ -140,7 +135,7 @@ melodyneLoadSound(melodyneId)
     MouseMove, 229, 413     
     Sleep, 100
     Click
-    TypeText("latestMelodyneMidiSound.wav")
+    TypeText(fileName)
     Send {Enter}
 
     Sleep, 100
@@ -155,8 +150,6 @@ melodyneLoadSound(melodyneId)
 
 melodyneExportMidi(melodyneId)
 {
-
-
     SendInput, ^+s
     saveWinId := waitNewWindowOfClass("#32770", melodyneId)
     Sleep, 100
@@ -178,3 +171,59 @@ melodyneExportMidi(melodyneId)
     Sleep, 1000
     WinClose, ahk_exe Melodyne singletrack.exe
 }
+; ----
+
+; -- Cellphone ---------------------------
+cellphoneToTransferFolder()
+{
+    WinGet, winId, ID, A
+    Run, utils\browseExplorer.bat
+    explorer1Id := waitNewWindowOfProcess("Explorer.EXE", winId)
+    WinMove, ahk_id %explorer1Id%,,,, 1000,800
+    Sleep, 50
+    moveMouse(722, 73)
+    Click
+    recPath := "This PC\Galaxy A8 (2018)\Card\Voice Recorder"
+    typeText(recPath)
+    Send {Enter}
+    centerMouse(explorer1Id)
+    toolTip("Select a file")
+    unfreezeMouse()
+    res := waitAcceptAbort(False, False)
+    freezeMouse()
+    toolTip()
+    if (res == "accept")
+    {
+        Send {F2}
+        Send {CtrlDown}c{CtrlUp}
+        fileName := clipboard
+        Send {Esc}
+        SendInput ^c
+        Run, utils\browseTransferFolder.bat
+        explorer2Id := waitNewWindowOfProcess("Explorer.EXE", explorer1Id)
+        waitForModifierKeys()
+        SendInput ^v
+        Sleep, 750
+        WinClose, ahk_id %explorer2Id%
+        WinClose, ahk_id %explorer1Id%
+    }
+    return fileName
+}
+
+cellphoneWavToMidi()
+{
+    fileName := cellphoneToTransferFolder()
+    melodyneId := runMelodyne()
+    melodyneLoadSound(melodyneId, fileName)
+    toolTip("Accept when sound loaded")
+    unfreezeMouse()
+    waitAcceptAbort(False, False)
+    freezeMouse()
+    toolTip()
+    melodyneExportMidi(melodyneId)
+    WinActivate, ahk_exe FL64.exe
+    browsePacks(9)
+}
+; ----
+
+; --

@@ -1,20 +1,62 @@
-getMixerChanNameAndColor()
+loadFxFromChoice(choice)
 {
-    ; Color is accessed simply by opening the name edit form
-    if (isMixer())
+    Switch choice
     {
-
-        Send {F2}
-        clipboardSave := clipboard
-        Send {CtrlDown}c{CtrlUp}{Esc}
-        name := clipboard
-        clipboard := clipboardSave
+    Case "mod":
+        choices := ["Chorus+3F", "ringmod", "chorus", "phaser"]
+    Case "filter":
+        choices := ["EQ", "Equo", "3xFilter", "bass"]
+    Case "pitch":
+        choices := ["Vibrato", "Pitch shift"]
+    Case "edit":
+        choices := ["New Tone", "New Time", "Scratch"]
+    Case "dyn":
+        choices := ["gate", "compressor", "transient"]
     }
-    return name    
+    Switch toolTipChoice(choices, "", randInt(1, choices.MaxIndex()), A_ThisHotkey)
+    {
+    Case "Chorus+3F":
+        loadModulation()
+    Case "ringmod":
+        loadRingMod()
+    Case "chorus":
+        loadChorus()
+    Case "phaser":
+        loadPhaser()
+
+    Case "EQ":
+        loadEq()
+    Case "Equo":
+        loadEquo()
+    Case "3xFilter":
+        load3xFilter()
+    Case "bass":
+        loadBass()
+
+    Case "Vibrato":
+        loadVibrato()
+    Case "Pitch shift":
+        loadPitchShifter()
+
+    Case "New Tone":
+        loadNewTone()
+    Case "New Time":
+        loadNewTime()
+    Case "Scratch":
+        loadScratch()
+
+    Case "gate":
+        loadGate()
+    Case "compressor":
+        loadComp()
+    Case "transient":
+        loadTransient()
+
+    }        
 }
 
-;------------------------------------------------------
 
+;-- Specific FX ----------------------------------------------------
 loadRev()
 {
     mixerChannName := getMixerChanNameAndColor()
@@ -128,19 +170,19 @@ loadRingMod()
     centerMouse(winId)
 }
 
-loadFilter()
+load3xFilter()
 {
     mixerChannName := getMixerChanNameAndColor()
     winId := loadFx(1, 2)
-    rename(mixerChannName " Filter", False, True)
+    rename(mixerChannName " 3xFilter", False, True)
     centerMouse(winId)
 }
 
-loadVibratos()
+loadVibrato()
 {
     mixerChannName := getMixerChanNameAndColor()
     winId := loadFx(1, 3)
-    rename(mixerChannName " Vibratos", False, True)
+    rename(mixerChannName " Vibrato", False, True)
     centerMouse(winId)
 }
 
@@ -171,7 +213,7 @@ loadConv()
 loadTransient()
 {
     mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(38, False, True)
+    winId := loadFx(38, False, "trialVersion")
     rename(mixerChannName " Transient", False, True)
     centerMouse(winId)
 }
@@ -196,6 +238,7 @@ loadNewTime()
 {
     mixerChannName := getMixerChanNameAndColor()
     winId := loadFx(33)
+    deactivateNewTimeToneKeyInput(winId)
     rename(mixerChannName " NewTime", False, True)
     centerMouse(winId)
 }
@@ -203,7 +246,8 @@ loadNewTime()
 loadNewTone()
 {
     mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(34)
+    winId := loadFx(34, False, "bpmInfo")
+    deactivateNewTimeToneKeyInput(winId)
     rename(mixerChannName " NewTone", False, True)
     centerMouse(winId)
 }
@@ -216,20 +260,27 @@ loadBass()
     centerMouse(winId)
 }
 
-loadGross()
+load3xGross()
 {
     mixerChannName := getMixerChanNameAndColor()
     winId := loadFx(1, 9)
     Sleep, 300
     rename(mixerChannName " Gross", False, True)
-    ;randomizePlugin(winId)
     centerMouse(winId)
-    ;winId := loadFx(32)
-    ;centerMouse(winId)
 }
 
-; ---------------------------------------
-loadFx(n, preset = False, trialVersion = False)
+loadPitchShifter()
+{
+    mixerChannName := getMixerChanNameAndColor()
+    winId := loadFx(1, 8)
+    rename(mixerChannName " Pitch shift", False, True)
+    centerMouse(winId)
+}
+; ----
+
+
+; -- Utils -------------------------------------
+loadFx(n, preset = False, prompt = "")
 {
     pluginId :=
     bringMixer(False)
@@ -243,8 +294,9 @@ loadFx(n, preset = False, trialVersion = False)
             Send f
         }
         Send {Enter}
-        if (trialVersion)
+        Switch prompt
         {
+        Case "trialVersion":
             waitNewWindowOfClass("TMsgForm", mixerID)
             Send {Esc}
             Click
@@ -316,3 +368,20 @@ adjustFxPosition(pluginId)
         WinMove, ahk_id %pluginId%,, %winX%, %winY%
     }
 }
+
+getMixerChanNameAndColor()
+{
+    ; Color is accessed simply by opening the name edit form
+    if (isMixer())
+    {
+
+        Send {F2}
+        clipboardSave := clipboard
+        Send {CtrlDown}c{CtrlUp}{Esc}
+        name := clipboard
+        clipboard := clipboardSave
+    }
+    return name    
+}
+
+; ----

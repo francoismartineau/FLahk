@@ -312,7 +312,7 @@ winHistoryRemoveMainWins()
     }
 }
 
-winHistoryRemovePluginsExceptLast(n = 3)
+winHistoryClosePluginsExceptLast(n = 3)
 {
     currIndexWinId := windowHistory[windowHistoryIndex]
     index := windowHistoryIndex

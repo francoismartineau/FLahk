@@ -81,103 +81,87 @@
 ; -------
 
 ; ---- Mixer --------------------------------
-#If WinActive("ahk_exe FL64.exe") and isMixer()
+#If WinActive("ahk_exe FL64.exe") and isMixer() and acceptAbortSpecialKey == ""
 1:: 
     freezeExecute("loadRev")
     return
+!1:: 
+    freezeExecute("loadDelay")
+    return    
 
 2:: 
-    freezeExecute("loadLfo")
+    freezeExecute("loadFxFromChoice", False, False, "mod")
     return
+!2:: 
+    freezeExecute("loadLfo")
+    return    
 
 3::
-    freezeExecute("loadEq")
+    freezeExecute("loadFxFromChoice", False, False, "filter")
     return
-
-4::
+!3::
     freezeExecute("loadStereos")
     return    
 
-5::
-    freezeExecute("loadGate")
-    return
-
-6::
-    freezeExecute("loadSpeaker")
-    return
-
-7::
-    freezeExecute("loadFilter")
-    return
-
-8::
-    freezeExecute("loadChorus")
-    return
-
-9::
-    freezeExecute("loadConv")
-    return
-
-0::
-    freezeExecute("loadScratch")
-    return
-
-F5::
-    freezeExecute("loadComp")
-    return
-
-F6::
-    freezeExecute("loadNewTone")
-    return
-
-
-!1:: 
-    freezeExecute("loadModulation")
-    return
-
-!2:: 
-    freezeExecute("loadDelay")
-    return
-
-!3::
-    freezeExecute("loadEquo")
-    return
-
+4::
+    freezeExecute("loadFxFromChoice", False, False, "pitch")
+    return    
 !4::
     freezeExecute("loadDist")
-    return    
+    return        
 
+5::
+    freezeExecute("loadFxFromChoice", False, False, "dyn")
+    return
 !5::
     freezeExecute("loadAutoPan")
-    return
+    return    
 
+6::
+    return
 !6::
-    freezeExecute("loadRingMod")
-    return
+    freezeExecute("loadSpeaker")
+    return    
 
+7::
+    return
 !7::
-    freezeExecute("loadVibratos")
-    return
+    freezeExecute("loadConv")
+    return    
 
+8::
+    return
 !8::
-    freezeExecute("loadPhaser")
-    return
+    freezeExecute("loadScratch")
+    return    
 
+9::
+    return
 !9::
-    freezeExecute("loadTransient")
-    return
+    freezeExecute("load3xGross")
+    return    
 
+0::
+    return
 !0::
-    freezeExecute("loadBass")
-    return
+    return    
 
+F5::
+    return
 !F5::
-    freezeExecute("loadGross")
-    return
+    return   
 
-!F6::
-    freezeExecute("loadNewTime")
+F6::
     return
+!F6::
+    return    
+
+F7::
+    freezeExecute("loadFxFromChoice", False, False, "edit")
+    return    
+!F7::
+    return    
+
 
 +1:: 
     freezeExecute("clickM123", True, False, "m1")

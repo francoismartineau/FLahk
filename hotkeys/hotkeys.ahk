@@ -1,7 +1,7 @@
 ; -- Enter / NumpadEnter / MButton ------------------------------------------
 
 ; Accept abort
-#If WinActive("ahk_exe FL64.exe") and !acceptPressed and !numpad1Context.IsActive
+#If !acceptPressed and !numpad1Context.IsActive
 Enter Up::
     acceptPressed := True
     return
@@ -130,6 +130,24 @@ Space::
 ; ----
 
 ; -- misc ------------------------------------------
+#If True
+!F2::
+^Esc::              ; Quit app
+    exitFlahk()
+
+!#Tab::
+	sendAllKeysUp()
+    SendInput !Tab
+    return
+~!Tab::
+    return
+~^#!Right::
+	sendAllKeysUp()
+    return
+~^#!Left::
+	sendAllKeysUp()
+    return    
+#If
 #If WinActive("ahk_exe FL64.exe") and !IsEdison()
 ^n::                                                            ; new
     WinActivate, ahk_class TFruityLoopsMainForm
@@ -162,10 +180,15 @@ Space::
     Send {Ctrl Down}{Alt Down}z{Alt Up}{Ctrl Up}
     return
 
+^d::
+    SendInput ^b
+    return
+
 ^y::                                                            ; redo
     Send {Ctrl Down}z{Ctrl Up}
     return
 ; ----
+
 
 ; -- Win History -------------------
 Tab::
@@ -176,12 +199,12 @@ CapsLock::
     freezeExecute("activateNextWin")
     return 
 
-^!Tab::
-    winHistoryRemovePluginsExceptLast(3)
-    return
-
-^!CapsLock::
+LWin & Tab::
+    toolTip("History: last 3 plugins")
+    winHistoryClosePluginsExceptLast(3)
     winHistoryRemoveMainWins()
+    Sleep, 200
+    toolTip()
     return
 
 +Tab::

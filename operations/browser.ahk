@@ -1,168 +1,214 @@
-global browserPosCount := 40
-global browserPos := 0 ;Floor(browserPosCount / 2)
-global browserLeft := 0
-global browserRight := 239  
-global browserTop := 24 ;130
-global browsingFiles := False
-
+global readyToDrag := False
 global packsPath := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs"
 
 
-; --- Conclusion ----------------------------------------
-dragSample(proposeEdison = True)
+; --- Packs ----------------------------------------
+browsePacks(folderRow)
 {
-    choices := ["Sp", "slcx", "gran"]
-    if (proposeEdison)
-        choices.Push("Edison")    
-    if (findInWinHistory("isOneOfTheSamplers"))
-        choices.Push("existing sampler")
+    toolTip("Reaching pos")
+    moveWinsOverBrowser()
+    wasRevealed := revealBrowserPacks() ;;;;;;
+    packsRow := 2
 
-    CoordMode, Mouse, Screen
-    MouseGetPos, mX, mY, winId
-    CoordMode, Mouse, Client
-    res := toolTipChoice(choices, "", randInt(1, choices.MaxIndex()))
-    if (res == "accept")
+    i := 1
+    while (i < folderRow)
     {
-        Switch choices[toolTipChoiceIndex]
-        {
-        Case "Sp":
-            createPatcherSampler(mX, mY, winId)   
-        Case "slcx":
-            createPatcherSlicex(mX, mY, winId)  
-        Case "gran":
-            granId := loadGranular(False)
-            dragDropAnyPatcherSampler(mX, mY, winId, granId)
-        Case "Edison":
-            dragSampleToEdison(mX, mY)           
-        Case "existing sampler":
-            dragDropAnyPatcherSampler(mX, mY, winId)               
-        }
+        if (browserFolderOpen(i + packsRow))
+            clickBrowserFolder(i + packsRow)
+        i := i + 1
     }
-    browsingFiles := False
+    if (!browserFolderOpen(folderRow + packsRow))
+            clickBrowserFolder(folderRow + packsRow)
+
+    fileRow := getRandomFileRowInFolderInPacks(folderRow)    ;;;;;
+    browserJumpToFile(folderRow + packsRow, fileRow)
+    startHighlight("browser")
+    readyToDrag := True
+    toolTip()
 }
 
-stopDragSample()
+revealBrowserPacks()
 {
-    browsingFiles := False
-}
-
-dragSampleToEdison(mX, mY)
-{
-    if (!isMasterEdison(masterEdisonId))
-        masterEdisonId := bringMasterEdison(False)
-    if (isMasterEdison(masterEdisonId))
+    wasRevealed := True
+    if (!browserSoundTabOpen())
     {
-        moveMouse(mX, mY, "Screen")
-        Send {LButton down}
-        toolTip("Click down")
-        Sleep, 30
-        WinActivate, ahk_id %masterEdisonId%
-        moveMouse(926, 285)
-        toolTip("Click down")
-        Sleep, 30
-        Send {LButton up}
-        toolTip("Click up")
-        Sleep, 30
-        toolTip()
+        browserOpenSoundTab()
+        wasRevealed := False
     }
+    if (!browserScrolledToTop())
+    {
+        scrollBrowserToTop()
+        wasRevealed := False
+    }
+    if (browserFolderOpen(1))
+    {
+        clickBrowserFolder(1)
+        wasRevealed := False
+    }
+    if (!browserFolderOpen(2))
+    {
+        clickBrowserFolder(2)
+        wasRevealed := False
+    }
+    return wasRevealed
 }
 
+getRandomFileRowInFolderInPacks(folderRow)
+{
+    packsRow := 2
+    global Mon2Bottom
+    a := Mon2Bottom - (browserGetFolderY(folderRow + packsRow) + 10)
+    fileHeight := 21
+    maxFileRow := Floor(a/fileHeight)
 
-; --- Start Browsing ----------------------------------------
+    fileQty := getSoundQtyInFolderInsidePacks(folderRow)
+    maxFileRowForThisFolder := min(fileQty, maxFileRow)
+
+    fileRow := randInt(1, maxFileRowForThisFolder)       ;;;;; use a distribution that tends to go up
+    return fileRow
+}
+
 browseRandomGenFolder()
 {
-    gen1Pos := 2
-    genFolderQty := 3
-    
-    basicGenPath := packsPath "\_gen"
-    p := basicGenPath
-    numFiles := fileNumInDir(p)
-    weights := [numFiles]
+    genPath := packsPath "\_gen"
+    weights := [fileNumInDir(genPath)]
     i := 2
+    genFolderQty := 3
     while (i <= genFolderQty)
     {
-        p := basicGenPath . i
-        numFiles := fileNumInDir(p)
-        weights.Push(numFiles)
+        weights.Push(fileNumInDir(genPath . i))
         i := i + 1
     }
     genNum := weightedRandomChoiceIndexOnly(weights)
-    packsRowNum := gen1Pos-1 + genNum
-    browsePacks(packsRowNum)
+    foldersBeforeGen1 := 1
+    browsePacks(genNum + foldersBeforeGen1)
 }
-
-browsePacks(n)
-{
-    toolTip("Reaching pos")
-    setPixelCoordMode("Screen")
-    bringMainFLWindow()
-    browsingFiles := True
-    moveWinsOver([[217, 287], [186, 696]], 310, 287)
-
-    colorsMatchDebug := False
-    if (!browserSoundTabOpen())
-        browserOpenSoundTab()
-    if (!browserScrolledToTop())
-        scrollBrowserToTop()
-    i := 1
-    packsRowNum := 2
-    rowNum := n + packsRowNum
-    while (i <= rowNum)
-    {
-        if (browserFolderOpen(i))
-        {
-            if (i != packsRowNum and i != rowNum)
-            {
-                browserJumpToPos(i)
-                Click
-            }
-        }
-        else
-        {
-            if (i == packsRowNum or i == rowNum)
-            {
-                browserJumpToPos(i)
-                Click
-            }            
-        }
-        i := i + 1
-    }
-    if (!browserFolderOpen(rowNum))
-    {
-        browserJumpToPos(i)
-        Click
-    }        
-    
-    fileQty := getFileQtyInFolderInsidePacks(rowNum-packsRowNum)
-    ;;;;;;;;;;;;
-    maxPos := min(fileQty, 43)
-    n := randInt(1, maxPos)
-    browserJumpToPos(rowNum + n)
-    colorsMatchDebug := False
-    toolTip()
-    setPixelCoordMode("Client")
-}
-
 ; ----
-browserSoundTabOpen()
+
+
+
+
+; -- Utils --------------------------------------------------------
+moveWinsOverBrowser()
 {
-    x := 198
-    y := 116
-    whiteIcon := [0xd3d8dc]
-    return !colorsMatch(198, 116, whiteIcon, 20)
+    moveWinsOver([[217, 287], [186, 696]], 310, 287)
+}
+
+browserGetFolderY(n)
+{
+    channelPresetTriangleY := 145
+    folderHeight := 23
+    y := channelPresetTriangleY + (n-1)*folderHeight
+    return y
+}
+; ----
+
+; -- Clicks -------------------------------------------------------
+clickBrowserFolder(i)
+{
+    browserJumpToFolder(i)
+    Click
 }
 
 browserOpenSoundTab()
 {
     x := 198
     y := 116
-    moveMouse(x, y)
+    moveMouse(x, y, "Screen")
     Click
+}
+
+scrollBrowserToTop()
+{
+    moveMouse(5, 154, "Screen")
+    Click
+    Sleep, 300
+}
+; ----
+
+; -- Move ---------------------------------------------------------
+browserJumpToFolder(folderRow)
+{
+    y := browserGetFolderY(folderRow)
+    moveMouse(136, y, "Screen")
+}
+
+browserJumpToFile(folderRow, fileRow)
+{
+    folderY := browserGetFolderY(folderRow)
+    fileHeight := 21
+    y := folderY + fileRow*fileHeight + 2
+    moveMouse(136, y, "Screen")
+}
+
+browserRelMove(dir, n = 1)
+{
+    WinActivate, ahk_class TFruityLoopsMainForm
+    if (dir == "up")
+        n := -n
+
+    CoordMode, Mouse, Screen
+    MouseGetPos, mX, mY
+    CoordMode, Mouse, Client
+    fileHeight := 21
+    y := mY + fileHeight * n
+    packsFirstFolderY := 186
+    if (y > packsFirstFolderY or y < Mon2Bottom)
+        MouseMove, %mX%, %y% , 0
+}
+; ----
+
+; -- Mouse position ---------------------------------------------
+global mouseOverBrowserScroll := False
+mouseOverBrowser()
+{
+    res := False
+    CoordMode, Mouse, Screen
+    MouseGetPos, mouseX, mouseY, winID
+    CoordMode, Mouse, Client
+    if (isMainFlWindow(winId))
+    {
+        WinGetPos, winX, winY, winW, winH, ahk_id %winID%
+        mouseX := mouseX - winX
+        mouseY := mouseY - winY
+        browserRight := 239
+        browserTop := 131
+        res :=  mouseX >= 0 and mouseX <= browserRight and mouseY >= browserTop   
+    }
+    return res     
+}
+
+mouseOverBrowserScroll()
+{
+    res := False
+    if (mouseOverBrowser())
+    {
+        CoordMode, Mouse, Screen
+        MouseGetPos, mouseX, mouseY, winID
+        CoordMode, Mouse, Client
+        res :=  mouseX <= 30
+    }
+    return res         
+}
+; ----
+
+
+; -- Vision -----------------------------------------------------
+browserSoundTabOpen()
+{
+    setPixelCoordMode("Screen")
+    x := 198
+    y := 116
+    blue := [0x547992, 0x66A7D4]
+    res := colorsMatch(198, 116, blue, 50)
+    setPixelCoordMode("Client")
+    return res
 }
 
 browserScrolledToTop()
 {
     res := True
+    setPixelCoordMode("Screen")
     scrollBarArrowX := 6
     scrollBarArrowY := 140
     scrollBarArrowCol := [0x1d262b]
@@ -173,32 +219,30 @@ browserScrolledToTop()
         scrollBarCol := [0x121b20]
         res := colorsMatch(scrollBarX, scrollBarY, scrollBarCol, 10)
     }
+    setPixelCoordMode("Client")
     return res
-}
-
-scrollBrowserToTop()
-{
-    moveMouse(5, 154)
-    Click
-    Sleep, 300
 }
 
 browserFolderOpen(n)
 {
     res := False
-    y := 145 + (n-1)*23
+    setPixelCoordMode("Screen")
     x := 216
+    y := browserGetFolderY(n)                               ; precisely the height of the "open folder triangle"
     res := colorsMatch(x, y, [0x2A3338])                    ; selected
     x := 233 
     res := res and colorsMatch(x, y, [0x131C21])            ; little triangle
+    setPixelCoordMode("Client")
     return res
 }
+; ----
 
 
-getFileQtyInFolderInsidePacks(n)
+; -- File info --------------------------------------------------
+getSoundQtyInFolderInsidePacks(folderRow)
 {
-    path := packsPath "\" getSortedPacksFolders()[n]
-    return fileNumInDir(path)
+    path := packsPath "\" getSortedPacksFolders()[folderRow]
+    return soundNumInDir(path)
 }
 
 getSortedPacksFolders()
@@ -220,110 +264,4 @@ getSortedPacksFolders()
     }
     return underscorePacksFolders
 }
-
-browserJumpToPos(n)
-{
-    y := getBrowserPosY(n)
-    moveMouse(136, y)
-    browserPos := n
-}
-; --
-
-; -- Free scroll ------
-global browserFreeScroll := False
-browserMoveFromCurrentMousePos(dir, n = 1)
-{
-    browserFreeScroll := True
-    browsingFiles := True
-    if (!isMainFlWindow())
-        WinActivate, ahk_class TFruityLoopsMainForm
-    mouseOverBrowser()        
-    browserPos := getMouseBrowserPos()
-    n := n
-    browserMove(dir, n)
-    if (mouseOverBrowserScroll)
-    {
-        Switch dir
-        {
-        Case "up":
-            wheel := "{WheelUp}"
-        Case "down":
-            wheel := "{WheelDown}"
-        }
-        Send %wheel%
-    }
-    browserFreeScroll := False
-}
-
-browserMove(dir, n = 1)
-{
-    lastBrowserTime := A_Now
-    WinActivate, ahk_class TFruityLoopsMainForm
-
-    Switch dir
-    {
-    Case "up":
-        posAfterLimitReached := 5
-        wheel := "WheelUp"
-        n := -n
-    Case "down":
-        posAfterLimitReached := 35
-        wheel := "WheelDown"    
-    }
-
-    browserPos := browserPos + n
-    if (browserPos > browserPosCount or browserPos < 1)
-    {
-        browserPos := posAfterLimitReached
-        Send {%wheel%}
-    }
-    MouseGetPos, x
-    y := getBrowserPosY(browserPos)
-    MouseMove %x%, %y%
-}
-
-getMouseBrowserPos()
-{
-    WinGet, mainFlWin, ID, ahk_class TFruityLoopsMainForm
-    WinGetPos, winX, winY,,,ahk_id %mainFlWin%
-    CoordMode, Mouse, Screen
-    MouseGetPos, mX, mY
-    CoordMode, Mouse, Client
-    mY := winY + mY
-    return Floor((mY-132)/23)+1
-}
-
-getBrowserPosY(browserPos)
-{
-    ; fite pas avec getMouseBrowserPos que je viens de faire. stu ok?
-    return 142 + (browserPos-1) * 23
-}
-
-global mouseOverBrowserScroll := False
-mouseOverBrowser()
-{
-    res := False
-    CoordMode, Mouse, Screen
-    MouseGetPos, mouseX, mouseY, winID
-    CoordMode, Mouse, Client
-    if (isMainFlWindow(winId))
-    {
-        WinGetPos, winX, winY, winW, winH, ahk_id %winID%
-        mouseX := mouseX - winX
-        mouseY := mouseY - winY  
-        res :=  mouseX >= browserLeft and mouseX <= browserRight and mouseY >= browserTop   
-        mouseOverBrowserScroll := res and mouseX <= 30
-    }
-    return res     
-}
-
-
-/*
-clickBrowser()
-{
-    MouseGetPos,,, winId
-    if (!isMainFlWindow(winId))
-        WinMove, ahk_id %winId%,, %browserRight%
-    Click
-}
-*/
+; ----

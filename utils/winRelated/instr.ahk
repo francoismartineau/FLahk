@@ -131,12 +131,9 @@ setInstrDelaySpeed()
     MouseMove, %delX%, %y%, 0
 
     toolTipChoiceIndex := indexOfClosestValue(knobVal, vals)
-    res := toolTipChoice(choices)
-    if (res == "accept")
-    {
-        val := vals[toolTipChoiceIndex]
+    val := toolTipChoice(choices)
+    if (val != "")
         pasteKnob(False, val, "other")
-    }
     if (!alreadyOpen)
         clickInstrMainPanel()
 }
@@ -160,12 +157,9 @@ setInstrArpSpeed()
     MouseMove, %arpX%, %y%, 0
 
     toolTipChoiceIndex := indexOfClosestValue(knobVal, vals)
-    res := toolTipChoice(choices)
-    if (res == "accept")
-    {
-        val := vals[toolTipChoiceIndex]
+    val := toolTipChoice(choices)
+    if (val != "")
         pasteKnob(False, val, "timeRelated")
-    }
     if (!alreadyOpen)
         clickInstrMainPanel()
 }

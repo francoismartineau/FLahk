@@ -4,14 +4,14 @@ global noteModifierClasses := ["TPRRandomForm", "TPRScoreCreatorForm", "TPRLegat
 
 
 ; -- Scroll Instruments ----------------------------------------
-global eventEditorScrollingInstr := False
-global eventEditorScrollInstrData := []
-eventEditorScrollInstr(mode = "pianoRoll")
+global scrollingInstr := False
+global scrollInstrData := []
+scrollInstr(mode = "pianoRoll")
 {
-    eventEditorScrollingInstr := True
+    scrollingInstr := True
     stopWinHistoryClock()
     MouseGetPos, mX, mY
-    WinGet, evEditId, ID, A
+    WinGet, prevWinId, ID, A
     ssId := bringStepSeq(False)
     WinGetPos, ssX, ssY,, ssH, ahk_id %ssId%
     
@@ -25,11 +25,15 @@ eventEditorScrollInstr(mode = "pianoRoll")
         newSsX := 1080
         newSsY := 255        
         msg := "Release Shift: piano roll.`r`n[Ctrl] open instr"
+    Case "plugin":
+        newSsX := 1080
+        newSsY := 255        
+        msg := "Release Shift: piano roll.`r`n[Ctrl] open instr"
     }
     WinMove, ahk_id %ssId%,, %newSsX%, %newSsY%
 
     moveMouseToSelY()
-    eventEditorScrollInstrData := [ssId, ssX, ssY, mX, mY, mode, evEditId]
+    scrollInstrData := [ssId, ssX, ssY, mX, mY, mode, prevWinId]
     freezeMouse()
 
     msgX := 3
@@ -38,15 +42,15 @@ eventEditorScrollInstr(mode = "pianoRoll")
     unfreezeMouse()
 }
 
-eventEditorScrollInstrStop()
+scrollInstrStop()
 {
     toolTip()
-    mX := eventEditorScrollInstrData[4]
-    mY := eventEditorScrollInstrData[5]    
+    mX := scrollInstrData[4]
+    mY := scrollInstrData[5]    
     if (!mouseOverStepSeqInstruments())
     {
-        evEditId := eventEditorScrollInstrData[7]
-        WinActivate, ahk_id %evEditId%
+        prevWinId := scrollInstrData[7]
+        WinActivate, ahk_id %prevWinId%
         moveMouse(mX, mY)
         return
     }
@@ -59,27 +63,27 @@ eventEditorScrollInstrStop()
     else
         openTo := "pianoRoll"
 
-    mode := eventEditorScrollInstrData[6]
+    mode := scrollInstrData[6]
     Switch openTo
     {
     Case "instr":
         openChannelUnderMouse()
 
     Case "pianoRoll":
-        msg("mode: " mode)
-        openChannelUnderMouseInPianoRoll(mode == "playlist")
+        centerM := mode != "pianoRoll"
+        openChannelUnderMouseInPianoRoll(centerM)
     }    
 
-    ssId := eventEditorScrollInstrData[1]
-    ssX := eventEditorScrollInstrData[2]
-    ssY := eventEditorScrollInstrData[3]
+    ssId := scrollInstrData[1]
+    ssX := scrollInstrData[2]
+    ssY := scrollInstrData[3]
     WinMove, ahk_id %ssId%,, %ssX%, %ssY%
     
     if (mode == "pianoRoll" and openTo == "pianoRoll")
         moveMouse(mX, mY)
 
-    eventEditorScrollingInstr := False
-    eventEditorScrollInstrData := []
+    scrollingInstr := False
+    scrollInstrData := []
     unfreezeMouse()
     startWinHistoryClock()
 }
@@ -116,10 +120,9 @@ pianorollActivate2()
     MouseMove, 427, 14, 0
     choices := [2, 3, 4]
     toolTipChoiceIndex := 1
-    res := toolTipChoice(choices)
-    if (res == "accept")
+    n := toolTipChoice(choices)
+    if (n != "")
     {
-        n := choices[toolTipChoiceIndex]
         Send {LButton}
         Send %n%{Enter}
     }

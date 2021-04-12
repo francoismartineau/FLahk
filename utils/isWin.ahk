@@ -197,7 +197,7 @@ is3xosc(id = "")
 {
     res := False
     if (!id)
-    WinGet, id, ID, A    
+        WinGet, id, ID, A    
     WinGetPos,,, winW, winH, ahk_id %id%
     res := winW == 568 or winH == 466
     ;if (correctSize)
@@ -205,11 +205,16 @@ is3xosc(id = "")
     return res
 }
 
-isMasterEdison(winId = "")
+isMasterEdison(id = "", underMouse = False)
 {
-    if (!winId)
-        WinGet, winId, ID, A
-    WinGetTitle, title, ahk_id %winId%
+    if (id == "")
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
+    WinGetTitle, title, ahk_id %id%
     return InStr(title, "Master Edison")
 }
 
@@ -381,6 +386,19 @@ isFlex(id = "")
     return colorsMatch(399, 164, [0xD8833A])
 }
 
+isSampleClip(id = "")
+{
+    res := False
+    if (id == "")
+        WinGet, id, ID, A
+    WinGetPos,,, winW, winH, ahk_id %id%
+    if (winW == 568 or winH == 466)
+    {
+        res := colorsMatch(94, 267, [0x31373B]) and colorsMatch(274, 131, [0x363C40]) and colorsMatch(294, 143, [0x363C40])
+    }
+    return res    
+}
+
 ; -- fx ---------------------------------------------
 isDelB(id = "")
 {
@@ -388,6 +406,14 @@ isDelB(id = "")
         WinGet, id, ID, A
     return colorsMatch(272, 110, [0xDBADD6]) and colorsMatch(182, 154, [0x3F2A7D])   
 }
+
+is3xGross(id = "")
+{
+    if (id == "")
+        WinGet, id, ID, A
+    return colorsMatch(208, 89, [0xBACFBF]) and colorsMatch(269, 89, [0x624456])
+}
+
 
 isDelay(id = "")
 {

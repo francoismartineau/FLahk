@@ -32,6 +32,7 @@ stopMouseCtlClock()
     SetTimer, MOUSE_CTL_TICK, Off
 }
 
+
 SetTimer, SAVE_REMINDER_CLOCK, %saveReminderMilliseconds%
 startMainClock()
 startWinHistoryClock()
