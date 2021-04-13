@@ -21,7 +21,7 @@ recOnPlayCreatePlugin(currWinId)
     copyName()
     placePlayHead()
     edisonID := loadFx(7)       ; Edison
-    registerWinToHistory(edisonID)
+    registerWinToHistory(edisonID, "mainWin")
     setMasterEdisonOnPlay(edisonID)
     toggleArmEdison()
     pasteName("recOnPlay", True)

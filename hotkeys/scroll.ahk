@@ -176,20 +176,22 @@ LWin::
     return
 ; --------
 
-; --     ^+     ---------------------------------
-^+WheelUp::
-    if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
-        freezeExecute("insertPattern")
-    else if (scrollingInstr or isStepSeq())
+; --     +^     ---------------------------------
++^WheelUp::
+    if (scrollingInstr or mouseOverStepSeqInstruments())
         scrollChannels("up")        
+    else if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
+        freezeExecute("insertPattern")
+    else
+        freezeExecute("moveToPatternRow")
     return
 
-^+WheelDown::
++^WheelDown::
     if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())    
         freezeExecute("clonePattern", True, True)
     else if (isInstr())
         freezeExecute("cloneActiveInstr")
-    else if (scrollingInstr or isStepSeq())
+    else if (scrollingInstr or mouseOverStepSeqInstruments()) 
         scrollChannels("down")
     else if (mouseOverMixerDuplicateTrackRegion())
         freezeUnfreezeMouse("cloneMixerTrackState")
@@ -240,13 +242,13 @@ LWin::
 
 
 
-; --    ^+!      -----------------------
-^+!WheelUp::
+; --    +^!      -----------------------
++^!WheelUp::
     if (isMixer())
         freezeExecute("bigScrollMixer", True, False, "left")
     return
 
-^+!WheelDown::
++^!WheelDown::
     if (isMixer())
         freezeExecute("bigScrollMixer", True, False, "right")
     return

@@ -84,13 +84,3 @@ cloneSetName()
     }
 }
 ; ---------
-
-; -----------------------------------------------
-clonePattern()
-{
-    toolTip("clone pattern")
-    Send {ShiftDown}{CtrlDown}c{ShiftUp}{CtrlUp}
-    bringPlaylist(False)
-    cloneSetName()
-    toolTip()
-}

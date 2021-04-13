@@ -42,11 +42,16 @@
     freezeUnfreezeMouse("pasteKnob")
     return
 
-+^LButton::
-    freezeUnfreezeMouse("resetKnob")
-    return 
+;+^LButton::
+;    freezeUnfreezeMouse("knobResetVal")
+;    return 
 
-+^MButton::
++MButton::
+    waitForModifierKeys()
+    freezeExecute("knobSideChain")
+    return
+
+^!MButton::
     waitForModifierKeys()
     freezeExecute("knobResetCtl")
     return

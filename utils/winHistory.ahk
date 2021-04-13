@@ -1,11 +1,10 @@
-﻿global windowHistory := []
-global windowHistoryIndex := 1
+﻿global pluginWinHistory := []
+global mainWinHistory := []
+global pluginWinHistoryIndex := 1
+global mainWinHistoryIndex := 1
+
 global duringWinHistoryTic := False
-global currFlWin
-global lastFlWin
-
 global debugWindowHistory := False
-
 global masterEdisonId
 
 winHistoryTic()
@@ -15,23 +14,22 @@ winHistoryTic()
         duringWinHistoryTic := True
         WinGet, id, ID, A
     
-        if (isFLWindow(id) and justChangedWindow(id))
+        if (isFLWindow(id) and justChangedWindow(id) and !isWindowHistoryExclude(id))
         {
-            if (!isWindowHistoryExclude(id))
-            {
-                index := inWinHistory(id)
-                if (index)
-                    removeWinFromHistory(index)
+            if (isPlugin(id) and !isMasterEdison(id))
+                mode := "plugin"
+            else
+                mode := "mainWin"
+            index := inWinHistory(id, mode)
+            if (index)
+                removeWinFromHistory(index, mode)
 
-                registerWinToHistory(id)
-                if (isMasterEdison(id))
-                    masterEdisonId := id
-            }
-            lastFlWin := currFlWin
-            currFlWin := id
+            registerWinToHistory(id, mode)
+            if (isMasterEdison(id))
+                masterEdisonId := id
         }
         if (debugWindowHistory)
-            displayHistoryContent()   
+            displayHistoryContent(mode "   foundIndex: " index)   
         duringWinHistoryTic := False
     }
 }
@@ -39,49 +37,83 @@ winHistoryTic()
 
 justChangedWindow(id)
 {
-    global windowHistory, windowHistoryIndex
-    ;;;;; not curr hist plugin or curr hist mainWin
-    return id != "" and id != windowHistory[windowHistoryIndex]
+    res := False
+    if (id != "")
+        res := id != pluginWinHistory[pluginWinHistoryIndex] and id != mainWinHistory[mainWinHistoryIndex]
+    return res
 }
 
-inWinHistory(id)
+inWinHistory(id, mode)
 {
-    global windowHistory
-    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
-    index := HasVal(windowHistory, id)
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+    Case "mainWin":
+        history := "mainWinHistory"
+    }
+    index := HasVal(%history%, id)
     return index
 }
 
-removeWinFromHistory(index)
+removeWinFromHistory(index, mode)
 {
-    global windowHistory, windowHistoryIndex
-    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
-    windowHistory.RemoveAt(index)
-    if (windowHistoryIndex >= index) {
-        windowHistoryIndex := windowHistoryIndex - 1
-    }
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    }    
+    %history%.RemoveAt(index)
+    if (%historyIndex% >= index)
+        %historyIndex% := %historyIndex% - 1
 }
 
-registerWinToHistory(id)
+registerWinToHistory(id, mode)
 {
-    global windowHistory, windowHistoryIndex
-    ;;;; 2nd param is the win list (pluginWinHistory or mainWinHistory)
-    windowHistory.InsertAt(windowHistoryIndex, id)
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    }    
+    %history%.InsertAt(%historyIndex%, id)
 }
 
-displayHistoryContent(msg = "")
+displayHistoryContent(moreInfo = "")
 {
-    global windowHistory, windowHistoryIndex
-    ;;;; 2 row: pluginWinHistory and mainWinHistory
-    lookingBackInHistory := windowHistoryIndex > 1
-    n := windowHistory.MaxIndex()
-    msg = %msg% `r`n displayHistoryContent %n%     looking back: %lookingBackInHistory%
+    msg = %moreInfo% `r`n`r`n
+    lookingBackInHistory := mainWinHistoryIndex > 1
+    n := mainWinHistory.MaxIndex()
+    msg = %msg% mainWins %n%     looking back: %lookingBackInHistory%
     Loop %n%
     {
-        id := windowHistory[A_Index]
+        id := mainWinHistory[A_Index]
         WinGetTitle, title, ahk_id %id%
         msg = %msg% `r`n
-        if (A_Index == windowHistoryIndex)
+        if (A_Index == mainWinHistoryIndex)
+            msg := msg ">"
+        else
+            msg := msg " "
+        msg = %msg%%A_Index% : %title%
+    }
+
+    lookingBackInHistory := pluginWinHistoryIndex > 1
+    n := pluginWinHistory.MaxIndex()
+    msg = %msg% `r`n`r`n
+    msg = %msg% pluginWins %n%     looking back: %lookingBackInHistory%
+    Loop %n%
+    {
+        id := pluginWinHistory[A_Index]
+        WinGetTitle, title, ahk_id %id%
+        msg = %msg% `r`n
+        if (A_Index == pluginWinHistoryIndex)
             msg := msg ">"
         else
             msg := msg " "
@@ -91,100 +123,74 @@ displayHistoryContent(msg = "")
 }
 
 ; -- Tab Caps -------------------------------------
-activatePrevWin()
+activatePrevPlugin()
 {
-    global windowHistory, windowHistoryIndex
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
+    activatePrevNextWin("plugin", "prev")
+}
+
+activateNextPlugin()
+{
+    activatePrevNextWin("plugin", "next")
+}
+
+activatePrevMainWin()
+{
+    activatePrevNextWin("mainWin", "next")
+}
+
+activateNextMainWin()
+{
+    activatePrevNextWin("mainWin", "next")
+}
+
+activatePrevNextWin(mode, dir)
+{
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+        notFoundFunc := "activateAhkFoundPlugin"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+        notFoundFunc := "bringStepSeq"
+    }   
     found := False
-    index := windowHistoryIndex
-    
-    if (!currentIndexWinIsActive())
+    index := %historyIndex% 
+
+    if (currentIndexWinIsNotActive(mode))
     {
         found := True
-        id := windowHistory[index]
+        id := %history%[%historyIndex%]
     }
-    else
+
+    if (dir == "prev")
+        incr := 1
+    else if (dir == "next")
+        incr := -1
+    while (%history%.MaxIndex() > 1 and !found)
     {
-        while (windowHistory.MaxIndex() > 1 and !found)
-        {
-            index := index + 1
-            if (index > windowHistory.MaxIndex())
-                index := 1            
-            id := windowHistory[index]
-            if (WinExist("ahk_id " id))
-                found := True
-            else
-                removeWinFromHistory(index)
-        }
+        index := index + incr
+        if (index > %history%.MaxIndex())
+            index := 1        
+        else if (index < 1)
+            index := %history%.MaxIndex()     
+        id := %history%[index]
+        if (WinExist("ahk_id " id))
+            found := True
+        else
+            removeWinFromHistory(index, mode)
     }
     
     if (found)
     {
-        windowHistoryIndex := index
+        %historyIndex% := index
         WinActivate, ahk_id %id%
         centerMouse(id)
     }
     else
-        activateAhkFoundPlugin()
-    return id
-}
-
-;;;;; remplacer ça?
-activateLastFlWin()
-{
-    WinActivate, ahk_id lastFlWin
-    centerMouse(lastFlWin)
-    if (isMixer(lastFlWin))
-        moveMouseOnMixerSlot()    
-}
-
-activateNextWin()
-{
-    global windowHistory, windowHistoryIndex
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
-    found := False
-    index := windowHistoryIndex
-    if (!currentIndexWinIsActive())
-    {
-        found := True
-        id := windowHistory[index]
-    }
-    else
-    {    
-        while (windowHistory.MaxIndex()>1 and !found)
-        {
-            index := index - 1
-            if (index < 1)
-                index := windowHistory.MaxIndex()        
-            id := windowHistory[index]
-            if (WinExist("ahk_id " id))
-                found := True
-            else
-                removeWinFromHistory(index)
-        }
-    }
-    if (found)
-    {
-        windowHistoryIndex := index
-        WinActivate, ahk_id %id%
-        centerMouse(id)
-    }
-}
-
-activatePrevNextWinFlag := False
-activatePrevNextWin()
-{
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
-    ;; currently doesn't use currentIndexWinIsActive() which I made in case a win that isn't saved to history is active)
-    global windowHistory, windowHistoryIndex
-    global activatePrevNextWinFlag
-    if (!activatePrevNextWinFlag) {
-        id := activatePrevWin()
-        activatePrevNextWinFlag := True
-    } else {
-        id := activateNextWin()
-        activatePrevNextWinFlag := False
-    }
+        id := %notFoundFunc%()
     return id
 }
 
@@ -198,88 +204,97 @@ activateAhkFoundPlugin()
         WinActivate, ahk_id %id%
         centerMouse(id)
     }
+    return id
 }
-
 ; ----
 
 ; ---------------------------------------------------
-currentIndexWinIsActive()
+currentIndexWinIsNotActive(mode)
 {
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
-    global windowHistory, windowHistoryIndex
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    }     
     WinGet, id, ID, A
-    return id == windowHistory[windowHistoryIndex]
+    return id != %history%[%historyIndex%]
 }
 
-bringHistoryWins()
+bringHistoryWins(mode = "plugin")
 {
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
-    global windowHistory, windowHistoryIndex
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    } 
     i := 1
-    n := windowHistory.MaxIndex()
+    n := %history%.MaxIndex()
     Loop, %n%
     {
-        windowHistoryIndex := windowHistoryIndex - 1
-        if (windowHistoryIndex < 1)
-            windowHistoryIndex := windowHistory.MaxIndex()
-        id := windowHistory[windowHistoryIndex]
+        %historyIndex% := %historyIndex% - 1
+        if (%historyIndex% < 1)
+            %historyIndex% := %history%.MaxIndex()
+        id := %history%[%historyIndex%]
         if (id)
-        {
             WinActivate, ahk_id %id%
-        }
     }
     centerMouse(id)
 }
 
 
-closeAllWinHistory(closeStepSeq = True)
-{
-    ;;;; param is the win list (pluginWinHistory or mainWinHistory)
-    global windowHistory
-    for i, winId in windowHistory
-    {
-        if (closeStepSeq)
-            WinClose, ahk_id %winId%
-        else if (!isStepSeq(winId))
-            WinClose, ahk_id %winId%
-    }    
-}
-
-findInWinHistory(filterFunction = "isPlugin")
+findInPluginWinHistory(filterFunction)
 {
     ; mode plugin or mainWin
     found := False
-    index := windowHistoryIndex
+    index := pluginWinHistoryIndex
     i := 1
-    while (windowHistory.MaxIndex() > 1 and !found and i <= windowHistory.MaxIndex())
+    while (pluginWinHistory.MaxIndex() > 1 and !found and i <= pluginWinHistory.MaxIndex())
     {
         i := i + 1
         index := index + 1
-        if (index > windowHistory.MaxIndex())
+        if (index > pluginWinHistory.MaxIndex())
             index := 1            
-        id := windowHistory[index]
+        id := pluginWinHistory[index]
         if (WinExist("ahk_id " id))
         {
             if (%filterFunction%(id))
                 found := True
         }
         else
-            removeWinFromHistory(index)
+            removeWinFromHistory(index, mode)
     }
     if (found)
         return id
 }
+; ----
 
-loadWinHistory()
+
+; -- Save Load File -----------------------------------------
+loadWinHistories()
 {
-    ;; two fields
-    windowTitles := loadDumpedToFile(savesFilePath, currProjPath, "windowTitles")
-    loadWindowHistoryFromTitles(windowTitles)
+    pluginWinTitles := loadDumpedToFile(savesFilePath, currProjPath, "pluginWinTitles")
+    loadWindowHistoryFromTitles(pluginWinTitles, "plugin")
+    mainWinTitles := loadDumpedToFile(savesFilePath, currProjPath, "mainWinTitles")
+    loadWindowHistoryFromTitles(mainWinTitles, "mainWin")
 }
 
-loadWindowHistoryFromTitles(windowTitles)
+loadWindowHistoryFromTitles(windowTitles, mode)
 {
-    ;; two fields
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+    Case "mainWin":
+        history := "mainWinHistory"
+    } 
     for _, title in windowTitles
     {
         WinGet, id, ID, %title%
@@ -287,14 +302,13 @@ loadWindowHistoryFromTitles(windowTitles)
         {
             WinGet, exe, ProcessName, ahk_id %id%
             if (exe == "FL64.exe")
-                windowHistory.Push(id)
+                %history%.Push(id)
         }
     }
 }
 
 windowsIdToTitle(windowIds)
 {
-    ;; two fields
     windowTitles := []
     for _, id in windowIds
     {
@@ -304,98 +318,57 @@ windowsIdToTitle(windowIds)
     return windowTitles
 }
 
-saveWinHistoryToFile()
+saveWinHistoriesToFile()
 {
-    ;; two fields
-    windowTitles := windowsIdToTitle(windowHistory)
-    dumpToFile(windowTitles, savesFilePath, currProjPath, "windowTitles")
+    pluginWinTitles := windowsIdToTitle(pluginWinHistory)
+    dumpToFile(pluginWinTitles, savesFilePath, currProjPath, "pluginWinTitles")
+    mainWinTitles := windowsIdToTitle(mainWinHistory)
+    dumpToFile(mainWinTitles, savesFilePath, currProjPath, "mainWinTitles")    
 }
 ; ----
 
 
-
-
 ; -- Clear from history --------------------------
-; remove this function
-winHistoryRemoveMainWins()
-{
-    i := 1
-    while (i <= windowHistory.MaxIndex())
-    {
-        winId := windowHistory[i]
-        if (isMixer(winId) or isStepSeq(winId) or isPianoRoll(winId) or isMasterEdison(winId))
-            windowHistory.RemoveAt(i)
-        else
-            i := i + 1
-    }
-}
-
 winHistoryClosePluginsExceptLast(n = 3)
 {
     ;; use only plugin hist
-    currIndexWinId := windowHistory[windowHistoryIndex]
-    index := windowHistoryIndex
+    currIndexWinId := pluginWinHistory[pluginWinHistoryIndex]
+    index := pluginWinHistoryIndex
     
     i := 1
-    numWins := windowHistory.MaxIndex()
+    numWins := pluginWinHistory.MaxIndex()
     while (i <= numWins)
     {
         incrIndex := True
-        if (isPlugin(windowHistory[index]))
+        if (isPlugin(pluginWinHistory[index]))
         {
             if (n > 0)
                 n := n - 1
             else
             {
-                pluginId := windowHistory[index]
+                pluginId := pluginWinHistory[index]
                 WinClose, ahk_id %pluginId%
-                if (index < windowHistory.MaxIndex())
+                if (index < pluginWinHistory.MaxIndex())
                     incrIndex := False
-                windowHistory.RemoveAt(index)
+                pluginWinHistory.RemoveAt(index)
             }
         }
         if (incrIndex)
         {
             index := index + 1
-            if (index > windowHistory.MaxIndex())
+            if (index > pluginWinHistory.MaxIndex())
                 index := 1  
         }
         i := i + 1
     }
 
-    for i, winId in windowHistory
+    for i, winId in pluginWinHistory
     {
         if (currIndexWinId == winId)
         {
-            windowHistoryIndex := i
+            pluginWinHistoryIndex := i
             break
         }
     }
 }
 ; ----
-
-
-/*
-; -- Find in hostory ----------------------------
-windowsCoveringLocations(positions)
-{
-    windows := []
-    i := 1
-    while (i <= windowHistory.MaxIndex())
-    {   
-        winId := windowHistory[i]
-        WinGetPos, winX, winY, winW, winH, ahk_id %winId%
-        for _, pos in positions
-        {
-            x := pos[1]
-            y := pos[2]
-            winOverPos := winX <= x and winX+winW >= x and winY <= y and winY+winH >= y
-            if (winOverPos)
-                windows.Push(winId)            
-        }
-        i := i + 1
-    }
-    return windows
-}
-; ----
-*/

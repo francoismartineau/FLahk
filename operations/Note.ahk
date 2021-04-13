@@ -9,30 +9,39 @@
     Send {Down}{Enter}
 }
 
-hoveredNoteLength(length)
+toggleHoveredNoteLenght()
 {
     if (!hoveringNote())
         return
     WinGet, pianoRollID, ID, A
     Click, 2
     notePropID := waitNewWindowOfClass("TPRNotePropForm", pianoRollID)
-    MouseMove, 123, 223
-    if (length == "long")
-        wheel := "WheelUp"
-    else if (length == "short")
+    isLongNote := !colorsMatch(117, 224, [0x8b4351], 10) and !colorsMatch(116, 224, [0x8b4351], 10)
+    if (isLongNote)
         wheel := "WheelDown"
+    else
+        wheel := "WheelUp"
 
-    Sleep, 20
+    moveMouse(123, 223)
+    Sleep, 1
     Loop, 128
-        Send {%wheel%}
-
-    Sleep, 20
-    if (length == "short")
     {
-        MouseMove, 140, 225
-        Send {WheelUp}{WheelUp}
+        Sleep, 1
+        Send {%wheel%}
     }
-    Sleep, 20
+
+    if (isLongNote)
+    {
+        Sleep, 1
+        Send {WheelDown}
+        moveMouse(140, 223)
+        Loop, 4
+        {
+            Sleep, 1
+            Send {WheelUp}
+        }
+    }
+    Sleep, 1
     Click, 252, 266
 }
 

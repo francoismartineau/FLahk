@@ -44,7 +44,7 @@ openFx()
     MouseClick, Left
     pluginID := waitNewWindowOfClass("TPluginForm", mixerID)
     channelPluginWins.Push(pluginID)
-    registerWinToHistory(pluginID)
+    registerWinToHistory(pluginID, "plugin")
 }
 
 ;;;; Faire la différence entre le dernier effet ouvert et le présent

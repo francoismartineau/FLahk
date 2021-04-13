@@ -1,9 +1,43 @@
-removeBreakLines(text)
+; -- Mouse ------------------------------------------
+moveMouse(x := "", y := "", mode := "Client", speed := 0)
 {
-    return RegExReplace(text,"\.? *(\n|\r)+","")
+    CoordMode, Mouse, Screen
+    static := betweenScreensX := 0
+    static := betweenScreensY := 870
+
+    if (x == "")
+        MouseGetPos, x
+    else if (y == "")
+        MouseGetPos,, y
+
+    if (mode == "Client")
+    {
+        WinGetPos, winX, winY,,, A
+        x := winX + x
+        y := winY + y
+    }
+
+    MouseGetPos, mx
+    crossScreen := (mx < 0 and x > 0) or (x < 0 and mx > 0)
+    if (crossScreen)
+    {
+        MouseMove, %betweenScreensX%, %betweenScreensY%, %speed%
+        MouseMove, %x%, %betweenScreensY%, %speed%
+    }
+
+    MouseMove, %x%, %y%, %speed%
+
+    CoordMode, Mouse, Client
 }
 
-centerMouse(winId = "", speed = 1.5)
+mouseGetPos(ByRef mX, ByRef mY,  mode := "Client")
+{
+    CoordMode, Mouse, %mode%
+    MouseGetPos, mX, mY
+    CoordMode, Mouse, Client
+}
+
+centerMouse(winId := "", speed := 1.5)
 {
     if (winId == "")
         WinGet, winId, ID, A
@@ -65,33 +99,10 @@ centerMouse(winId = "", speed = 1.5)
     retrieveMouse := False
 }
 
-playlistToolTip(msg)
+QuickClick(x, y, param := "")
 {
-    Tooltip, %msg%, 280, 60
-}
-
-
-doubleClicked()
-{
-    global doubleClickTime
-    return A_PriorHotkey == "~LButton" and A_TimeSincePriorHotkey <= doubleClickTime
-}
-
-winCoordsToScreenCoords(x, y)
-{
-    WinGetPos, winX, winY,,, A
-    return [winX+x, winY+y]
-}
-
-QuickClick(x, y, param = "")
-{
-    MouseMove, %x%, %y%, 0
+    moveMouse(x, y)
     Click, %param%
-}
-
-keyIsDown(key) {
-    GetKeyState, ks, %key%
-    return ks == "D"
 }
 
 mouseOverKnobsWin()
@@ -100,101 +111,7 @@ mouseOverKnobsWin()
     return isPlugin(winId) or isMixer(winId) or isWrapperPlugin(winId) ;or isStepSeq(winId) non parce que copy score
 }
 
-insertPattern(copyName = False)
-{
-    WinGet, winId, ID, A
-    CoordMode, Mouse, Screen
-    MouseGetPos, mX, mY
-    pluginOpen := isPlugin(winId)
-    if (pluginOpen)
-        bringPlaylist(False)
-    copyName("")
-    moveMouse(mX, mY)
-    CoordMode, Mouse, Client
-    Send {ShiftDown}{F4}{ShiftUp}
-    nameEditorId := waitNewWindowOfClass("TNameEditForm", winId)
-    if (copyName)
-    {
-        pasteName("", False)
-        Send {F2}
-    }
-    else
-        pasteColor(nameEditorId, False)
-    if (pluginOpen)
-        bringHistoryWins()
-
-    WinGetPos,,, neW, neH, ahk_id %nameEditorId%
-    neX := mX - Floor(neW/2)
-    neY := mY - Floor(neH/2)
-    WinMove, ahk_id %nameEditorId%,, %neX%, %neY%
-    WinActivate, ahk_id %nameEditorId%
-    if (!copyName)
-    {
-        typeText(randString(3))
-        ;Send {CtrlDown}a{CtrlUp}
-    }
-    centerMouse(nameEditorId)
-}
-
-
-renderInPlace()
-{
-    mixerId := bringMixer(False)
-    diskRecX := 83
-    diskRecY := 423
-    if (colorsMatch(82, 418, [0xB0B7BA], 20))      ; not armed ?
-    {
-        moveMouse(diskRecX, diskRecY)
-        Sleep, 100
-        Click         
-    }
-    SendInput !r
-    exportWinId := waitNewWindow(mixerId)
-    moveMouse(244, 68)
-    waitAcceptAbort(True, True)
-    toolTip("rendering")
-    waitNewWindow(exportWinId, 10000)
-    toolTip()
-    bringMixer(False)
-    moveMouse(diskRecX, diskRecY)
-    Sleep, 100
-    Click     
-}
-
-
-moveMouse(x="", y="", mode = "Client", speed = 0)
-{
-    CoordMode, Mouse, Screen
-    static := betweenScreensX := 0
-    static := betweenScreensY := 870
-
-    if (x == "")
-        MouseGetPos, x
-    else if (y == "")
-        MouseGetPos,, y
-
-    if (mode == "Client")
-    {
-        WinGetPos, winX, winY,,, A
-        x := winX + x
-        y := winY + y
-    }
-
-    MouseGetPos, mx
-    crossScreen := (mx < 0 and x > 0) or (x < 0 and mx > 0)
-    if (crossScreen)
-    {
-        MouseMove, %betweenScreensX%, %betweenScreensY%, %speed%
-        MouseMove, %x%, %betweenScreensY%, %speed%
-    }
-
-    MouseMove, %x%, %y%, %speed%
-
-    CoordMode, Mouse, Client
-}
-
-
-mouseOverEventEditorZoomSection()
+mouseOverEventEditorZoomSection()           ; The little square top right. (Why did I make this function?)
 {
     res := False
     CoordMode, Mouse, Screen
@@ -223,9 +140,16 @@ mouseOverEventEditorZoomSection()
     return res
 }
 
-
-
+doubleClicked()
+{
+    global doubleClickTime
+    return A_PriorHotkey == "~LButton" and A_TimeSincePriorHotkey <= doubleClickTime
+}
 ; ----
+
+
+
+; -- Misc -------------------------------------
 sendDelete()
 {
     waitForModifierKeys()
@@ -247,6 +171,12 @@ sendDelete()
         Click
         moveMouse(mX, mY)
     }
+}
+
+winCoordsToScreenCoords(x, y)
+{
+    WinGetPos, winX, winY,,, A
+    return [winX+x, winY+y]
 }
 
 getCurrentProjSaveFilePath()
@@ -299,8 +229,6 @@ setPixelCoordMode(mode)
     CoordMode, Pixel, %mode%
 }
 
-
-; ----
 mute()
 {
     midiO_1.controlChange(116, 0, 2)
@@ -309,6 +237,30 @@ mute()
 unmute()
 {
     midiO_1.controlChange(116, 100, 2)
+}
+
+renderInPlace()
+{
+    mixerId := bringMixer(False)
+    diskRecX := 83
+    diskRecY := 423
+    if (colorsMatch(82, 418, [0xB0B7BA], 20))      ; not armed ?
+    {
+        moveMouse(diskRecX, diskRecY)
+        Sleep, 100
+        Click         
+    }
+    SendInput !r
+    exportWinId := waitNewWindow(mixerId)
+    moveMouse(244, 68)
+    waitAcceptAbort(True, True)
+    toolTip("rendering")
+    waitNewWindow(exportWinId, 10000)
+    toolTip()
+    bringMixer(False)
+    moveMouse(diskRecX, diskRecY)
+    Sleep, 100
+    Click     
 }
 ; ----
 
@@ -359,7 +311,7 @@ hideShowFLahk()
     global leftScreenWindowsShown
 
     if (!WinExist("ahk_exe FL64.exe"))
-        ExitApp    
+        exitFlahk()   
 
     usingFL := WinActive("ahk_exe FL64.exe") or WinActive("ahk_id "FLahkGuiId1) or WinActive("ahk_id "FLahkGuiId2) or WinActive("ahk_class #32770 ahk_exe ahk.exe")
     FLahkOpen := FLahkIsOpen()

@@ -26,6 +26,7 @@ FileEncoding, UTF-8
 #Include utils/samplers.ahk 
 #Include utils/saveReminder.ahk 
 #Include utils/knobSaves.ahk 
+#Include utils/pattern.ahk 
 #Include utils/transferSounds.ahk 
 #Include utils/winRelated/eventEditor.ahk
 #Include utils/winRelated/pianoRoll.ahk
@@ -59,8 +60,7 @@ FileEncoding, UTF-8
 #Include operations/sampleToSlicex.ahk
 #Include operations/NewLib.ahk
 #Include operations/mouseCoords.ahk
-#Include operations/_NewPattern.ahk
-#Include operations/_NewAutomation.ahk
+#Include operations/newAutomation.ahk
 #Include operations/rename.ahk
 #Include operations/vsCode.ahk
 #Include operations/goForwardBackward.ahk

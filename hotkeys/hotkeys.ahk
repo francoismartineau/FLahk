@@ -31,23 +31,16 @@ NumpadEnter::
     return
 #If
 
-/*
-#If WinActive("ahk_exe FL64.exe") and !numpad1Context.IsActive and acceptPressed and mouseOverBrowser()
-Enter::
-    clickBrowser()
-    return
-
-NumpadEnter::
-    clickBrowser()
-    return
-#If
-*/
-
 #If WinActive("ahk_exe FL64.exe") and !numpad1Context.IsActive and acceptPressed and isEventEditForm()
 Enter::
     return
 
 NumpadEnter::
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and acceptPressed and isInstr()
+MButton::
     return
 #If
 
@@ -60,13 +53,6 @@ MButton::
 
 
 ; -- Esc ------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and freezeExecuting
-F4::
-Esc::
-    stopExec := True
-    return
-#If
-
 #If WinActive("ahk_exe FL64.exe") and !acceptPressed
 Esc::
     abortPressed := True   
@@ -77,36 +63,56 @@ Esc::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and isPianoRollTool() and acceptPressed
+#If WinActive("ahk_exe FL64.exe") and freezeExecuting
+F4::
+Esc::
+    stopExec := True
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and isPianoRollTool()
 Esc::
     Send {Enter}
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and (isPlaylist() or isMainFlWindow()) ;and (leftScreenWindowsShown and isOneOfMainWindows()) or (!leftScreenWindowsShown and (isMainFlWindow() or isPlaylist()))
+#If WinActive("ahk_exe FL64.exe") and (isPlaylist() or isMainFlWindow()) ;and (leftScreenWindowsShown and isOneOfMainWindows()) or (!leftScreenWindowsShown and (isMainFlWindow() or isPlaylist()))
 Esc::
     freezeExecute("bringHistoryWins")
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isEventEditor()
+#If WinActive("ahk_exe FL64.exe") and isEventEditor()
 Esc::
-    bringMixer(False)
+    freezeExecute("activatePrevPlugin")
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isWrapperPlugin()
+#If WinActive("ahk_exe FL64.exe") and isWrapperPlugin()
 Esc::
     closeAllWrapperPlugins()
-    freezeExecute("bringHistoryWins")
+    freezeExecute("activatePrevPlugin")
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isPlugin() and !isMasterEdison()
-~Esc::
-    freezeExecute("activateLastFlWin")
+#If WinActive("ahk_exe FL64.exe") and isMasterEdison()
+Esc::
+    freezeExecute("activatePrevPlugin")
     return
 #If
+
+#If WinActive("ahk_exe FL64.exe") and isInstr()
+~Esc::
+    freezeExecute("bringStepSeq")
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and isPlugin()
+~Esc::
+    freezeExecute("activatePrevPlugin")
+    return
+#If
+
 ; ----
 
 ; -- Space -----------------------------------------
@@ -134,7 +140,8 @@ Space::
 !F2::
 ^Esc::              ; Quit app
     exitFlahk()
-
+    return
+    
 !#Tab::
 	sendAllKeysUp()
     SendInput !Tab
@@ -167,7 +174,7 @@ Space::
         if (savesFilePath == "")
             freezeExecute("getCurrentProjSaveFilePath")
         saveKnobSavesToFile()
-        saveWinHistoryToFile()
+        saveWinHistoriesToFile()
     }
     Send {CtrlDown}s{CtrlUp}
     return
@@ -192,17 +199,23 @@ Space::
 
 ; -- Win History -------------------
 Tab::
-    freezeExecute("activatePrevWin")
+    freezeExecute("activatePrevPlugin")
+    return
+^Tab::
+    freezeExecute("activateNextPlugin")
     return
 
 CapsLock::
-    freezeExecute("activateNextWin")
+    freezeExecute("activatePrevMainWin")
     return 
+^CapsLock::
+    freezeExecute("activateNextMainWin")
+    return     
 
 LWin & Tab::
     toolTip("History: last 3 plugins")
     winHistoryClosePluginsExceptLast(3)
-    winHistoryRemoveMainWins()
+    ;winHistoryRemoveMainWins()
     Sleep, 200
     toolTip()
     return

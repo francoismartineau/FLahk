@@ -64,17 +64,17 @@ clickEditEvents(knobX, knobY, winId)
     Case "patcherTimeRelated":
         y := 95
     Case "patcher":
-        y := 77
+        y := 76
     Case "timeRelated":
-        y := 70
+        y := 69
     Case "other":
-        y := 49
+        y := 50
     }    
+
 
     x := 10 + knobX
     y := y + knobY
-    ;greyMenu := [0xbbc3c8, 0xb7bfc4, 0x8f9ca2, 0xb6bec3]
-    eventWindowOpen := colorsMatch(x, y, [0x000000], 100, "")
+    eventWindowOpen := colorsMatch(x, y, [0x000000])
     if (!eventWindowOpen)
     {
         MouseMove, %x%, %y%
@@ -84,8 +84,8 @@ clickEditEvents(knobX, knobY, winId)
     else
     {
         Send {Esc}
-        WinActivate, Events -
-        WinGet, eventWinId, ID, A       ; Activate already open window
+        WinActivate, Events -           ; Activate existing event editor window
+        WinGet, eventWinId, ID, A       
     }
     return eventWinId
 }

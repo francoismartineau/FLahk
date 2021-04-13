@@ -25,10 +25,6 @@ setSoundDevice(start = True)
 ; ---------------------------------------------------------
 
 
-
-Sleep, 1000
-resetFLahk()
-
 ; Alt + F1   reset FLahk
 #!F1::
 !F1::

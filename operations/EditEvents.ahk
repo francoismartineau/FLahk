@@ -4,12 +4,11 @@
 ;;;;;;;;;;;;;
 ;;;; si key pressed, edit in Main Events
 
-EditEvents(centerMouse = True)
+knobEditEvents(centerMouse = True)
 {
     MouseGetPos, knobX, knobY, winId
     WinGetPos, winX, winY,,, ahk_id %winID%
-    res := openKnobCtxMenu(knobX, knobY, winX, winY, winID)
-    movedWin := res[1]
+    movedWin := openKnobCtxMenu(knobX, knobY, winX, winY, winID)[1]
     eventWinId := clickEditEvents(knobX, knobY, winID)
     if (eventWinId)
     {
@@ -29,7 +28,7 @@ insertEditEventsValue()
     MouseGetPos, knobX, knobY, pluginId
     val := copyKnob(False)
     moveMouse(knobX, knobY)
-    EditEvents()
+    knobEditEvents()
 
     toolTip("Place mouse and Accept / Abort")
     unfreezeMouse()

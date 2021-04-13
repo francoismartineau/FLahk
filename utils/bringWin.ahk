@@ -131,9 +131,14 @@ bringStepSeq(moveMouse = True)
 bringEventEditor(moveMouse = True)
 {
     WinGet, eventEditorId, ID, Events -
-    WinActivate, ahk_id %eventEditorId%
-    if (moveMouse)
-        centerMouse(eventEditorId)
+    if (eventEditorId != "")
+    {
+        WinActivate, ahk_id %eventEditorId%
+        if (moveMouse)
+            centerMouse(eventEditorId)
+    }
+    else
+        msg("No event editor active. ^over knob")
     return eventEditorId
 }
 

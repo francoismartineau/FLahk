@@ -1,4 +1,8 @@
 #If WinActive("ahk_exe FL64.exe") and isPianoRoll()  
+/::
+    freezeExecute("hoveredNoteLength", True, True, "long")
+    return
+
 m::
     freezeExecute("minMajStamp")
     return

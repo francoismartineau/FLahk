@@ -1,20 +1,20 @@
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
 debugOn := False
 
+
 Test()
 {
-    ;freezeExecute("cellphoneWavToMidi", False)
+    freezeExecute("knobSideChain")
 }
-
 
 Test2()
 {
-
 }
 
 
 if (A_ScriptName == "Test.ahk")
 {
+    Test()
     ;a := -3 - (-3)
     ;msgTip(a)s
     ;ExitApp

@@ -64,7 +64,7 @@ mouseOverPlaylistTrackNames()
     }
     return res
 }
-
+; ----
 
 ; -- Loop -------------------------------
 setPlaylistLoop(mode)
@@ -159,8 +159,9 @@ deleteNextPlaylist()
         Click
     }
 }
-
 ; ----
+
+
 ; --------------------------------
 global xbutton1Released := True
 global xbutton2Released := True
@@ -192,8 +193,6 @@ advanceInSong(rewind = False)
         WinActivate, ahk_id %toolWinId%
 }
 
-
-
 activateSlideTool()
 {
     x := 157
@@ -204,3 +203,7 @@ activateSlideTool()
     }
 }
 
+playlistToolTip(msg)
+{
+    Tooltip, %msg%, 280, 60
+}

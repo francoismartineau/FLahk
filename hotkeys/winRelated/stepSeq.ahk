@@ -97,7 +97,7 @@ LButton::
     freezeExecute("openChannelUnderMouseInPianoRoll")
     return
 
-^+LButton Up::
++^LButton Up::
     freezeExecute("selectChannelUnderMouse")
     return
 
@@ -105,7 +105,7 @@ LButton::
     freezeExecute("selectOnlyChannelUnderMouse")
     return
 
-^+RButton Up::
++^RButton Up::
 +RButton Up::
     freezeExecute("unselChannelUnderMouse")
     return

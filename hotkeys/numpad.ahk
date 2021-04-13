@@ -16,7 +16,7 @@ NumpadMult::                                ; Main Events
     return
 
 NumpadSub::                                 ; note
-    freezeExecute("loadScore", True, True, 1)
+    freezeExecute("loadScore", True, True, 2)
     return
 
 
@@ -90,7 +90,7 @@ Numpad0::                                   ; Layer
     return
 
 NumpadDot Up::                              ; Note length
-    freezeExecute("hoveredNoteLength", True, True)       
+    freezeExecute("toggleHoveredNoteLenght", True, True)       
     return
 
 NumpadEnter::
@@ -156,7 +156,7 @@ Numpad9::                                       ; event editor
 
 ^Numpad9::                                      ; knob edit events
     waitForModifierKeys()
-    freezeExecute("EditEvents", False, False, True)
+    freezeExecute("knobEditEvents", False, False, True)
     return    
 
 !Numpad9::                                      ; knob place edit events value

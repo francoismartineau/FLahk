@@ -91,7 +91,14 @@ browseRandomGenFolder()
 ; -- Utils --------------------------------------------------------
 moveWinsOverBrowser()
 {
-    moveWinsOver([[217, 287], [186, 696]], 310, 287)
+
+    saveMousePos()
+    WinGet, id, ID, ahk_class TFruityLoopsMainForm
+    moveMouse(217, 287, "Screen")
+    clearWayToMouse(id, 310, 287)    
+    moveMouse(186, 696, "Screen")
+    clearWayToMouse(id, 310, 287)  
+    retrieveMousePos()  
 }
 
 browserGetFolderY(n)

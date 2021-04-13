@@ -13,7 +13,7 @@ newAutomation()
     {
         saveKnobPos(knobX, knobY, pluginId)
         autwinId := bringAutomationWindow()
-        registerWinToHistory(autwinId)     ; to customize autom ( user can press tab to bring back autom)
+        registerWinToHistory(autwinId, "plugin")     ; to customize autom ( user can press tab to bring back autom)
         pasteColor()
         adjustAutomation(autwinId, minMax)
         autName := copyName()

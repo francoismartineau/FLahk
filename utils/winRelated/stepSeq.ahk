@@ -305,31 +305,6 @@ findClosestChannel(mY, numChannels, firstChannY, lastChannY)
     return nth
 }
 
-/*
-openSelectedChannel(stepSeqId = "")
-{
-    if (!stepSeqId)
-        WinGet, stepSeqId, ID, A
-    closeAllWinHistory(False)
-
-    y := getFirstSelChannelY()
-    x := 185
-
-    WinActivate, ahk_id %stepSeqId%
-    Click, %x%, %y%
-    pluginId := waitNewWindowOfClass("TPluginForm", stepSeqId, 100)
-    if (!pluginId)
-    {
-        Click, %x%, %y%
-        pluginId := waitNewWindowOfClass("TPluginForm", stepSeqId, 1000)
-    }    
-    registerWinToHistory(pluginId)
-    toolTip()
-    centerMouse(pluginId)
-}
-*/
-
-
 openMixerInsert()
 {
     mixerId := bringMixer(False)

@@ -5,7 +5,7 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
         playlistToolTip("Activate the sampler and press Enter")
         WinGet, winId, ID, A
         if (!isInstr(winId))
-            activatePrevWin()
+            activatePrevPlugin()
         unfreezeMouse()
         clickAlsoAccepts := True
         waitAcceptAbort()

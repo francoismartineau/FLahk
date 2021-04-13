@@ -16,7 +16,12 @@ clickM123(m)
     }
     moveMouse(mX, mY)
     clickAlsoAccepts := True
+    unfreezeMouse()
+    retrieveMouse := False
+    return
+    ;;;;;;;;;;;;;;;
     acceptAbort := waitAcceptAbort(False, True)
+    freezeMouse()
     if (acceptAbort == "accept")
         assignMixerTrackRoute(m)
 }
@@ -25,38 +30,6 @@ assignMixerTrack()
 {
     Send {Ctrl down}l{Ctrl up}
     bringMixer()
-}
-
-moveMouseOnMixerSlot(dir = "")
-{ 
-    MouseGetPos,, my
-    index := mixerYToSlotIndex(my)
-    if (dir == "up")
-        index := index - 1
-    else if (dir == "down")
-        index := index + 1
-    if (index > 10)
-        index := 1
-    else if (index < 1)
-        index := 10
-    mixerSlotIndex := index
-    my := mixerSlotIndexToY(mixerSlotIndex)
-    MouseMove, 1766, %my%, 0
-}
-
-mouseOverMixerSlotSection()
-{
-    MouseGetPos,,, winId
-    res := False
-    if (isMixer((winId)))
-    {
-        WinGet, activeId, ID, A
-        if (activeId != winId)
-            WinActivate, ahk_id %winId%
-        MouseGetPos, mx, my
-        res := 1709 < mx and mx < 1860 and 60 < my and my < 347
-    }
-    return res
 }
 
 mixerOpenSlot()
@@ -211,4 +184,45 @@ cloneMixerTrackState()
     Send {Right}
     MouseMove, %x%, 95
 }
-; --
+; ----
+
+; -- Mouse Pos ----------------------------------------
+moveMouseOnMixerSlot(dir = "")
+{ 
+    MouseGetPos,, my
+    index := mixerYToSlotIndex(my)
+    if (dir == "up")
+        index := index - 1
+    else if (dir == "down")
+        index := index + 1
+    if (index > 10)
+        index := 1
+    else if (index < 1)
+        index := 10
+    mixerSlotIndex := index
+    my := mixerSlotIndexToY(mixerSlotIndex)
+    MouseMove, 1766, %my%, 0
+}
+
+mouseOverMixerSlotSection()
+{
+    MouseGetPos,,, winId
+    res := False
+    if (isMixer((winId)))
+    {
+        WinGet, activeId, ID, A
+        if (activeId != winId)
+            WinActivate, ahk_id %winId%
+        MouseGetPos, mx, my
+        res := 1709 < mx and mx < 1860 and 60 < my and my < 347
+    }
+    return res
+}
+
+mouseOnMixerButUnderMenu()
+{
+    MouseGetPos,,, winId
+    mouseGetPos(mX, mY)
+    return mY < 30 and isMixer(winId) and mX  > 208 and mX < 1685
+}
+; ----

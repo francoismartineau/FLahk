@@ -248,14 +248,20 @@ upperMenuMoveWindowIfNecessary()
         WinMove, ahk_class TPluginForm,,, 550
 }
 
-moveWinsOver(positions, newWinX, newWinY)    ;; coord mode Screen
+clearWayToMouse(desiredWinId, newWinX, newWinY)
 {
-    wins := windowsCoveringLocations(positions)
-    nudge := 10 + randInt(1, 10)
-    for i, winId in wins
+    CoordMode, Mouse, Screen
+    while (True)
     {
-        WinMove, ahk_id %winId%,, %newWinX%, %newWinY%
-        newWinX := newWinX + nudge + randInt(1, 10)
-        newWinY := newWinY + nudge + randInt(1, 10)
+        MouseGetPos,,, mWinId
+        if (mWinId == desiredWinId)
+            break
+        else
+        {
+            WinMove, ahk_id %mWinId%,, %newWinX%, %newWinY%
+            newWinX := newWinX + 10 + randInt(1, 10)
+            newWinY := newWinY + 10 + randInt(1, 10)
+        }
     }
+    CoordMode, Mouse, Client
 }

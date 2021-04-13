@@ -140,16 +140,19 @@ chooseLink(autoChooseLink = False, nRowsUnderWord = 0)
 {
     if (!autoChooseLink)
     {
-        if (chooseLinkInitScrolls == 0)
-            Send {WheelDown}{WheelUp}
-        else
+        MouseMove, 0, 20, 0, R
+        MouseMove, 0, -20, 0, R
+        if (chooseLinkInitScrolls < 0)
+            wheel := "WheelDown"
+        else if (chooseLinkInitScrolls > 0)
+            wheel := "WheelUp"
+        chooseLinkInitScrolls :=  Abs(chooseLinkInitScrolls) 
+        Loop %chooseLinkInitScrolls%
         {
-            Loop %chooseLinkInitScrolls%
-            {
-                Sleep, 10
-                Send {WheelUp}
-            }
+            Sleep, 1
+            Send {%wheel%}
         }
+        chooseLinkInitScrolls := 0
         clickAlsoAccepts := True
         res := waitAcceptAbort(False)
         if (res == "accept")

@@ -94,7 +94,6 @@ LButton::
     freezeExecute("sendDelete")
     return
 
-
 XButton1::
     xbutton1Released := False
     advanceInSong(False)
@@ -121,4 +120,11 @@ XButton2 Up::
     xbutton2Released := True
     return    
 ;--
+#If
+
+#If True
+^!XButton1 Up::
+    waitForModifierKeys()
+    Send {Delete}
+    return
 #If

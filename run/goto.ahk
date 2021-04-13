@@ -100,7 +100,7 @@ FILE_SAVED_TOGGLE:
     if (fileSavedToggleEnabled and savesFilePath == "")
     {
         getCurrentProjSaveFilePath()
-        loadWinHistory()
+        loadWinHistories()
         loadKnobSaves()
     }
     return

@@ -19,7 +19,7 @@ isWindowHistoryExclude(winId = "")
 
 }
 
-isMixer(winId = "", underMouse = False)
+isMixer(winId := "", underMouse := False)
 {
     if (!winId)
     {
@@ -34,12 +34,16 @@ isMixer(winId = "", underMouse = False)
 
 
 
-isStepSeq(winId = "")
+isStepSeq(winId := "", underMouse := False)
 {
     if (!winId)
-        WinGetClass, class, A
-    else
-        WinGetClass, class, ahk_id %winId%
+    {
+        if (underMouse)
+            MouseGetPos,,, winId
+        else
+            WinGet, winId, ID, A
+    }
+    WinGetClass, class, ahk_id %winId%
     return class == "TStepSeqForm"
 }
 

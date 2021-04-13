@@ -6,7 +6,7 @@ global noteModifierClasses := ["TPRRandomForm", "TPRScoreCreatorForm", "TPRLegat
 ; -- Scroll Instruments ----------------------------------------
 global scrollingInstr := False
 global scrollInstrData := []
-scrollInstr(mode = "pianoRoll")
+scrollInstr(mode := "pianoRoll")
 {
     scrollingInstr := True
     stopWinHistoryClock()
@@ -20,15 +20,12 @@ scrollInstr(mode = "pianoRoll")
     Case "pianoRoll":
         newSsX := -850
         newSsY := 750
-        msg := "Release Shift over choice.`r`n[Ctrl] open instr"
     Case "playlist":
         newSsX := 1080
         newSsY := 255        
-        msg := "Release Shift: piano roll.`r`n[Ctrl] open instr"
     Case "plugin":
         newSsX := 1080
         newSsY := 255        
-        msg := "Release Shift: piano roll.`r`n[Ctrl] open instr"
     }
     WinMove, ahk_id %ssId%,, %newSsX%, %newSsY%
 
@@ -38,6 +35,7 @@ scrollInstr(mode = "pianoRoll")
 
     msgX := 3
     msgY := 30     
+    msg := "Release Shift: instr`r`n[Ctrl] piano roll"
     ToolTip, %msg%, %msgX%, %msgY%
     unfreezeMouse()
 }
@@ -59,9 +57,9 @@ scrollInstrStop()
     ctrlPressed := keyIsDown("Ctrl")
 
     if (ctrlPressed)
-        openTo := "instr"
-    else
         openTo := "pianoRoll"
+    else
+        openTo := "instr"
 
     mode := scrollInstrData[6]
     Switch openTo

@@ -398,10 +398,13 @@ delaySetTime()
     knobVal := copyKnob(False)
     MouseMove, %timeX%, %timeY%, 0
 
-    toolTipChoiceIndex := indexOfClosestValue(knobVal, vals)
-    val := toolTipChoice(choices)
+    index := indexOfClosestValue(knobVal, vals)
+    val := toolTipChoice(choices, "", index)
     if (val != "")
+    {
+        val := vals[toolTipChoiceIndex]
         pasteKnob(False, val, "timeRelated")
+    }
     return val
 }
 
@@ -426,12 +429,14 @@ lfoSetTime(valIndex = "", displayRes = False, currVal = "")
         currVal := copyKnob(False)
         MouseMove, %speedX%, %speedY%, 0
         initIndex := indexOfClosestValue(currVal, vals)
-        val := toolTipChoice(choices, "", initIndex)
+        if (toolTipChoice(choices, "", initIndex))
+            val := vals[toolTipChoiceIndex]
     }
     else if (currVal != "")
     {
         initIndex := indexOfClosestValue(currVal, vals)
-        val := toolTipChoice(choices, "", initIndex)
+        if (toolTipChoice(choices, "", initIndex))
+            val := vals[toolTipChoiceIndex]
     }
     else
     {

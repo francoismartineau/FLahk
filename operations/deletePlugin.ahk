@@ -16,7 +16,7 @@ deletePlugin()
             unfreezeMouse()
             waitAcceptAbort(True)
             freezeMouse()
-            centerMouse(lastFlWin)
+            activatePrevNextWin("plugin", "prev")
         }
         else
         {

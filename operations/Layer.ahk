@@ -59,14 +59,6 @@ bringLayer()
     return layerID
 }
 
-isNewWindow(id)
-{
-    stopWinHistoryClock()
-    isNew := !inWinHistory(id)
-    startWinHistoryClock()
-    return isNew
-}
-
 currentWinIsPlugin()
 {
     id :=

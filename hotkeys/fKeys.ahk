@@ -1,3 +1,13 @@
+#If True
+F5 UP::
+    Test()
+    return
+
+^F5 UP::
+    Test2()
+    return  
+#If
+
 #If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Melodyne singletrack.exe")
 ;F1::
 ;    freezeExecute("newPatt")
@@ -10,15 +20,7 @@ F3::
 +F3::
     Send {F12}
     freezeExecute("moveWindows")
-    return
-
-F5 UP::
-    Test()
-    return
-
-^F5 UP::
-    Test2()
-    return    
+    return  
 
 c & F2::
     freezeExecute("copyName")

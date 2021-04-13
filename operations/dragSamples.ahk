@@ -3,7 +3,7 @@ dragSample(proposeEdison = True)
     choices := ["Sp", "slcx", "gran"]
     if (proposeEdison)
         choices.Push("Edison")    
-    if (findInWinHistory("isOneOfTheSamplers"))
+    if (findInPluginWinHistory("isOneOfTheSamplers"))
         choices.Push("existing sampler")
 
     CoordMode, Mouse, Screen
