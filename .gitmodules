@@ -4,6 +4,3 @@
 [submodule "fl_studio_midi_scripts"]
 	path = fl_studio_midi_scripts
 	url = git@github.com:francoismartineau/fl_studio_midi_scripts.git
-[submodule "concat_audio"]
-	path = concat_audio
-	url = git@github.com:francoismartineau/concat_audio.git
