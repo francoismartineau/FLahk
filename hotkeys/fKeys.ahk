@@ -1,3 +1,12 @@
+#If !isMixer()  ; hotkey is used in mixer
+!F3 Up::    
+    if (bringWinAtMouseToggle)
+        stopBringWinAtMouseClock()
+    else
+        startBringWinAtMouseClock()
+    return
+#If
+
 #If True
 F5 UP::
     Test()
@@ -70,6 +79,14 @@ F4::
         freezeExecute("deletePlugin", False)
     else if (isMixer())
         freezeExecute("resetMixerTrack")
+    else if (isWrapperPlugin())
+        Send {Esc}
+    return
+#If
+
+#If True
++^!F4::
+    msg("prevented from opening keepass")
     return
 #If
 

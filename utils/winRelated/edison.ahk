@@ -78,8 +78,15 @@ moveToMasterEdisonDrag()
     moveMouse(mX, mY)
 }
 
-dragSampleToEdison(mX, mY)
+dragSampleToEdison(mX := "", mY := "")
 {
+    if (mX == "" or mY == "")
+    {
+        prevCoordMode := setMouseCoordMode("Screen")
+        MouseGetPos, mX, mY
+        setMouseCoordMode(prevCoordMode)
+    }
+
     if (!isMasterEdison(masterEdisonId))
         masterEdisonId := bringMasterEdison(False)
     if (isMasterEdison(masterEdisonId))

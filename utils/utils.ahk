@@ -1,50 +1,28 @@
 ; -- Mouse ------------------------------------------
-moveMouse(x := "", y := "", mode := "Client", speed := 0)
-{
-    CoordMode, Mouse, Screen
-    static := betweenScreensX := 0
-    static := betweenScreensY := 870
-
-    if (x == "")
-        MouseGetPos, x
-    else if (y == "")
-        MouseGetPos,, y
-
-    if (mode == "Client")
-    {
-        WinGetPos, winX, winY,,, A
-        x := winX + x
-        y := winY + y
-    }
-
-    MouseGetPos, mx
-    crossScreen := (mx < 0 and x > 0) or (x < 0 and mx > 0)
-    if (crossScreen)
-    {
-        MouseMove, %betweenScreensX%, %betweenScreensY%, %speed%
-        MouseMove, %x%, %betweenScreensY%, %speed%
-    }
-
-    MouseMove, %x%, %y%, %speed%
-
-    CoordMode, Mouse, Client
-}
-
 mouseGetPos(ByRef mX, ByRef mY,  mode := "Client")
 {
-    CoordMode, Mouse, %mode%
+    prevMode := setMouseCoordMode(mode)
     MouseGetPos, mX, mY
-    CoordMode, Mouse, Client
+    setMouseCoordMode(prevMode)
 }
 
 centerMouse(winId := "", speed := 1.5)
 {
+    res := True
     if (winId == "")
         WinGet, winId, ID, A
 
-    CoordMode, Mouse, Screen
+    if (removeFromHistoryIfInvisible(winId))
+    {
+        res := False
+        return res
+    }
+
+
+    restoreWin(winId)
+
     WinGetPos, winX, winY, winW, winH, ahk_id %winId%
-    MouseGetPos, currMouseX
+    ;mouseGetPos(currMouseX, _, "Screen")
 
     if (isMixer(winId))
     {
@@ -85,18 +63,28 @@ centerMouse(winId := "", speed := 1.5)
         mX := 878
         mY := 55           
     }
+    else if (isProbablyEq(winId))
+    {
+        mX := 606
+        mY := 295         
+    }    
     else
     {
         mX := winW/2
         mY := winH/2
     }
+
     mX := mX + winX
     mY := mY + winY
+    sencondMouseX := mX
+    sencondMouseY := mY
+    ;msg(sencondMouseX "  , " sencondMouseY)
+    showSecondMouse()
     moveMouse(mX, mY, "Screen", speed)
-    CoordMode, Mouse, Client
 
     global retrieveMouse
     retrieveMouse := False
+    return res
 }
 
 QuickClick(x, y, param := "")
@@ -147,9 +135,181 @@ doubleClicked()
 }
 ; ----
 
+; -- saveFile -------------------
+saveProject()
+{
+    lastSaveTime := timeOfDaySeconds()
+    if (projectIsSaved())
+    {
+        if (savesFilePath == "")
+            freezeExecute("getCurrentProjFilePath")
+        saveKnobSavesToFile()
+        saveWinHistoriesToFile()
+        sendinput ^s
+    }
+    else
+    {
+        sendinput ^s
+        savePromptId := waitNewWindowOfClass("#32770", "")
+        WinMove, ahk_id %savePromptId%,,,, 642, 579
+    }
+}
+
+projectIsSaved()
+{
+    ; When a project isn't saved, username FranoisMartineau is displayed (top left). Look for that.
+    ; x, y: from Martineau's t bar pixel to the right
+    colorListX := 68
+    colorListY := 52
+    colorList := [0x9d9272, 0x4d5b82, 0x9eb6af]
+    prevMode := setPixelCoordMode("Screen")
+    res := !scanColorsLine(colorListX, colorListY, colorList)
+    setPixelCoordMode(prevMode)
+    return res
+}
+
+getCurrentProjFilePath()
+{
+    res := False
+    Send {CtrlDown}{ShiftDown}s{ShiftUp}{CtrlUp}
+    WinGet, savePromptId, ID, ahk_class #32770
+    if (!savePromptId)
+    {
+        WinGet, id, ID, ahk_class TFruityLoopsMainForm
+        toolTip("    waiting save prompt")
+        savePromptId := waitNewWindowOfClass("#32770", id)
+        toolTip()
+    }
+    if (savePromptId)
+    {
+        cliboardSave := clipboard
+        clipboard := ""
+        toolTip("copying project name")
+        i := 0
+        while (clipboard == "")
+        {
+            Sleep, 30
+            Send {CtrlDown}c{CtrlUp}
+            i += 1
+            if (i > 100)
+                return
+        }
+        toolTip()
+        projName := clipboard
+        if (projName != "untitled.flp")
+        {
+            WinMove, ahk_id %savePromptId%,,,, 642, 579
+            moveMouse(313, 52)
+            clipboard := ""
+            toolTip("copying project folder")
+            while (clipboard == "" or FileExist(folderName) != "D")
+            {
+                Sleep, 30
+                Click
+                Send {CtrlDown}ac{CtrlUp}
+                folderName := clipboard
+            }
+            toolTip()
+            currProjPath := folderName "\" projName
+            getSaveFilePath(folderName, projName)
+        }
+        WinClose, ahk_id %savePromptId%
+        clipboard := cliboardSave
+    }
+    updateGuiFilePath()
+    return currProjPath
+}
+
+getSaveFilePath(folderName, projName)
+{
+    folderNameList := StrSplit(folderName, "\")
+    folderName := folderNameList[folderNameList.MaxIndex()]
+    if (folderName == "")
+        folderName := folderNameList[folderNameList.MaxIndex()-1]
+
+    savesFileFolder := savesFolderPath "\" folderName
+    if (FileExist(savesFileFolder) != "D")
+        FileCreateDir, %savesFileFolder%
+
+    projName := StrSplit(projName, ".")[1]
+    
+    savesFilePath := savesFileFolder "\" projName ".ini"
+    return savesFilePath
+}
+
+loadSaveFileIfExists()
+{
+    res := False
+    if (projectIsSaved())
+    {
+        if (savesFilePath == "")
+            getCurrentProjFilePath()
+        loadWinHistories()
+        loadKnobSaves()
+        res := True
+    }
+    else
+    {
+        sendinput ^s
+        savePromptId := waitNewWindowOfClass("#32770", "")
+        WinMove, ahk_id %savePromptId%,,,, 642, 579
+        centerMouse(savePromptId)
+    }
+    return res
+}
+
+updateGuiFilePath()
+{
+    folderAndFileHierarchy := StrSplit(savesFilePath, "\")
+    fileName := folderAndFileHierarchy[folderAndFileHierarchy.MaxIndex()]
+    fileNameNoExtension := SubStr(fileName, 1, -4)
+    folderName := folderAndFileHierarchy[folderAndFileHierarchy.MaxIndex() - 1]
+    txt := folderName "/" fileNameNoExtension
+    GuiControl, Main1:, ProjPathGui, -> %txt%
+}
+; -----
 
 
 ; -- Misc -------------------------------------
+restoreWin(winId := "")
+{
+
+    if (winId == "")
+        WinGet, winId, ID, A
+
+    if (!isFLWindow(winId))
+        return
+
+    if (isMainFlWindow(winId) or isPianoRoll(winId))
+    {
+        WinMaximize, ahk_id %winId%
+        return
+    }
+
+    WinGet, WinState, MinMax, ahk_id %winId%
+    WinGetPos,,, winW, winH, ahk_id %winId%
+    if (WinState == 1)  ; maximized
+        WinRestore, ahk_id %winId%
+    else if (winH < 40) ; FL minimized
+    {
+        moveMouse(winW-50, 20)
+        Click           ; click bar button
+    }
+}
+
+moveWinAtMouse(id := "")
+{
+    if (id == "")
+        WinGet, id, ID, A
+    prevMode := setMouseCoordMode("Screen")
+    MouseGetPos, mX, mY
+    setMouseCoordMode(prevMode)
+    WinGetPos,,, winW, winH, ahk_id %id%
+    winX := mX - winW/2
+    winY := mY - winH/2
+    WinMove, ahk_id %id%,, winX, winY
+}
+
 sendDelete()
 {
     waitForModifierKeys()
@@ -179,56 +339,6 @@ winCoordsToScreenCoords(x, y)
     return [winX+x, winY+y]
 }
 
-getCurrentProjSaveFilePath()
-{
-    res := False
-    Send {CtrlDown}{ShiftDown}s{ShiftUp}{CtrlUp}
-    savePromptId := waitNewWindowOfClass("#32770", id)
-    if (savePromptId)
-    {
-        cliboardSave := clipboard
-        Sleep, 50
-        Send {CtrlDown}c{CtrlUp}
-        projName := clipboard
-        if (projName != "untitled.flp")
-        {
-            WinMove, ahk_id %savePromptId%,,,, 642, 579
-            quickClick(313, 19)
-            Send {CtrlDown}c{CtrlUp}
-            folderName := clipboard
-            currProjPath := folderName "\" projName
-            createSaveFilePath(folderName, projName)
-            res := currProjPath
-        }
-        WinClose, ahk_id %savePromptId%
-        clipboard := cliboardSave
-    }
-    return currProjPath
-}
-
-createSaveFilePath(folderName, projName)
-{
-    folderNameList := StrSplit(folderName, "\")
-    folderName := folderNameList[folderNameList.MaxIndex()]
-    if (folderName == "")
-        folderName := folderNameList[folderNameList.MaxIndex()-1]
-
-    savesFileFolder := savesFolderPath "\" folderName
-    if (FileExist(savesFileFolder) != "D")
-        FileCreateDir, %savesFileFolder%
-
-    projName := StrSplit(projName, ".")[1]
-    
-    savesFilePath := savesFileFolder "\" projName ".ini"
-    return savesFilePath
-}
-
-setPixelCoordMode(mode)
-{
-    pixelCoordMode := mode
-    CoordMode, Pixel, %mode%
-}
-
 mute()
 {
     midiO_1.controlChange(116, 0, 2)
@@ -241,11 +351,16 @@ unmute()
 
 renderInPlace()
 {
+    ; arm master track
+    ; alt+r to  bring render win
+    ; accept / abort
     mixerId := bringMixer(False)
-    diskRecX := 83
-    diskRecY := 423
-    if (colorsMatch(82, 418, [0xB0B7BA], 20))      ; not armed ?
+    diskRecX := 82
+    diskRecY := 399
+    notArmed := colorsMatch(diskRecX, diskRecY, [0xB0B7BA])
+    if (notArmed)
     {
+        msg("not armed")
         moveMouse(diskRecX, diskRecY)
         Sleep, 100
         Click         
@@ -261,6 +376,33 @@ renderInPlace()
     moveMouse(diskRecX, diskRecY)
     Sleep, 100
     Click     
+}
+
+winMenuOpen()
+{
+    
+    winMenuCol := [0x282a2c]
+    colVar := 10
+    highlightedButtonCol := [0x535359]
+    setPixelCoordMode("Screen")
+    res := colorsMatch(643, 1024, winMenuCol, colVar) ; and colorsMatch(41, 1043, highlightedButtonCol)
+    setPixelCoordMode("Client")
+    return res
+}
+
+makeSureMainFLWinActive()
+{
+    WinGet, mainFlWinId, ID, ahk_class TFruityLoopsMainForm
+    WinGet, activeWinId, ID, A
+    if (activeWinId != mainFlWinId)
+        WinActivate, ahk_id %mainFlWinId%
+}
+
+retrieveWinPos(winX, winY, winId)
+{
+    WinGetPos, currWinX, currWinY,,, ahk_id %winId%
+    if (winY != currWinY or winX != currWinX)
+        WinMove, ahk_id %winId%,, %winX%, %winY%  
 }
 ; ----
 
@@ -289,12 +431,12 @@ exitFlahk()
 	sendAllKeysUp()
     setBlackWallpaper() 
 	GuiClose:
-    WinGet, codeId, ID, ahk_exe Code.exe
-    if (codeId)
-    {
-        WinActivate, ahk_id %codeId%
-        centerMouse(codeId)
-    }
+    ;WinGet, codeId, ID, ahk_exe Code.exe
+    ;if (codeId)
+    ;{
+    ;    WinActivate, ahk_id %codeId%
+    ;    centerMouse(codeId)
+    ;}
 	ExitApp
 }
 
@@ -313,26 +455,28 @@ hideShowFLahk()
     if (!WinExist("ahk_exe FL64.exe"))
         exitFlahk()   
 
-    usingFL := WinActive("ahk_exe FL64.exe") or WinActive("ahk_id "FLahkGuiId1) or WinActive("ahk_id "FLahkGuiId2) or WinActive("ahk_class #32770 ahk_exe ahk.exe")
+    usingFL := WinActive("ahk_exe FL64.exe") or WinActive("ahk_id "FLahkGuiId1) or WinActive("ahk_id "FLahkGuiId2) or WinActive("ahk_class #32770 ahk_exe ahk.exe") or isAudacity() or isMelodyne() ;or WinActive("ahk_id " MouseCursorGuiId)
     FLahkOpen := FLahkIsOpen()
-    maxedWin := rightScreenMaximizedWin()
+    ;maxedWin := rightScreenMaximizedWin()
 
-    if (usingFL and !FLahkOpen and !maxedWin)
+    if (usingFL and !FLahkOpen) ; and !maxedWin)
     {
         WinShow, ahk_id %FLahkGuiId1%
         WinShow, ahk_id %FLahkGuiId2%
+        showSecondMouse()
         ;if (leftScreenWindowsShown)
         ;    WinActivate, ahk_id %FLahkBackgroundGuiId%
-        WinActivate, ahk_exe FL64.exe
+        ;WinActivate, ahk_exe FL64.exe
         startWinMenusClock()
         startWinHistoryClock()
         startMouseCtlClock()
     }
-    else if ((!usingFL or maxedWin) and FLahkOpen)
+    ;else if ((!usingFL or maxedWin) and FLahkOpen)
+    else if (!usingFL and FLahkOpen)
     {
         ;WinHide, ahk_id %FLahkBackgroundGuiId%
-        WinHide, ahk_id %FLahkGuiId1%
-        WinHide, ahk_id %FLahkGuiId2%
+        hideSecondMouse()
+        hideMainGuis()
         stopWinMenusClock()
         stopWinHistoryClock()
         stopMouseCtlClock()

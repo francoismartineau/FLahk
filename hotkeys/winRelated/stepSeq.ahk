@@ -17,7 +17,7 @@ XButton2::
     return     
 
 1::
-    freezeExecute("load3xosc")
+    freezeExecute("loadSynth")
     return
 
 2::
@@ -45,6 +45,7 @@ XButton2::
     return
 
 8::
+    freezeExecute("load3xosc")
     return
 
 9::
@@ -126,7 +127,7 @@ LButton Up::
     Switch pos
     {
     Case "1_1":
-        freezeExecute("load3xosc")
+        freezeExecute("loadSynth")
     Case "2_1":
         freezeExecute("loadLongSynth")
     Case "3_1":
@@ -140,6 +141,7 @@ LButton Up::
     Case "7_1":
         freezeExecute("loadGranular")
     Case "8_1":
+        freezeExecute("load3xosc")
     Case "9_1":
     Case "0_1":
     Case "1_2":
@@ -163,14 +165,14 @@ LButton Up::
 ; -- Clipboard -----------------------------
 #If WinActive("ahk_exe FL64.exe") and mouseOverStepSeqInstrOrScore()
 ^c::
-    freezeExecute("copyChannelNotes", True, True)
+    freezeExecute("copyMouseChannelNotes", True, True)
     return
 
 ^x::
-    freezeExecute("cutChannelNotes", True, True)
+    freezeExecute("cutMouseChannelNotes", True, True)
     return
 
 ^v::
-    freezeExecute("pasteChannelNotes", True, True)
+    freezeExecute("pasteMouseChannelNotes", True, True)
     return
 #If

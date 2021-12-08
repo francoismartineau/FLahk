@@ -1,35 +1,39 @@
+global makingUnique := False
+
 makeUnique(multipleClips = True)
 {
-    bringPlaylist(False)
+    makingUnique := True
+    playlistId := bringPlaylist(False)
     MouseGetPos, oriX, oriY
+
     Click
     Sleep, 50
-
     clipType := clipCtxMenuType()
-
-    if (clipType == "sound")
-        n := 7
-    else if (clipType == "pattern")
-        n := 6
-
-    Loop, %n%
-        Send {Down}
-    Send {Enter}                                    ; make this clip unique
-    closePromptIfNecessary()
-    
     if (clipType == "sound")
     {
+        n := 7
+        Loop, %n%
+            Send {Down}
+        Send {Enter}                                    ; make this clip unique
+        closePromptIfNecessary()
         MouseMove, 20, 0,, R
         Click, 2
-        waitNewWindowOfClass("TPluginForm", id)
-    }
-    acceptAbort := rename("", True)
-    if (clipType == "sound")
+        sampleInstrId := waitNewWindowOfClass("TPluginForm", playlistId)        
         bringPlaylist(False)
-
+    }
+    else if (clipType == "pattern")
+    {
+        MouseMove, 20, 0,, R
+        Click
+        clonePattern()
+    }
+    
+    cloneSetName()
     MouseMove, %oriX%, %oriY%
     if (acceptAbort != "abort" and multipleClips)
         selectSourceForAllSelectedClips()           ; let user select new clip as source for all selected
+    msg("done")
+    makingUnique := False
 }
 
 closePromptIfNecessary()

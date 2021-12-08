@@ -1,28 +1,151 @@
 global knobValueSave
 
-
-applyMinMaxLinkController()
+; -- Main -------
+knobEditEvents(centerMouse = True)
 {
-    
-    minMax := knobCopyMinMax()
-    min := minMax[1]
-    max := minMax[2]
-    mult := max - min
-    mult := Round(mult, 4)
-    function = %min% {Shift Down}={Shift Up} Input {Shift Down}8{Shift Up} %mult%  
-    linkKnob(function, True, False, 0, False)
+    MouseGetPos, mX, mY, winId
+    WinGetPos, winX, winY,,, ahk_id %winId%
+    ctxMenuLen := openKnobCtxMenu(mX, mY)
+    eventWinId := clickEditEvents(ctxMenuLen)
+    if (eventWinId)
+    {
+        ;bringPlaylist(False)
+        ;bringStepSeq(False)
+        moveWinRightScreen(winId)
+        WinActivate, ahk_id %winId%
+        moveEventEditor(eventWinId)
+        centerMouse(eventWinId)
+    }
+    retrieveWinPos(winX, winY, winId)
 }
 
-knobSideChain()
+knobCreateAutomation(knobX, knobY, pluginId)
 {
-    chooseLinkInitScrolls := -10
-    function = 1-Input
-    linkKnob(function, True, False, 0, True)
+    WinActivate, ahk_id %pluginId%
+    WinGetPos, pluginX, pluginY,,, ahk_id %pluginId%
+    MouseMove, %knobX%, %knobY%    
+    ctxMenuLen := openKnobCtxMenu(knobX, knobY)
+    if (ctxMenuLen)
+        clickCreateAutomation(ctxMenuLen)
+    retrieveWinPos(winX, winY, winId)
+    return ctxMenuLen != ""
 }
 
-; ---------
+linkKnob(function := False, autoClickAccept := True, autoChooseLink := False, nRowsUnderWord := 0, chooseCtl := True, ctlDropDown := True, removeConflicts := False)
+{
+    MouseGetPos, mX, mY, pluginId
+    WinGetPos, winX, winY,,, ahk_id %pluginId%
+    ctxMenuLen := openKnobCtxMenu(mX, mY)
+
+    if (ctxMenuLen)
+    {
+        saveKnobPos(mX, mY, pluginId)
+        if (!linkControllerChecked(ctxMenuLen))
+        {
+            msg("No ctl active, choose one for min max")
+            chooseCtl := True
+        }
+
+        linkWinId := clickLinkController(ctxMenuLen)
+        if (linkWinId)
+        {
+            isLongLinkWin := checkIfLongLinkWindow()
+            if (chooseCtl and ctlDropDown)
+            {
+                clickLinkChoice(isLongLinkWin)
+                res := chooseLink(autoChooseLink, nRowsUnderWord)
+                if (res == "abort")
+                    return
+
+            }
+            if (function)
+                setLinkFunction(function, isLongLinkWin)
+
+            if (removeConflicts)
+                activateRemoveConflicts()
+            acceptLink(isLongLinkWin, autoClickAccept)
+        }
+    }
+    retrieveWinPos(winX, winY, winId)
+}
+
+copyKnob(hint = True, cut = False)
+{
+    ;colorsMatchDebug := True
+    MouseGetPos, knobX, knobY, winId
+    WinGetPos, winX, winY,,, ahk_id %winId%
+    ctxMenuLen := openKnobCtxMenu(knobX, knobY) ;, winX, winY, winId)
+    if (ctxMenuLen)
+    {
+        clipboardSave := clipboard
+        clickCopy(ctxMenuLen)
+        Sleep, 100
+        knobValueSave := clipboard
+        clipboard := clipboardSave
+
+        if (cut)
+        {
+            moveMouse(knobX, knobY)
+            Click, Right
+            Send r                           ; reset knob
+            ;Send {Up}{Up}{Enter}0{Enter}    ; "type in" 0
+        }
+
+        if (hint)
+        {
+            moveMouse(knobX, knobY)
+            val := Round(knobValueSave, 2)
+            ToolTip, %val%, %knobX%, %knobY%
+            Sleep, 400
+            ToolTip
+        }
+    }
+
+    retrieveWinPos(winX, winY, winId)
+    colorsMatchDebug := False
+
+    return knobValueSave    
+}
+
+cutKnob(hint = True)
+{
+    copyKnob(hint, True)
+}
+
+pasteKnob(hint := True, val := "", ctxMenuLen := "")
+{
+    if (val != "")
+        knobValueSave := val
+    MouseGetPos, mX, mY, winId
+    WinGetPos, winX, winY,,, ahk_id %winId%
+    clipboardSave := clipboard
+    clipboard := knobValueSave
+    ctxMenuLen := openKnobCtxMenu(mX, mY)
+    if (ctxMenuLen)
+    {
+        if (val != "")
+            knobValueSave := val
+        res := clickPaste(ctxMenuLen)
+        if (!res)
+            msg("couldn't paste")
+        if (hint)
+        {
+            moveMouse(mX, mY)
+            val := Round(knobValueSave, 2)
+            ToolTip, %val%, %mX%, %mY%
+            Sleep, 400
+            ToolTip
+        }   
+    }
+    clipboard := clipboardSave
+
+    retrieveWinPos(winX, winY, winId)   
+    return res
+}
+
 knobResetVal()
 {
+    ; wont work if activate ctx menu
     Click, Right
     Send {Down}{Enter}
 }
@@ -43,9 +166,37 @@ setKnobValue(x, y, val, ctxMenuLen := "")
     pasteKnob(False, val, ctxMenuLen)
     Sleep, 20
 }
+; ----
+
+; -- Link transfer functions ----
+applyMinMaxLinkController()
+{
+    
+    minMax := knobCopyMinMax()
+    min := minMax[1]
+    max := minMax[2]
+    mult := max - min
+    mult := Round(mult, 4)
+    function = %min% {Shift Down}={Shift Up} Input {Shift Down}8{Shift Up} %mult%  
+    linkKnob(function, True, False, 0, False)
+}
+
+knobSideChain()
+{
+    chooseLinkInitScrolls := -10
+    function = 1-Input
+    linkKnob(function, True, False, 0, True)
+}
+; ----
+
 
 
 ; -- set midi knob ------------------------
+knobNextMidiKeyboardCcCtl()
+{
+    linkKnob(False, False, False, 0, False, False, True)
+}
+
 knobResetCtl()
 {
     mouseCtlOutputMidi := False
@@ -56,9 +207,8 @@ knobResetCtl()
         MouseGetPos, mX, mY
     }
     WinGetPos, winX, winY,,, ahk_id %winId%
-    res := openKnobCtxMenu(mX, mY, winX, winY, winId)
-    movedWin := res[1]
-    ctlWinId := clickLinkController()
+    ctxMenuLen := openKnobCtxMenu(mX, mY) ;, winX, winY, winId)
+    ctlWinId := clickLinkController(ctxMenuLen)
     isLongLinkWin := checkIfLongLinkWindow()
     x := 64
     if (isLongLinkWin)
@@ -68,8 +218,7 @@ knobResetCtl()
     QuickClick(x, y)
     x := 249
     QuickClick(x, y)
-    if (movedWin)
-        WinMove, ahk_id %winID%,, %winX%, %winY%    
+    retrieveWinPos(winX, winY, winId)    
     mouseCtlOutputMidi := True
 }
 
@@ -86,13 +235,11 @@ knobSetMouseCtl(whichCtl = "L")
 
     MouseGetPos, mX, mY, winId
     WinGetPos, winX, winY,,, ahk_id %winID%
-    res := openKnobCtxMenu(mX, mY, winX, winY, winID)
-    movedWin := res[1]
-    openedCtxMenu := res[2]
+    ctxMenuLen := openKnobCtxMenu(mX, mY) ;, winX, winY, winID)
 
-    if (openedCtxMenu)
+    if (ctxMenuLen != "")
     {
-        ctlWinId := clickLinkController()
+        ctlWinId := clickLinkController(ctxMenuLen)
         isLongLinkWin := checkIfLongLinkWindow()
         setCcInCtlWin(cc, isLongLinkWin)
         setChannelInCtlWin(mCtlChan, isLongLinkWin)
@@ -100,8 +247,7 @@ knobSetMouseCtl(whichCtl = "L")
         acceptLink(isLongLinkWin, True)
     }
 
-    if (movedWin)
-        WinMove, ahk_id %winId%,, %winX%, %winY%
+    retrieveWinPos(winX, winY, winId)
     mouseCtlOutputMidi := True
 }
 
@@ -110,33 +256,32 @@ knobSetExternalCtl(knobX, knobY, cc, chan, port, needToInitialize := True, ccCon
     moveMouse(knobX, knobY)
     WinGet, winId, ID, A
     WinGetPos, winX, winY,,, ahk_id %winId%
-    res := openKnobCtxMenu(knobX, knobY, winX, winY, winId)
-    movedWin := res[1]
-
-    ctlWinId := clickLinkController()
-    isLongLinkWin := checkIfLongLinkWindow()
-    setCcInCtlWin(cc, isLongLinkWin)
-    setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
-    setPortInCtlWin(port, isLongLinkWin, needToInitialize)
-    
-    if (ccConflictIncr)
+    ctxMenuLen := openKnobCtxMenu(knobX, knobY) ;, winX, winY, winId)
+    if (ctxMenuLen != "")
     {
-        while (ctlWinConflict(isLongLinkWin))
+        ctlWinId := clickLinkController(ctxMenuLen)
+        isLongLinkWin := checkIfLongLinkWindow()
+        setCcInCtlWin(cc, isLongLinkWin)
+        setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
+        setPortInCtlWin(port, isLongLinkWin, needToInitialize)
+        if (ccConflictIncr)
         {
-            cc := cc + ccConflictIncr
-            if (cc + ccConflictIncr > 127)
+            while (ctlWinConflict(isLongLinkWin))
             {
-                cc := 1
-                chan := chan + 1
-                setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
+                cc := cc + ccConflictIncr
+                if (cc + ccConflictIncr > 127)
+                {
+                    cc := 1
+                    chan := chan + 1
+                    setChannelInCtlWin(chan, isLongLinkWin, needToInitialize)
+                }
+                setCcInCtlWin(cc, isLongLinkWin)
             }
-            setCcInCtlWin(cc, isLongLinkWin)
         }
+        acceptLink(isLongLinkWin, True) 
     }
-    
-    acceptLink(isLongLinkWin, True)               ; Accept
-    if (movedWin)
-        WinMove, ahk_id %winID%,, %winX%, %winY%
+
+    retrieveWinPos(winX, winY, winId)
     return [cc, chan]
 }
 
@@ -216,143 +361,4 @@ ctlWinConflict(isLongLinkWin)
         res := colorsMatch(235, 359, [0xD03C22], 20)
     return res
 }
-
-; ---------
-copyKnob(hint = True, cut = False)
-{
-    MouseGetPos, knobX, knobY, winId
-    WinGetPos, winX, winY,,, ahk_id %winId%
-    res := openKnobCtxMenu(knobX, knobY, winX, winY, winId)
-    movedWin := res[1]
-    openedCtxMenu := res[2]
-    if (openedCtxMenu)
-    {
-        clipboardSave := clipboard
-        clickCopy()
-        knobValueSave := clipboard
-        clipboard := clipboardSave
-
-        if (cut)
-        {
-            moveMouse(knobX, knobY)
-            Click, Right
-            Send {Up}{Up}{Enter}0{Enter}
-        }
-
-        if (hint)
-        {
-            moveMouse(knobX, knobY)
-            val := Round(knobValueSave, 2)
-            ToolTip, %val%, %knobX%, %knobY%
-            Sleep, 400
-            ToolTip
-        }
-    }
-
-    if (movedWin)
-        WinMove, ahk_id %winId%,, %winX%, %winY%
-
-    return knobValueSave    
-}
-
-cutKnob(hint = True)
-{
-    copyKnob(hint, True)
-}
-
-pasteKnob(hint = True, val = "", ctxMenuLen = "")
-{
-    if (val != "")
-        knobValueSave := val
-    MouseGetPos, knobX, knobY, winId
-    WinGetPos, winX, winY,,, ahk_id %winId%
-    clipboardSave := clipboard
-    clipboard := knobValueSave
-    res := openKnobCtxMenu(knobX, knobY, winX, winY, winId)
-    movedWin := res[1]
-    openedCtxMenu := res[2]
-    if (openedCtxMenu)
-    {
-        if (val != "")
-            knobValueSave := val
-        clickPaste(ctxMenuLen)
-        if (hint)
-        {
-            moveMouse(knobX, knobY)
-            val := Round(knobValueSave, 2)
-            ToolTip, %val%, %knobX%, %knobY%
-            Sleep, 400
-            ToolTip
-        }   
-    }
-    clipboard := clipboardSave
-
-    if (movedWin)
-        WinMove, ahk_id %winId%,, %winX%, %winY%    
-}
-
-
-openKnobCtxMenu(knobX, knobY, winX, winY, winId)
-{
-    movedWin := moveKnobWinIfNecessary(knobX, knobY, winX, winY, winId)
-    openedCtxMenu := False
-    Click, Right
-    if (waitCtxMenuUnderMouse())
-    {
-        activateKnobIfActivateCtxMenu(knobX, knobY)
-        openedCtxMenu := True
-    }
-    return [movedWin, openedCtxMenu]
-}
-
-moveKnobWinIfNecessary(knobX, knobY, winX, winY, winId)
-{
-    global Mon1Top, Mon2Top
-    movedWin := False
-    x := knobX + winX
-    y := knobY + winY
-    if (x >= 0)
-        top := Mon2Top
-    if (x < 0)
-        top := Mon1Top
-    if (y > 680 + top)
-    {
-        dist := y - (680 + top)
-        newWinY := winY - dist
-        WinMove, ahk_id %winId%,, %winX%, %newWinY%
-        moveMouse(knobX, knobY)
-        movedWin := True
-    }    
-    return movedWin
-}
-
-activateKnobIfActivateCtxMenu(knobX, knobY)
-{
-    needToActivate := False
-    cols := ctxMenuColors
-    cols.Push(ctxMenuSepCol*)
-
-    if (!colorsMatch(knobX+9, knobY+100, cols, 10))
-        needToActivate := "smallMenu"
-    else if (!colorsMatch(knobX+9, knobY+113, cols, 10))
-        needToActivate := "longMenu"
-
-    if (needToActivate)
-    {
-        Send {Down}{Down}
-        if (needToActivate == "longMenu")
-            Send {Down}
-        Send {Enter}
-        ;MouseMove, %knobX%, %knobY%, 0
-        moveMouse(knobX, knobY)
-        Click, Right
-        waitCtxMenuUnderMouse()
-    }
-    return needToActivate
-}
-
-getRandomKnobVal()
-{
-    Random, val, 0, 127
-    return val / 127
-}
+; ----

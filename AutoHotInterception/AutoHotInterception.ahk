@@ -123,7 +123,10 @@ class AutoHotInterception {
 		static devType := {0: "Keyboard", 1: "Mouse"}
 		dev := this.Instance.GetDeviceId(IsMouse, VID, PID, instance)
 		if (dev == 0) {
-			msgTip("Could not get " devType[isMouse] " with VID " VID ", PID " PID ", Instance " instance)
+			msg := "Could not get " devType[isMouse] " with VID " VID ", PID " PID ", Instance " instance
+			ToolTip %msg%
+			Sleep, 1000
+			ToolTip
 		}
 		return dev
 	}

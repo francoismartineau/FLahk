@@ -130,9 +130,10 @@ cutUnderMouse(removeAfter = False) {
     Case "muteTool":
         activateMuteTool()
     }
-    mX := mX + 10
-    mY := mY + 10
-    MouseMove, %mX%, %mY%
+    
+    moveMouse(mX-10, mY)
+    Click
+    moveMouse(mX+10, mY)
     retrieveMouse := False
 }
 

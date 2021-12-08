@@ -5,14 +5,16 @@ global hilightMode
 startHighlightClock()
 {
     SetTimer, HIGHLIGHT_TICK, 100
+    isHighlighting := True
 }
 
 stopHighlightClock()
 {
     SetTimer, HIGHLIGHT_TICK, Off
+    isHighlighting := False
 }
 
-makeHighlitgh()
+makeHighlight()
 {
     Gui, Highlight:New   
     Gui, Highlight:-Caption +E0x08000000 +E0x20 +AlwaysOnTop +LastFound +ToolWindow +HwndHighlightId
@@ -21,16 +23,18 @@ makeHighlitgh()
 
 highlightTick()
 {
+    if (mouseOverHighlight())
+        setHighlightTint()
     Switch hilightMode
     {
     Case "browser":
-        if (mouseOverBrowser()) 
+        if (mouseOverBrowser() and !mouseOverFolder()) 
         {
             ;chanPresetH := 25
             ;folderH := 23
             fileH := 21
             x := 13
-            w := 240 - x
+            w := 230 - x
             h := fileH
             CoordMode, Mouse, Screen
             MouseGetPos,, mY
@@ -68,14 +72,30 @@ highlightTick()
     }
 }
 
-setHighlightTint(col = 0X34444e, transparency = 115)
+setHighlightTint(col := 0X34444e, transparency := 115)
 {
     WinSet, TransColor, %col% %transparency%, ahk_id %HighlightId%
 }
 
 
+getHighlightCoords(ByRef x, ByRef y, ByRef w, ByRef h)
+{
+    x := lastHighlightX
+    y := lastHighlightY
+    w := lastHighlightW
+    h := lastHighlightH
+}
+
+global lastHighlightX
+global lastHighlightY
+global lastHighlightW
+global lastHighlightH
 showHighlight(x, y, w, h)
 {
+    lastHighlightX := x
+    lastHighlightY := y
+    lastHighlightW := w
+    lastHighlightH := h
     Gui, Highlight:Show, x%x% y%y% w%w% h%h% NoActivate, highlightWin
 }
 
@@ -93,9 +113,14 @@ stopHighlight()
 startHighlight(mode)
 {
     hilightMode := mode
-    
-    makeHighlitgh()
+    makeHighlight()
     setHighlightTint()
     startHighlightClock()
 }
 
+
+mouseOverHighlight()
+{
+    MouseGetPos,,, winId
+    return winId == HighlightId
+}

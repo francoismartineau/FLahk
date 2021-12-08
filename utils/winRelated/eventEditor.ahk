@@ -7,7 +7,12 @@ global scrollingTabNumScroll := 0
 scrollTab(dir, mode)
 {
     if (!scrollingTab)
-        scrollTabStart(mode)
+        started := scrollTabStart(mode)
+    if (!started)
+    {
+        msg("didn't find tab")
+        return
+    }
 
     Switch mode
     {
@@ -29,6 +34,7 @@ scrollTab(dir, mode)
 
 scrollTabStart(mode)
 {
+    res := False
     freezeMouse()
     Switch mode
     {
@@ -38,9 +44,10 @@ scrollTabStart(mode)
         w := 400
         incr := 30
     Case "pianoroll":
-        x := 123
+        MouseGetPos, x
         timeLineY:= 75
-        w := 1820
+        timelineEnd := 1895
+        w := timelineEnd - x
         incr := 40
     }    
     colVar := 10
@@ -56,8 +63,10 @@ scrollTabStart(mode)
         MouseMove, %tabX%, %timeLineY%, 1
         Sleep, 100
         Send {LButton down}
-        unfreezeMouse()
+        res := True
     }
+    unfreezeMouse()
+    return res
 }
 
 scrollTabStop()

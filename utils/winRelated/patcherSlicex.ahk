@@ -1,22 +1,55 @@
 
- createPatcherSlicex(oriX, oriY, oriWin)
+createPatcherSlicex(dragX, dragY, dragWin, inPatcher := False)
 {
-    samplerId := loadPatcherSlicex(False)
-    WinMove, ahk_id %samplerId%,, 700, 200
-    movedSampler := moveWinIfOverPos(oriX, oriY, samplerId)
-    dragDropPatcherSlicex(samplerId, oriX, oriY, oriWin)
-
-    if (movedSampler)
+    if (inPatcher)
+    {
+        WinActivate, ahk_class TPluginForm
+        mouseOverKnot := False
+        unfreezeMouse()
+        while (!mouseOverKnot)
+        {
+            toolTip("PatcherMap: place mouse on knot")        
+            res := waitAcceptAbort()
+            toolTip()
+            if (res == "abort")
+                return
+            mouseOverKnot := mouseOverMidiKnot()
+        }
+        freezeMouse()  
+        MouseGetPos,,, patcherId
+        if (!WinActive("ahk_id " patcherId))
+            WinActivate, ahk_id %patcherId%             
+        samplerId := patcherLoadPatcherSlicex()
+        dragDropPatcherSampler(samplerId, dragX, dragY, dragWin)
+        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
+    }
+    else
+    {
+        samplerId := loadPatcherSlicex(False)
         WinMove, ahk_id %samplerId%,, 700, 200
-    randomizeName(True, False, False, "Slcx")
+        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
+        dragDropPatcherSlicex(samplerId, dragX, dragY, dragWin)
+        randomizeName(True, False, False, "Slcx")
+    }
+    if (movedSampler)
+        WinMove, ahk_id %samplerId%,, 700, 200    
 }
 
+global slicexMapX := 269
+global slicexMapY := 156
 
 revealInternalSlicex(samplerID)
 {
-    Click, 71, 92 	                                                        ; Map
-    Click, 341, 139, 2                                                      ; open Slicex   
+    mapSurfaceY := 88 - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+    mapX := 71
+    moveMouse(mapX, mapSurfaceY)
+    Click
+
+    localSlicexMapY := slicexMapY - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+    moveMouse(slicexMapX, localSlicexMapY)
+    SendInput !{LButton}
     slicexId := waitNewWindowTitled("slicex", samplerID)
+    alwaysOnTop(slicexId)
     WinMove, ahk_id %slicexId%,, 700, 200
     return slicexId
 }
@@ -31,7 +64,8 @@ dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
     CoordMode, Mouse, Client    
 
     WinActivate, ahk_id %slicexId%
-    moveMouse(303, 461)
+    WinMove, ahk_id %slicexId%,, 376, 184
+    moveMouse(324, 472)
     msgTip("drop sample", 200)
     Click, up
     Sleep, 50
@@ -48,6 +82,8 @@ patcherSlicexRel(disable = False)
 {
     WinGet, samplerID, ID, A
     slicexId := revealInternalSlicex(samplerID)
+    if (!slicexId)
+        return
     Sleep, 10
     MouseMove, 540, 337, 0
     Send {LButton}
@@ -84,6 +120,8 @@ patcherSlicexFilterType()
 {
     WinGet, samplerID, ID, A
     slicexId := revealInternalSlicex(samplerID)
+    if (!slicexId)
+        return
     MouseMove, 290, 221, 0
     toolTip("set filter type")
     waitAcceptAbort(False, False)

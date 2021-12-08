@@ -2,7 +2,7 @@ global mixerSlotIndex := 1
 global lastmixerSlotIndexTime
 
 
-clickM123(m)
+mouseOnM123(m)
 {
     mY := -4
     Switch m
@@ -15,11 +15,11 @@ clickM123(m)
         mX := 326
     }
     moveMouse(mX, mY)
-    clickAlsoAccepts := True
     unfreezeMouse()
     retrieveMouse := False
     return
     ;;;;;;;;;;;;;;;
+    clickAlsoAccepts := True
     acceptAbort := waitAcceptAbort(False, True)
     freezeMouse()
     if (acceptAbort == "accept")
@@ -30,35 +30,16 @@ assignMixerTrack()
 {
     Send {Ctrl down}l{Ctrl up}
     bringMixer()
+    choices := ["m1", "m2", "m3 (pitcher)", "bass (sidechain)"]
+    choice := toolTipChoice(choices, "Master track", 1)
+    choice := StrSplit(choice, " ")[1]
+    assignMixerTrackRoute(choice)
 }
 
 mixerOpenSlot()
 {
     if (mouseOverEmptySlot())
-    {
-        Click
-        Send 1
-        CoordMode, Mouse, Screen
-        Random, mouseY , 805 , 1180
-        MouseMove, -441, %mouseY%
-        CoordMode, Mouse, Client
-        clickAlsoAccepts := True
-        unfreezeMouse()
-        action := waitAcceptAbort(False)
-        freezeMouse()
-        Switch action
-        {
-        Case "accept":
-            if (!acceptedWithClick)
-                Send {Enter}
-            pluginId := waitNewWindowOfClass("TPluginForm", "", 1000)
-            if (pluginId)
-                centerMouse(pluginId)        
-        Case "abort":
-            Send {Esc}{Esc}{Esc}
-            moveMouseOnMixerSlot()
-        }
-    }
+        loadEffectCtxMenu()
     else
     {
         WinGet, mixerId, ID, A
@@ -67,18 +48,34 @@ mixerOpenSlot()
         if (!pluginId)
         {
             Click
-            pluginId := waitNewWindowOfClass("TPluginForm", "", 1000)
+            pluginId := waitNewWindowOfClass("TPluginForm", "", 50)
         }
         if (pluginId)
-        {
-            if (isProbablyEq(pluginId))
-            {
-                MouseMove, 606, 295, 0
-                retrieveMouse := False
-            }
-            else
-                centerMouse(pluginId)
-        }
+            centerMouse(pluginId)
+    }
+}
+
+loadEffectCtxMenu()
+{
+    Click
+    Send 1
+    CoordMode, Mouse, Screen
+    Random, mouseY , 805 , 1180
+    MouseMove, -441, %mouseY%
+    CoordMode, Mouse, Client
+    clickAlsoAccepts := True
+    unfreezeMouse()
+    action := waitAcceptAbort(False)
+    freezeMouse()
+    Switch action
+    {
+    Case "accept":
+        pluginId := waitNewWindowOfClass("TPluginForm", "", 300)
+        if (pluginId)
+            centerMouse(pluginId)
+    Case "abort":
+        Send {Esc}{Esc}{Esc}
+        moveMouseOnMixerSlot()
     }
 }
 
@@ -136,7 +133,9 @@ incrInstrMixerTrack(dir)
 global mixerMenuXs := [1639, 1555, 1464, 1374, 1295, 1215, 1124, 1041, 956, 873, 791, 686, 417, 370, 334, 284, 255]
 scrollMixerMenu(dir)
 {
-    MouseGetPos, mX
+    MouseGetPos, mX, mY
+
+
     for i, x in mixerMenuXs
     {
         if (mX >= x)
@@ -160,7 +159,11 @@ scrollMixerMenu(dir)
             break
         }
     }
-    MouseMove, %newMx%, -5, 0
+    if (newMx < 486 or mY < 3)
+        newMy := -5
+    else
+        newMy := 11
+    MouseMove, %newMx%, %newMy%, 0
 }
 
 ; -- Clone Track State -----------------------------------
@@ -174,15 +177,20 @@ mouseOverMixerDuplicateTrackRegion()
 
 cloneMixerTrackState()
 {
-    y := 111
-    MouseGetPos, x
-    if (x < 1422)
-        x := x + 312
-    Click, Right
-    Loop, 5
-        Send {Down}
-    Send {Right}
-    MouseMove, %x%, 95
+    if (mouseOverMixerDuplicateTrackRegion())
+    {
+        y := 111
+        MouseGetPos, x
+        if (x < 1422)
+            x := x + 312
+        Click, Right
+        Loop, 5
+            Send {Down}
+        Send {Right}
+        MouseMove, %x%, 95
+    }
+    else
+        msg("move mouse in upper mixer strip region to clone")
 }
 ; ----
 

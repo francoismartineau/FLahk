@@ -1,6 +1,13 @@
-assign2()
+lockChanFromInstrWin()
 {
-    chan := getAssign2Chan()
+    bringStepSeq(False)
+    moveMouseToSelY()
+    lockChan()
+}
+
+lockChan()
+{
+    chan := getLockDevice()
     if (chan == "")
         return
 
@@ -55,20 +62,10 @@ assign2()
 
 }
 
-getAssign2Chan()
+getLockDevice()
 {
     choices := ["----", 2, 3, 4, "keyboard"]
     return toolTipChoice(choices, "", 1)
-}
-
-unassign2()
-{
-    Click, Right
-
-    Loop, 3
-        Send {Up}
-
-    Send {Right}u
 }
 
 maximizePattLen()

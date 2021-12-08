@@ -4,10 +4,10 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
     {
         playlistToolTip("Activate the sampler and press Enter")
         WinGet, winId, ID, A
-        if (!isInstr(winId))
+        if (!isOneOfTheSamplers(winId))
             activatePrevPlugin()
         unfreezeMouse()
-        clickAlsoAccepts := True
+        ;clickAlsoAccepts := True
         waitAcceptAbort()
         freezeMouse()
         toolTip()
@@ -35,7 +35,6 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
     randomizeName(True, False, False, baseName)
 }
 
-
 detectWhichSampler(samplerId)
 {
     if (isPatcherSampler(samplerId))
@@ -47,26 +46,27 @@ detectWhichSampler(samplerId)
     return which
 }
 
+
+; -----------------------------------------------
 dragDropPatcherSampler(patcherId, oriX, oriY, oriWin)
 {
-    directwaveId := revealPatcherDirectWave(patcherId)
-    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, directwaveId)
-    hideInternalSampler(directwaveId, patcherId)
+    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, patcherId)
 }
 
 dragDropPatcherSlicex(patcherId, oriX, oriY, oriWin)
 {
+
     slicexId := revealInternalSlicex(samplerID)
+    if (!slicexId)
+        return
     dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
     hideInternalSampler(slicexId, samplerID)
 }
 
 dragDropPatcherGranular(patcherId, oriX, oriY, oriWin)
 {
-    directwaveId := revealPatcherDirectWave(patcherId)
-    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, directwaveId, True)
+    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, patcherId, True)
 
-    MouseMove, 447, 633, 0          ; loop
-    Send {LButton}{WheelDown}{WheelDown}{LButton}
-    hideInternalSampler(directwaveId, patcherId)
+    ;MouseMove, 447, 633, 0          ; loop
+    ;Send {LButton}{WheelDown}{WheelDown}{LButton}
 }

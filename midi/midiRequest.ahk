@@ -50,6 +50,9 @@ midiRequest(req, param=0, timeout=2)
 
         Case "deselect_all_channels":
             cc := 117
+            
+        Case "test_func":
+            cc := 116
         }
 
         channel := 15

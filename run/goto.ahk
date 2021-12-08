@@ -6,6 +6,8 @@ WINDOW_HISTORY_CLOCK:
 MAIN_CLOCK:
     hideShowFLahk()
     keepNumLockOn()
+    knobSavesDebuger()
+    startStopObsClock()
     return
 
 WINDOW_MENUS_CLOCK:
@@ -16,14 +18,16 @@ SAVE_REMINDER_CLOCK:
     saveReminder()
     return
 
-; -- gen -----------------------
+; -- concat audio -----------------------
 CONCAT_AUDIO:
     if (ConcatAudioShown)
         hideConcatAudio()
     else
         showConcatAudio()
     return
-
+CONCAT_AUDIO_BROWSE:
+    freezeExecute("browseRandomSingleSound", False)
+    return
 PICK_CONCAT_AUDIO_PATH1:
     if (ConcatAudioShown)
         if (GetKeyState("Ctrl"))
@@ -89,20 +93,26 @@ CONCAT_AUDIO_RUN:
 
 
 ; -- gui buttons ------------------------
-OCR_TOGGLE:
-    GuiControlGet, checked,, OcrToggleGui
-    OcrToggleEnabled := checked
+OPEN_PROJECT_FOLDERS:
+    browseFolder(savesFilePath)
+    browseFolder(currProjPath)
+    return
+WIN_HISTORY_DEBUG_TOGGLE:
+    GuiControlGet, checked,, winHistoryDebugGui
+    debugWindowHistory := checked
+    if (!debugWindowHistory)
+        toolTip("", debugToolTip)
     return
 
-FILE_SAVED_TOGGLE:
-    GuiControlGet, checked,, FileSavedToggleGui
-    fileSavedToggleEnabled := checked
-    if (fileSavedToggleEnabled and savesFilePath == "")
-    {
-        getCurrentProjSaveFilePath()
-        loadWinHistories()
-        loadKnobSaves()
-    }
+KNOB_SAVES_DEBUG_TOGGLE:
+    GuiControlGet, checked,, knobSavesDebugToggleGui
+    knobSavesDebug := checked
+    if (!knobSavesDebug)
+        toolTip("", debugToolTip)
+    return
+
+MOVE_WIN_AT_MOUSE:
+    moveWinAtMouse()
     return
 
 RAND_PLUGIN:
@@ -272,3 +282,100 @@ TOGGLE_MOUSE_CTL_INTERPOLATION_MODE:
     updateGuiMouseCtlIncrMode()
     return
 
+; -- MsgRefresh ------------------------------------------------
+MSG_REFRESH_TICK:
+    msgRefreshTick()
+    return
+
+; -- NumpadG ------------------------------------------------
+NUMPAD_G_1:                                 ; c min max
+    hideNumpadG()
+    freezeExecute("applyMinMaxLinkController")
+    return
+NUMPAD_G_2:                                 ; c link
+    hideNumpadG()
+    freezeExecute("linkControllerOnly") 
+    return
+NUMPAD_G_3:                                 ; Main Events
+    hideNumpadG()
+    freezeExecute("toggleMainEvents")
+    return
+NUMPAD_G_4:                                 ; note
+    hideNumpadG()
+    freezeExecute("loadScore", True, True, 2)
+    return
+
+NUMPAD_G_5:                                 ; Autom
+    hideNumpadG()
+    freezeExecute("Autom")
+    return
+NUMPAD_G_6:                                 ; step edit
+    hideNumpadG()
+    freezeExecute("toggleStepEdit") 
+    return
+NUMPAD_G_7:
+    hideNumpadG()
+    return
+NUMPAD_G_8:
+    hideNumpadG()
+    return
+
+NUMPAD_G_9:                                 ; LFO
+    hideNumpadG()
+    freezeExecute("LFO")
+    return
+NUMPAD_G_10:                                ; Make Unique
+    hideNumpadG()
+    freezeExecute("makeUnique")
+    return
+NUMPAD_G_11:                                ; Select similar clips
+    hideNumpadG()
+    freezeExecute("selectSimilarClips")
+    return
+NUMPAD_G_12:
+    hideNumpadG()
+    return
+
+NUMPAD_G_13:                                ; EC
+    hideNumpadG()
+    msg("env c?")
+    freezeExecute("EnvC")
+    return
+NUMPAD_G_14:                                ; source
+    hideNumpadG()
+    freezeExecute("selectSourceForAllSelectedClips")
+    return
+NUMPAD_G_15:                                ; reverse sound
+    hideNumpadG()
+    freezeExecute("reverseSound")
+    return
+NUMPAD_G_16:                                ; Layer
+    hideNumpadG()
+    freezeExecute("Layer")
+    return    
+
+NUMPAD_G_17:                                ; Note length
+    hideNumpadG()
+    freezeExecute("toggleHoveredNoteLenght", True, True)       
+    return    
+
+NUMPAD_G_18:                                ; Lock channel
+    hideNumpadG()
+    if (isPianoRoll())
+        freezeExecute("pianorollActivate2")
+    else if (mouseOverStepSeqInstruments())
+        freezeExecute("lockChan")
+    else if (isInstr())
+        freezeExecute("lockChanFromInstrWin")
+    return    
+
+NUMPAD_G_19:                                ;
+    return
+
+NUMPAD_G_20:                                ;
+    return
+
+; -- OBS Mouse Pos ---------------------------------------------
+OBS_CHECK_MOUSE_POS_TICK:
+    obsCheckMousePosTick()
+    return

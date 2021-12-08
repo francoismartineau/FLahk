@@ -4,14 +4,16 @@
     freezeExecute("openMixerInsert")
     return
 #If
+
+#If WinActive("ahk_exe FL64.exe") and (mouseOverStepSeqMixerInserts() or mouseOverInstrMixerInsert())
++LButton::
+    freezeExecute("openMixerInsert")
+    return
+#If
 ;-- 
 
 ; -- Open Slot LMButton ------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and mouseOverMixerSlotSection()
-MButton::
-    freezeExecute("mixerOpenSlot")
-    return
-
 LButton::
     freezeExecute("mixerOpenSlot")
     return
@@ -55,7 +57,7 @@ LButton Up::
     Case "3_1":
         freezeExecute("loadFxFromChoice", False, False, "filter")
     Case "3_2":
-        freezeExecute("loadStereos")
+        freezeExecute("loadFxFromChoice", False, False, "patcher4")
 
     Case "4_1":
         freezeExecute("loadFxFromChoice", False, False, "pitch")
@@ -83,7 +85,9 @@ LButton Up::
     Case "9_2":
         freezeExecute("load3xGross")
 
-    ;Case "0_1":
+    Case "0_1":
+        freezeExecute("loadFxFromChoice", False, False, "edit")
+
     ;Case "0_2":
 
     ;Case "F5_1":
@@ -92,8 +96,7 @@ LButton Up::
     ;Case "F6_1":
     ;Case "F6_2":
 
-    Case "F7_1":
-        freezeExecute("loadFxFromChoice", False, False, "edit")
+    ;Case "F7_1":
     ;Case "F7_2":
     Default:
         Click
@@ -187,13 +190,13 @@ F7::
 
 
 +1:: 
-    freezeExecute("clickM123", True, False, "m1")
+    freezeExecute("mouseOnM123", True, False, "m1")
     return
 +2:: 
-    freezeExecute("clickM123", True, False, "m2")
+    freezeExecute("mouseOnM123", True, False, "m2")
     return
 +3:: 
-    freezeExecute("clickM123", True, False, "m3")
+    freezeExecute("mouseOnM123", True, False, "m3")
     return
 #If
 ; -------

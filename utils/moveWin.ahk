@@ -12,7 +12,8 @@ moveWindows()
         movePianoRoll()
         moveMixer()
         moveMasterEdison()
-        ; showBackgroundWindow()    
+        moveMasterPatcher()
+
         moveScreenKeyboard()
         moveKnobsWin()
     }
@@ -85,6 +86,30 @@ moveMixer()
     mxW := Mon1Right - mxX 
     mxH := Mon1Bottom - mxY
     WinMove, ahk_class TFXForm,, %mxX%, %mxY%, %mxW%, %mxH%    
+}
+
+moveMixerMenu()
+{
+    res := getMixerMenuPos()
+    mixerMenuX := res[1]
+    mixerMenuY := res[2]
+    WinMove, ahk_id %MixerMenuId%,, %mixerMenuX%, %mixerMenuY%
+}
+
+hidePianoRoll()
+{
+    moveMixer() 
+    moveMixerMenu()
+    moveMasterEdison()
+    WinGet, pianoRollId, ID, ahk_class TEventEditForm, Piano roll
+    WinClose, ahk_id %pianoRollId%
+}
+
+moveMasterPatcher()
+{
+    WinGet, masterPatcherId, ID, Master Patcher ahk_class TPluginForm
+    WinRestore, ahk_id %masterPatcherId%
+    WinMove, ahk_id %masterPatcherId%,, -1920, 568, 1920, 1080   
 }
 
 moveMasterEdison()

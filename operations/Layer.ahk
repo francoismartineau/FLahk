@@ -1,29 +1,36 @@
 ﻿Layer()
 {
-    ;;;;;; suggest a name in the box
-    name := prompLayerName()
+    res := prompLayerName(name)
+    if (!res)
+        return
+
     res := groupChannels(name)
     if (!res)
         return
+    
     loadInstr(3, False, False)             ; load 3_Layer
     Sleep, 100
-    layerID := bringLayer()
-    if (layerID)
+    layerId := bringLayer()
+    if (layerId)
     {
-        setChildren(layerID)
-        setLayerVolume(layerID)
+        setChildren(layerId)
+        setLayerVolume()
         pasteColor("", True)
         rename("Layer " name)
+        lockChanFromInstrWin()
     }
 }
 
 
-prompLayerName()
+prompLayerName(ByRef name)
 {
+    res := True
     unfreezeMouse()
     n := randString(2)
     InputBox, name , Layer name,,,,100, 100, 500, 500,,,, %n%
-    return name
+    if ErrorLevel
+        res := False
+    return res
 }
 
 groupChannels(name)
@@ -52,11 +59,10 @@ bringLayer()
     WinGetPos,,,, winH, ahk_id %stepSeqID%
 
     layerY := winH - 60
-    ;Sleep, 100
     Click, 147, %layerY% 
-    layerID := waitNewWindowOfClass("TPluginForm", stepSeqID)
-    moveWinLeftScreen(layerID)
-    return layerID
+    layerId := waitNewWindowOfClass("TPluginForm", stepSeqID)
+    moveWinRightScreen(layerId)
+    return layerId
 }
 
 currentWinIsPlugin()
@@ -69,23 +75,23 @@ currentWinIsPlugin()
 }
 
 
-setChildren(layerID)
+setChildren(layerId)
 {
     WinActivate, ahk_class TStepSeqForm
     Sleep, 500
     sepX := 274
     MouseClick, Left, %sepX%, 62, 2                             ; sélectionne tous les channels en double-cliquant
-    WinActivate, ahk_id %layerID%
+    WinActivate, ahk_id %layerId%
     MouseClick, Left, 82, 226                                   ; Set Children
     WinActivate, ahk_class TStepSeqForm
     WinGetPos,,,, h, A
     LayerY := h - 60
     MouseClick, Left, %sepX%, %LayerY%
-    WinActivate, ahk_id %layerID%
+    WinActivate, ahk_id %layerId%
     Sleep, 100
 }
 
-setLayerVolume(layerID)
+setLayerVolume()
 {
     setKnobValue(70, 125, .6)
 }

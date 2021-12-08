@@ -6,7 +6,7 @@ showSplashScreen()
 {
     if (!splashScreenToggle)
         return
-	splashScreenFile := "D:\Projets\FLahk\logo.gif"
+	splashScreenFile := "D:\Projets\FLahk vid\logo.gif"
 	Gui, SplashScreen:-Caption +E0x08000000 +AlwaysOnTop +LastFound +ToolWindow +HwndsplashScreenId
 	AGif := AddAnimatedGIF(splashScreenFile, 0, 0, "", "", "SplashScreen")
 	Gui, SplashScreen:Show, w1002 h586

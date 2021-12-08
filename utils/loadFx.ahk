@@ -1,4 +1,4 @@
-loadFxFromChoice(choice)
+loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CATEGORY (in caps in gui)
 {
     Switch choice
     {
@@ -12,269 +12,526 @@ loadFxFromChoice(choice)
         choices := ["New Tone", "New Time", "Scratch"]
     Case "dyn":
         choices := ["gate", "compressor", "transient"]
+    Case "patcher4":
+        choices := ["stereos", "equos", "mod+lfos", "phasers"]
+    Case "room":
+        choices := ["rev", "delay", "conv", "delB"]
     }
     Switch toolTipChoice(choices, "", randInt(1, choices.MaxIndex()), A_ThisHotkey)
     {
     Case "Chorus+3F":
-        loadModulation()
+        loadModulation(mode)
     Case "ringmod":
-        loadRingMod()
+        loadRingMod(mode)
     Case "chorus":
-        loadChorus()
+        loadChorus(mode)
     Case "phaser":
-        loadPhaser()
+        loadPhaser(mode)
 
     Case "EQ":
-        loadEq()
+        loadEq(mode)
     Case "Equo":
-        loadEquo()
+        loadEquo(mode)
     Case "3xFilter":
-        load3xFilter()
+        load3xFilter(mode)
     Case "bass":
-        loadBass()
+        loadBass(mode)
 
     Case "Vibrato":
-        loadVibrato()
+        loadVibrato(mode)
     Case "Pitch shift":
-        loadPitchShifter()
+        loadPitchShifter(mode)
 
     Case "New Tone":
-        loadNewTone()
+        loadNewTone(mode)
     Case "New Time":
-        loadNewTime()
+        loadNewTime(mode)
     Case "Scratch":
-        loadScratch()
+        loadScratch(mode)
 
     Case "gate":
-        loadGate()
+        loadGate(mode)
     Case "compressor":
-        loadComp()
+        loadComp(mode)
     Case "transient":
-        loadTransient()
-
+        loadTransient(mode)
+    Case "stereos":
+        loadStereos(mode)
+    Case "equos":
+        loadEquos(mode)
+    Case "mod+lfos":
+        loadModLfos(mode)
+    Case "phasers":
+        loadPhasers(mode)
     }        
 }
 
 
 ;-- Specific FX ----------------------------------------------------
-loadRev()
+loadRev(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(2)
-    rename(mixerChannName " Rev", False, True)
-    randomizeRev()
-    moveMouse(512, 90)
-    retrieveMouse := False
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(2)
+        rename(mixerChannName " Rev", False, True)
+        randomizeRev()
+        moveMouse(512, 90)
+        retrieveMouse := False
+    }
+    else if (mode == "patcher")
+    {
+        patcherLoadPlugin("fx", "rev", 2)
+    }
 }
 
-loadLfo()
+loadLfo(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(4)
-    randomizeLfo()
-    rename(mixerChannName " Peak", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(4)
+        randomizeLfo()
+        rename(mixerChannName " Peak", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherId := patcherLoadPlugin("fx", "LFO " randString(2), 4, "", "loadLfoPromptFunc")
 }
 
-loadEq()
+loadLfoPromptFunc()
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(9, 1)
-    rename(mixerChannName " Eq", False, True)
-    MouseMove, 606, 295, 0
-    retrieveMouse := False
+    onAudioKnot := False
+    while (!onAudioKnot)
+    {
+        res := unfreezeWhileExec("Place LFO, Leave mouse over left knot")
+        if (res == "abort")
+            return
+        onAudioKnot := mouseOverAudioKnot()   
+    }
+    
+    ; for some reason, the plugin opens during those operations.
+    ; when performed slower, it doesn't open...
+    Click, R
+    Send {Down}{Enter}
+    Sleep, 100
+
+    MouseMove, 103, 0, 0, R
+    Click, R
+    Send {Down}{Enter}
+
+    MouseMove, -50, 0, 0, R
+    Click, R
+    Send o{Right}{Down}{Down}{Right}{Up}{Enter}
+    Click, R
+    Send o{Right}{Down}{Down}{Right}{Up}{Up}{Enter}  
+    Sleep, 200
 }
 
-loadEquo()
+loadFormulaCtl(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(3)
-    rename(mixerChannName " Equo", False, True)
-    MouseMove, 432, 71, 0
-    retrieveMouse := False
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(28)
+        randomizeLfo()
+        rename(mixerChannName " Peak", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        winId := patcherLoadPlugin("fx", "ctl", 28, "", "loadFormulaCtlPromptFunc")    
 }
 
-loadModulation()
+loadFormulaCtlPromptFunc()
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(11)
-    rename(mixerChannName " Mod", False, True)
-    centerMouse(winId)
+    res := unfreezeWhileExec("Place Formula Ctl, leave mouse over")
+    if (res == "abort")
+        return
+    Click, R
+    Sleep, 100
+    Send i
+    Send {Down}
+    Sleep, 100
+    Send {Right}
+    Sleep, 100
+    Send {Down}
+    Sleep, 100
+    Send {Enter}
+    Sleep, 100
+    
+    Click, R
+    Sleep, 100
+    Send o
+    Sleep, 100
+    Send {Down}
+    Sleep, 100
+    Send {Right}
+    Sleep, 100
+    Send {Up}
+    Sleep, 100
+    Send {Enter}
+    Sleep, 100
 }
 
-loadDelB()
+loadEq(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 1)
-    Sleep, 300
-    rename(mixerChannName " DelB", False, True)
-    randomizePlugin(winId)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(9, 1)
+        rename(mixerChannName " Eq", False, True)
+        MouseMove, 606, 295, 0
+        retrieveMouse := False        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "eq", 9, 1)
 }
 
-loadDelay()
+loadEquo(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(25)
-    Sleep, 300
-    randomizeDelay()
-    rename(mixerChannName " Delay", False, True)
-    centerMouse(winId)   
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(3)
+        rename(mixerChannName " Equo", False, True)
+        MouseMove, 432, 71, 0
+        retrieveMouse := False        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "equo", 3)
 }
 
-loadStereos()
+loadModulation(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 7)
-    rename(mixerChannName " Stereos", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(11)
+        rename(mixerChannName " Mod", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "mod", 11)
 }
 
-loadDist()
+loadDelB(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(10)
-    rename(mixerChannName " Dist", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 1)
+        Sleep, 300
+        rename(mixerChannName " DelB", False, True)
+        randomizePlugin(winId)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "delb", 1, 1)
 }
 
-loadGate()
+loadDelay(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(23)
-    rename(mixerChannName " Gate", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(25)
+        Sleep, 300
+        randomizeDelay()
+        rename(mixerChannName " Delay", False, True)
+        centerMouse(winId)          
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "delay", 25)
 }
 
-loadAutoPan()
+loadStereos(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(20)
-    rename(mixerChannName " AutoPan", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 7)
+        rename(mixerChannName " Stereos", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "stereos", 1, 7)
 }
 
-loadSpeaker()
+loadEquos(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(12)
-    rename(mixerChannName " Speaker", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 11)
+        rename(mixerChannName " Equos", False, True)
+        centerMouse(winId)          
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "equos", 1, 11)
 }
 
-loadRingMod()
+
+loadModLfos(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 5)
-    rename(mixerChannName " RingMod", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 12)
+        rename(mixerChannName " Mod+Lfos", False, True)
+        centerMouse(winId)           
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "mod+lfos", 1, 12)
 }
 
-load3xFilter()
+loadPhasers(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 2)
-    rename(mixerChannName " 3xFilter", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 13)
+        rename(mixerChannName " Phasers", False, True)
+        centerMouse(winId)            
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "phasers", 13)
 }
 
-loadVibrato()
+loadDist(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 3)
-    rename(mixerChannName " Vibrato", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(10)
+        rename(mixerChannName " Dist", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "dist", 10)
 }
 
-loadChorus()
+loadGate(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(21)
-    rename(mixerChannName " Chorus", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(23)
+        rename(mixerChannName " Gate", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "gate", 23)
 }
 
-loadPhaser()
+loadAutoPan(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(24)
-    rename(mixerChannName " Phaser", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(20)
+        rename(mixerChannName " AutoPan", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "auto pan", 20)
 }
 
-loadConv()
+loadSpeaker(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(31)
-    rename(mixerChannName " Conv", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(12)
+        rename(mixerChannName " Speaker", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "speaker", 12)
 }
 
-loadTransient()
+loadRingMod(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(38, False, "trialVersion")
-    rename(mixerChannName " Transient", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 5)
+        rename(mixerChannName " RingMod", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "ring mod", 1, 5)
 }
 
-loadScratch()
+load3xFilter(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(37)
-    rename(mixerChannName " Scratch", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 2)
+        rename(mixerChannName " 3xFilter", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "3xFilter", 1, 2)
 }
 
-loadComp()
+loadVibrato(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(22)
-    rename(mixerChannName " Comp", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 3)
+        rename(mixerChannName " Vibrato", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "vibrato", 1, 3)
 }
 
-loadNewTime()
+loadChorus(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(33)
-    deactivateNewTimeToneKeyInput(winId)
-    rename(mixerChannName " NewTime", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(21)
+        rename(mixerChannName " Chorus", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "chorus", 21)
 }
 
-loadNewTone()
+loadPhaser(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(34, False, "bpmInfo")
-    deactivateNewTimeToneKeyInput(winId)
-    rename(mixerChannName " NewTone", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(24)
+        rename(mixerChannName " Phaser", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "phaser", 24)
 }
 
-loadBass()
+loadConv(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(30)
-    rename(mixerChannName " Bass", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(31)
+        rename(mixerChannName " Conv", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "conv", 31)
 }
 
-load3xGross()
+loadTransient(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 9)
-    Sleep, 300
-    rename(mixerChannName " Gross", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(38, False, "trialVersion")
+        rename(mixerChannName " Transient", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        msg("not implemented")
 }
 
-loadPitchShifter()
+loadScratch(mode := "mixer")
 {
-    mixerChannName := getMixerChanNameAndColor()
-    winId := loadFx(1, 8)
-    rename(mixerChannName " Pitch shift", False, True)
-    centerMouse(winId)
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(37)
+        rename(mixerChannName " Scratch", False, True)
+        centerMouse(winId)        
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "scratch", 37)
+}
+
+loadComp(mode := "mixer")
+{
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(22)
+        rename(mixerChannName " Comp", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "comp", 22)
+}
+
+loadNewTime(mode := "mixer")
+{
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(33)
+        deactivateNewTimeToneKeyInput(winId)
+        rename(mixerChannName " NewTime", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "new time", 33)
+}
+
+loadNewTone(mode := "mixer")
+{
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(34, False, "bpmInfo")
+        deactivateNewTimeToneKeyInput(winId)
+        rename(mixerChannName " NewTone", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        msg("not implemented")
+}
+
+loadBass(mode := "mixer")
+{
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(30)
+        rename(mixerChannName " Bass", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "bass", 30)
+}
+
+load3xGross(mode := "mixer")
+{
+    if (mode == "mixer")
+    {       
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 9)
+        Sleep, 300
+        rename(mixerChannName " Gross", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "3xGross", 1, 9)
+}
+
+loadPitchShifter(mode := "mixer")
+{
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(1, 8)
+        rename(mixerChannName " Pitch shift", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", "pitch shift", 1, 8)
 }
 ; ----
 

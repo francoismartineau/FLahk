@@ -15,6 +15,7 @@ unwrapProject()
         clipboardSave := clipboard
         projectFolder := getParentProjectFolder(winId)
         ;msgTip("project folder:" projectFolder,2000)
+
         WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm 
         save()
         openParentProject(winId, projectFolder, projectName)
@@ -51,7 +52,7 @@ openParentProject(winId, projectFolder, projectName)
     browseWindowId := waitNewWindowOfClass("#32770", winId)
     WinMove, ahk_id %browseWindowId%,, 439, 250, 872, 668
     
-    MouseMove, 292, 15, 0           ;msgTip("over folder")
+    MouseMove, 292, 15, 0             ;msgTip("over folder")
     Click
     Send {Ctrl Down}v{Ctrl Up}{Enter}
     
@@ -67,14 +68,18 @@ openParentProject(winId, projectFolder, projectName)
     ;MouseMove, 580, 15, 0           
     ;msgTip("folder: " projectFolder "   over ->")
     ;Click
-    
-    MouseMove, 328, 447, 0          ;msgTip("over file name")
+
+    moveMouse(379, 514)            à
+    msgTip("over file name")
+
     Click
     Send {CtrlDown}a{CtrlUp}
     TypeText(projectName ".flp")
-    MouseMove, 444, 476, 0          ;msgTip("over Open")
+    moveMouse(459, 546 )          
+    
+    msgTip("over Open")
+    
     Click
-
 
     ;Send {Enter}
     ;MouseMove, 184, 85, 0

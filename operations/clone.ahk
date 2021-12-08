@@ -2,18 +2,105 @@ cloneActiveInstr()
 {
     toolTip("clone channel")
     bringStepSeq(False)
-    moveMouseToSelY()
-    cloneChannelUnderMouse()
+    currChannY := moveMouseToSelY()
+    res := cloneChannelUnderMouse()
+    clonedChannY := res[1]
+    clonedPluginId := res[2]
+    copyChannelScore(currChannY, clonedChannY)
+    
+    WinActivate, ahk_id %clonedPluginId%
     toolTip()
 }
 
+;; En construction ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+/*
+
+copyChannelScoreAllPatterns(sourceChannY, destChannY)
+{
+    oriPatt := midiRequest("get_pattern")
+    patt := 1
+    while (patt < 50)
+    {
+        midiRequest("set_pattern", patt)
+        copyChannelScore(currChannY, clonedChannY)
+        patt += 1
+        msg("patt: " patt, 20)
+        ;;;;;;;;;;;;;;;;;;;;;
+        ;;;;;;;;;;;;;;;;;;;;;
+        ;;;;;;;;;;;;;;;;;;;;;
+        ;;;;;;;;;;;;;;;;;;;;;
+        ;;;;;;;;;;;;;;;;;;;;;
+        ; how to know when last patt is reached?
+
+        ;   - cycle through 128 patt (or something)
+        ;   - next empty patt, 1st empty patt
+        ;   - cycle empty patts and note which are they?
+    }
+    midiRequest("set_pattern", oriPatt)
+}
+
+findLastPattern()
+{
+    ; cycle empty patterns
+        ; if over X empty in a row, stop
+
+    oriPatt := midiRequest("get_pattern")
+    midiRequest("set_pattern", 1)
+
+    emptyPatts := []
+    while (True)
+    {
+        SendInput, ^{F4}
+        patt := midiRequest("get_pattern")
+        emptyPatts.Push(patt)
+        if (patt >= 100)
+            break
+    }
+
+    toolTip(emptyPatts)
+    sleep, 100000
+    return
+
+    lastPatt := ""
+    patt := 1
+    while (patt < 100)
+    {
+        pattUsed := !hasVal(patt, emptyPatts)
+        msg("check if " patt " is used: " pattUsed)
+        if (pattUsed)
+            lastPatt := patt
+        patt += 1
+    }
+    midiRequest("set_pattern", oriPatt)
+    return lastPatt
+}
+*/
+
+copyChannelScore(sourceChannY, destChannY) 
+{
+    stepSeqGrey := [0x5F686D]
+    scoreX := 296
+    sourceChannHasScore := !colorsMatch(scoreX, sourceChannY, stepSeqGrey, 0)
+    if (sourceChannHasScore) 
+    {
+        moveMouse(186 , sourceChannY)
+        copyMouseChannelNotes()
+        moveMouse(186 , destChannY)
+        pasteMouseChannelNotes()
+    }
+}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 cloneChannelUnderMouse()
 {
-    toolTip("clone channel")
     selectChannelUnderMouse()
+    WinGet, ssId, ID, A
     Send {AltDown}c{AltUp}
+    clonedPluginId := waitNewWindowOfClass("TPluginForm", ssId)
     cloneSetName()
-    toolTip()
+    WinActivate, ahk_id %ssId%
+    clonedChannY := getFirstSelChannelY()
+    return [clonedChannY, clonedPluginId]
 }
 
 ; -----------------------------------------------

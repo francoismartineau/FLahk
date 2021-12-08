@@ -4,24 +4,7 @@
 ;;;;;;;;;;;;;
 ;;;; si key pressed, edit in Main Events
 
-knobEditEvents(centerMouse = True)
-{
-    MouseGetPos, knobX, knobY, winId
-    WinGetPos, winX, winY,,, ahk_id %winID%
-    movedWin := openKnobCtxMenu(knobX, knobY, winX, winY, winID)[1]
-    eventWinId := clickEditEvents(knobX, knobY, winID)
-    if (eventWinId)
-    {
-        ;bringPlaylist(False)
-        ;bringStepSeq(False)
-        moveWinRightScreen(winId)
-        WinActivate, ahk_id %winId%
-        moveEventEditor(eventWinId)
-        centerMouse(eventWinId)
-    }
-    if (movedWin)
-        WinMove, ahk_id %winID%,, %winX%, %winY%
-}
+
 
 insertEditEventsValue()
 {
@@ -53,15 +36,4 @@ insertEditEventsValue()
     Send {CtrlDown}d{CtrlUp}
     Sleep, 400
     retrieveMouse := True
-}
-
-
-
-ctxMenuEditEventsActivated(yr)
-{
-    MouseGetPos, x, y
-    x := x + 10
-    y := y + yr
-    cols := [0x000000]
-    return colorsMatch(x, y, cols, 10)
 }

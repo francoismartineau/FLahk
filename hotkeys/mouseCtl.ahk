@@ -65,7 +65,6 @@ mouseCtlLButton(state)
         static txt := "^"
         GuiControl, Main2:, GuiMouseCtlActive, %txt%
     }
-
 }
 
 mouseCtlRButton(state)

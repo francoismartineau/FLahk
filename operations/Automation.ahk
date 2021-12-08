@@ -1,4 +1,4 @@
-newAutomation()
+Autom()
 {
     MouseGetPos, knobX, knobY, pluginId
     if (WinExist("A") != winId)
@@ -8,7 +8,7 @@ newAutomation()
     pluginName := copyName()
     
     bringPlaylist(False)
-    timeSelEndX := waitForUserToMakeTimeSelection()
+    waitForUserToMakeTimeSelection(automX, automY)
     if (knobCreateAutomation(knobX, knobY, pluginId))
     {
         saveKnobPos(knobX, knobY, pluginId)
@@ -20,40 +20,12 @@ newAutomation()
         autName := makeControllerName("autom", pluginName, "", autName)
         rename(autName)
         bringPlaylist(False)
-        moveMouse(timeSelEndX-30, 60)
+        moveMouse(automX-30, automY, "Screen")
         retrieveMouse = False
     }
 }
 
-knobCreateAutomation(knobX, knobY, pluginId)
-{
-    WinActivate, ahk_id %pluginId%
-    WinGetPos, pluginX, pluginY,,, ahk_id %pluginId%
-    MouseMove, %knobX%, %knobY%    
-    res := openKnobCtxMenu(knobX, knobY, pluginX, pluginY, pluginId)
-    movedWin := res[1]
-    openedCtxMenu := res[2]
-    if (openedCtxMenu)
-    {    
-        ctxMenuLen := getKnobCtxMenuLength()
-        Switch ctxMenuLen
-        {
-        Case "patcherTimeRelated":
-            y := 197
-        Case "patcher":
-            y := 178
-        Case "timeRelated":
-            y := 169
-        Case "other":
-            y := 149
-        }
-        MouseMove, 28, %y% ,, R                                       
-        Click
-    }
-    if (movedWin)
-        WinMove, ahk_id %pluginId%,, %pluginX%, %pluginY%       
-    return openedCtxMenu
-}
+
 
 bringAutomationWindow()
 {

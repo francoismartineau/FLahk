@@ -9,6 +9,7 @@ moveMouseToSelY()
 {
     y := getFirstSelChannelY() + 10
     MouseMove, 220, %y%
+    return y
 }
 
 getFirstSelChannelY(firstChannY = 50)
@@ -181,19 +182,19 @@ locateStepSeqSep(y)
 }
 
 ; -- Clipboard -------------
-copyChannelNotes()
+copyMouseChannelNotes()
 {
     selectChannelUnderMouse()
     Send {CtrlDown}c{CtrlUp}
 }
 
-cutChannelNotes()
+cutMouseChannelNotes()
 {
     selectChannelUnderMouse()
     Send {CtrlDown}x{CtrlUp}
 }
 
-pasteChannelNotes()
+pasteMouseChannelNotes()
 {
     selectChannelUnderMouse()
     Send {CtrlDown}v{CtrlUp}
@@ -203,6 +204,7 @@ pasteChannelNotes()
 ; -- Channels ----------------
 openChannelUnderMouse(centerM = True)
 {
+    toolTip("open instr")
     WinGet, id, ID, A
     closeFirst := channelUnderMouseAlreadyOpen()
     if (closeFirst)
@@ -334,7 +336,7 @@ splitPattern()
     ;    MouseMove, 280, %y%
     ;    msgTip("sel?")
     ;}
-    ;copy first     copyChannelNotes()
+    ;copy first     copyMouseChannelNotes()
     ;insert pattern (wait for name)
     ;paste first
     ; Loop, n-1

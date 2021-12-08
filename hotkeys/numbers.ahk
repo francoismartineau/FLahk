@@ -2,19 +2,19 @@
 ; ---- Patcher 4 --------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and isPatcher4()
 1::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return
 
 2::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return
 
 3::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return
 
 4::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return
 #If
 ; ----
@@ -86,7 +86,7 @@
     freezeExecute("pianorollRand")
     return
 
-^1::
++1::
     freezeExecute("pianorollGen")
     return
 
@@ -100,18 +100,22 @@
     return
 
 !2::
-    pianorollDisableLenghts()
+    freezeExecute("pianorollDisableLenghts")
     return
 
 3::
     freezeExecute("toogleNoteSlide")
     return
 
-4::
-    Send {CtrlDown}{AltDown}{Insert}{CtrlUp}{AltUp}
+!3::
+    freezeExecute("pianoRollDismissPitches")
     return
 
-^4::
+4::
+    freezeExecute("pianoRollAddSpace")
+    return
+
++4::
     freezeExecute("pianoRollCropTimeSel")
     return
 

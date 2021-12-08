@@ -6,6 +6,13 @@ loadSpeech()
     centerMouse(winId)
 }
 
+loadSynth()
+{
+    winId := loadInstr(1, 9)
+    rename("Synth " randString(randInt(1, 4)), True)
+    centerMouse(winId)
+}
+
 load3xosc()
 {
     winId := loadInstr(6)
@@ -143,7 +150,7 @@ loadAutogun()
 
 loadPatcherSlicex(placeMouse = True)
 {
-    winId := loadInstr(20)
+    winId := loadInstr(1, 8)
     rename("slicex " randString(randInt(1, 4)), True)
     if (placeMouse)
         centerMouse(winId)
@@ -179,7 +186,7 @@ loadRandomFlSynth()
 }
 
 ; -----------------------------------------
-loadInstr(n, preset = "",waitInstr = True)
+loadInstr(n, preset := "", waitInstr := True)
 {
     stepSeqId := bringStepSeq(False)
     if (WinActive("ahk_class TStepSeqForm"))
@@ -213,7 +220,7 @@ loadInstr(n, preset = "",waitInstr = True)
         if (preset)
             openPresetPlugin(preset, pluginId)
     }
-    return pluginId
+    return pluginId    
 }
 
 clickPlusButton(stepSeqId)

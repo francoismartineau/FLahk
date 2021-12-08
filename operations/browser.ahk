@@ -3,11 +3,11 @@ global packsPath := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs
 
 
 ; --- Packs ----------------------------------------
-browsePacks(folderRow)
+browsePacks(folderRow, mode := "postGen")
 {
     toolTip("Reaching pos")
     moveWinsOverBrowser()
-    wasRevealed := revealBrowserPacks() ;;;;;;
+    wasRevealed := revealBrowserPacks()
     packsRow := 2
 
     i := 1
@@ -20,10 +20,22 @@ browsePacks(folderRow)
     if (!browserFolderOpen(folderRow + packsRow))
             clickBrowserFolder(folderRow + packsRow)
 
-    fileRow := getRandomFileRowInFolderInPacks(folderRow)    ;;;;;
-    browserJumpToFile(folderRow + packsRow, fileRow)
-    startHighlight("browser")
-    readyToDrag := True
+    Switch (mode)
+    {
+    Case "preGen":
+        browserJumpToFile(folderRow + packsRow, 1)
+        while (mouseOverBrowser() and mouseOverFolder())
+        {
+            Click
+            folderRow++
+            browserJumpToFile(folderRow + packsRow, 1)
+        } 
+    Case "postGen":
+        fileRow := getRandomFileRowInFolderInPacks(folderRow)
+        browserJumpToFile(folderRow + packsRow, fileRow)        
+        startHighlight("browser")
+        readyToDrag := True    
+    }
     toolTip()
 }
 
@@ -61,27 +73,11 @@ getRandomFileRowInFolderInPacks(folderRow)
     fileHeight := 21
     maxFileRow := Floor(a/fileHeight)
 
-    fileQty := getSoundQtyInFolderInsidePacks(folderRow)
+    fileQty := getSoundAndFolderQtyInFolderInsidePacks(folderRow)
     maxFileRowForThisFolder := min(fileQty, maxFileRow)
 
     fileRow := randInt(1, maxFileRowForThisFolder)       ;;;;; use a distribution that tends to go up
     return fileRow
-}
-
-browseRandomGenFolder()
-{
-    genPath := packsPath "\_gen"
-    weights := [fileNumInDir(genPath)]
-    i := 2
-    genFolderQty := 3
-    while (i <= genFolderQty)
-    {
-        weights.Push(fileNumInDir(genPath . i))
-        i := i + 1
-    }
-    genNum := weightedRandomChoiceIndexOnly(weights)
-    foldersBeforeGen1 := 1
-    browsePacks(genNum + foldersBeforeGen1)
 }
 ; ----
 
@@ -98,7 +94,6 @@ moveWinsOverBrowser()
     clearWayToMouse(id, 310, 287)    
     moveMouse(186, 696, "Screen")
     clearWayToMouse(id, 310, 287)  
-    retrieveMousePos()  
 }
 
 browserGetFolderY(n)
@@ -107,6 +102,14 @@ browserGetFolderY(n)
     folderHeight := 23
     y := channelPresetTriangleY + (n-1)*folderHeight
     return y
+}
+
+browserGetFolderN(y)
+{
+    channelPresetTriangleY := 145
+    folderHeight := 23
+    n := (y-channelPresetTriangleY) / folderHeight + 1
+    return Floor(n)
 }
 ; ----
 
@@ -131,6 +134,63 @@ scrollBrowserToTop()
     Click
     Sleep, 300
 }
+
+closeCurrentlyOpenPacksFolder()
+{
+    ; from mouse, look to top until first opened folder
+    foundOpenFolder := False
+    bringMainFLWindow()
+    mouseGetPos(_, mY)
+    n := browserGetFolderN(mY)
+    packsRow := 2
+    while (n > 0 and !foundOpenFolder)
+    {
+        foundOpenFolder := browserFolderOpen(n + packsRow, folderY)
+        n--
+    }
+    if (foundOpenFolder)
+    {
+        moveMouse("", folderY)
+        Click
+        res := True
+    }
+    else
+        res := False
+    return res
+}
+
+findOpenedFoldersFromPacksToFiles()
+{
+    ;; reliable only if scrolled to top
+    prevMode := setMouseCoordMode("Screen")
+    mouseGetPos(_, mY)
+    currRow := browserGetFolderN(mY)
+    n := 3
+    openedRows := []
+    toolTip("start")
+    while (n < currRow)
+    {   
+        if (browserFolderOpen(n, folderY))
+            openedRows.Push(n)
+        n++
+    }
+    toolTip("done")
+    setMouseCoordMode(prevMode)
+    return openedRows
+}
+
+closeOpenedFoldersFromPacksToFiles()
+{
+    ;; reliable only if scrolled to top
+    folders := findOpenedFoldersFromPacksToFiles()
+    i := folders.MaxIndex()
+    while (i >= 1)
+    {
+        browserJumpToFolder(folders[i])
+        Click
+        i--
+    }
+}
 ; ----
 
 ; -- Move ---------------------------------------------------------
@@ -148,7 +208,7 @@ browserJumpToFile(folderRow, fileRow)
     moveMouse(136, y, "Screen")
 }
 
-browserRelMove(dir, n = 1)
+browserRelMove(dir, n := 1)
 {
     WinActivate, ahk_class TFruityLoopsMainForm
     if (dir == "up")
@@ -197,25 +257,37 @@ mouseOverBrowserScroll()
     }
     return res         
 }
+
+mouseOverFolder()
+{
+    mouseGetPos(_, mY, "Screen")
+    x := 237  
+    folderColors := [0x2A3338, 0x1A2328]
+    colVar := 3
+    prevMode := setPixelCoordMode("Screen")
+    res := colorsMatch(x, mY, folderColors, colVar)
+    setPixelCoordMode(prevMode)
+    return res
+}
 ; ----
 
 
 ; -- Vision -----------------------------------------------------
 browserSoundTabOpen()
 {
-    setPixelCoordMode("Screen")
+    prevMode := setPixelCoordMode("Screen")
     x := 198
     y := 116
     blue := [0x547992, 0x66A7D4]
     res := colorsMatch(198, 116, blue, 50)
-    setPixelCoordMode("Client")
+    setPixelCoordMode(prevMode)
     return res
 }
 
 browserScrolledToTop()
 {
     res := True
-    setPixelCoordMode("Screen")
+    prevMode := setPixelCoordMode("Screen")
     scrollBarArrowX := 6
     scrollBarArrowY := 140
     scrollBarArrowCol := [0x1d262b]
@@ -226,30 +298,46 @@ browserScrolledToTop()
         scrollBarCol := [0x121b20]
         res := colorsMatch(scrollBarX, scrollBarY, scrollBarCol, 10)
     }
-    setPixelCoordMode("Client")
+    setPixelCoordMode(prevMode)
     return res
 }
 
-browserFolderOpen(n)
+browserFolderOpen(n, ByRef y := "")
 {
     res := False
-    setPixelCoordMode("Screen")
-    x := 216
+    prevMode := setPixelCoordMode("Screen")
+    x := 237
+    if (isBrowserFolder(n, y))
+    {
+        colVar := 3
+        res := colorsMatch(x, y, [0x2A3338], colVar)                    ; selected
+        x := 233 
+        if (res)
+            res := colorsMatch(x, y, [0x131C21], colVar)                ; little triangle
+    }
+    setPixelCoordMode(prevMode)
+    return res
+}
+
+isBrowserFolder(n, ByRef y := "")
+{
+    prevMode := setPixelCoordMode("Screen")
     y := browserGetFolderY(n)                               ; precisely the height of the "open folder triangle"
-    res := colorsMatch(x, y, [0x2A3338])                    ; selected
-    x := 233 
-    res := res and colorsMatch(x, y, [0x131C21])            ; little triangle
-    setPixelCoordMode("Client")
+    x := 237   
+    folderColors := [0x2A3338, 0x1A2328]
+    colVar := 3
+    res := colorsMatch(x, y, folderColors, colVar)
+    setPixelCoordMode(prevMode)
     return res
 }
 ; ----
 
 
 ; -- File info --------------------------------------------------
-getSoundQtyInFolderInsidePacks(folderRow)
+getSoundAndFolderQtyInFolderInsidePacks(folderRow)
 {
     path := packsPath "\" getSortedPacksFolders()[folderRow]
-    return soundNumInDir(path)
+    return soundNumInDir(path) + folderNumInDir(path)
 }
 
 getSortedPacksFolders()

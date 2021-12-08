@@ -11,11 +11,10 @@ FileEncoding, UTF-8
 #Include utils/loadFx.ahk
 #Include utils/loadInstr.ahk
 #Include utils/applyController.ahk
-#Include utils/vision.ahk
 #Include utils/upperMenu.ahk
 #Include utils/isWin.ahk
 #Include utils/wait.ahk
-#Include utils/winDowMenus.ahk
+#Include utils/windowMenus.ahk
 #Include utils/windows.ahk
 #Include utils/bringWin.ahk
 #Include utils/moveWin.ahk
@@ -27,6 +26,8 @@ FileEncoding, UTF-8
 #Include utils/saveReminder.ahk 
 #Include utils/knobSaves.ahk 
 #Include utils/pattern.ahk 
+
+#Include utils/msgRefresh.ahk 
 #Include utils/transferSounds.ahk 
 #Include utils/winRelated/eventEditor.ahk
 #Include utils/winRelated/pianoRoll.ahk
@@ -38,9 +39,11 @@ FileEncoding, UTF-8
 #Include utils/winRelated/edison.ahk
 #Include utils/winRelated/playlist.ahk
 #Include utils/winRelated/patcher4.ahk
-#Include utils/winRelated/patcherSlicex.ahk
 #Include utils/winRelated/instr.ahk
 #Include utils/winRelated/patcherSampler.ahk
+#Include utils/winRelated/patcherSlicex.ahk
+#Include utils/winRelated/patcherGranular.ahk
+#Include utils/winRelated/patcherMap.ahk
 
 ; -- operations
 #Include operations/EditEvents.ahk
@@ -59,8 +62,7 @@ FileEncoding, UTF-8
 #Include operations/3xosc.ahk
 #Include operations/sampleToSlicex.ahk
 #Include operations/NewLib.ahk
-#Include operations/mouseCoords.ahk
-#Include operations/newAutomation.ahk
+#Include operations/Automation.ahk
 #Include operations/rename.ahk
 #Include operations/vsCode.ahk
 #Include operations/goForwardBackward.ahk
@@ -78,16 +80,21 @@ FileEncoding, UTF-8
 #Include operations/Filter.ahk
 #Include operations/browser.ahk
 #Include operations/dragSamples.ahk
-#Include operations/assign2.ahk
+#Include operations/lockChan.ahk
+#Include operations/browsePreGen.ahk
+#Include operations/browsePostGen.ahk
 
 ; -- lib
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/vision.ahk
 ; -- gui
 #Include gui/g.ahk
 #Include gui/concatAudio.ahk
 #Include gui/windowMenusGuis.ahk
 #Include gui/splashScreen.ahk
 #Include gui/highlight.ahk
+#Include gui/numpadG.ahk
+#Include gui/secondMouse.ahk
 ; -- Test
 #Include Test.ahk
 
@@ -97,20 +104,25 @@ FileEncoding, UTF-8
 #Include midi/midiRequest.ahk
 #Include hotkeys/mouseCtl.ahk
 #Include midi/midiInit.ahk
+;#Include midi/knobIn.ahk
 
 
 
 ; -- program start -------------------------
+makeMouseCursor()
 toolTip("starting")
 #Include run/run.ahk
 #Include run/clock.ahk
+#Include run/obsCheckMousePos.ahk
 splashScreenToggle := False
 setFlahkWallpaper()
 showSplashScreen()
 makeWindow()
 hideSplashScreen()
 WinActivate, ahk_exe FL64.exe
-bringStepSeq(True)
+isSaved := freezeExecute("loadSaveFileIfExists")
+if (isSaved)
+    bringStepSeq(True)
 toolTip()
 
 
@@ -118,15 +130,17 @@ toolTip()
 ; -- hotkeys
 #Include AutoHotInterception/AutoHotInterception.ahk
 #Include hotkeys/AutoHotInterception.ahk 
+#Include hotkeys/secondMouse.ahk
 #Include hotkeys/numpad.ahk
 #Include hotkeys/arrows.ahk
+#Include hotkeys/winRelated/patcherMap.ahk
 #Include hotkeys/numbers.ahk
 #Include hotkeys/fKeys.ahk
-#Include hotkeys/clipboard.ahk
-#Include midi/midiInputs.ahk
+;#Include midi/midiInputs.ahk
 #Include hotkeys/mouse.ahk  
 #Include hotkeys/scroll.ahk  
 #Include hotkeys/hotkeys.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/libHotkeys.ahk
 
 #Include hotkeys/winRelated/pianoRoll.ahk
 #Include hotkeys/winRelated/pianoRollToolWindows.ahk
@@ -135,7 +149,7 @@ toolTip()
 #Include hotkeys/winRelated/mixer.ahk
 #Include hotkeys/winRelated/patcherSampler.ahk
 #Include hotkeys/winRelated/patcherSlicex.ahk
-#Include hotkeys/winRelated/audacity.ahk
+#Include hotkeys/winRelated/transferSounds.ahk
 #Include hotkeys/winRelated/instr.ahk
 
 ; -- goto

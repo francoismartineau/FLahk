@@ -1,7 +1,9 @@
 #If WinActive("ahk_exe FL64.exe")
 ~^!LButton Up::
     waitForModifierKeys()
-    if (isInstr())
+    if (isPianoRollLfo())
+        freezeExecute("pianoRollLfoSetTime")
+    else if (isInstr())
     {
         if (mouseOnLeftWindowSide())
             freezeExecute("setInstrArpSpeed")

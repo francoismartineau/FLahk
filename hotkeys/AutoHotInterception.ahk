@@ -11,6 +11,7 @@ global AHI := new AutoHotInterception()
 ;secondKeyboardContext := AHI.CreateContextManager(secondKeyboardId)
 
 ; -- numpad1 --------------------------------------------
+/*
 numpad1Id := AHI.GetKeyboardId(0x1C4F, 0x0002, 1)
 if (numpad1Id)
 {
@@ -21,6 +22,7 @@ else
 {
     msgTip("numpad not recognized")
 }
+*/
 
 
 
@@ -34,11 +36,17 @@ else
 secondMouseId := AHI.GetMouseId(0x045E, 0x07FD)
 if (secondMouseId)
 {
-    AHI.SubscribeMouseMove(secondMouseId, True, Func("onMouseCtlMove"))
-    AHI.SubscribeMouseButton(secondMouseId, 0, True, Func("mouseCtlLButton"))
-    AHI.SubscribeMouseButton(secondMouseId, 1, True, Func("mouseCtlRButton"))
+    AHI.SubscribeMouseMove(secondMouseId, True, Func("secondMouseMove"))
+    AHI.SubscribeMouseButton(secondMouseId, 0, True, Func("secondMouseLButton"))
+    AHI.SubscribeMouseButton(secondMouseId, 1, True, Func("secondMouseRButton"))
+
+    ;AHI.SubscribeMouseMove(secondMouseId, True, Func("onMouseCtlMove"))
+    ;AHI.SubscribeMouseButton(secondMouseId, 0, True, Func("mouseCtlLButton"))
+    ;AHI.SubscribeMouseButton(secondMouseId, 1, True, Func("mouseCtlRButton"))
+
     AHI.SubscribeMouseButton(secondMouseId, 5, True, Func("mouseCtlWheel"))
-    ;AHI.SubscribeMouseButton(secondMouseId, 2, True, Func("mouseCtlWheelClick"))
+    
+    ;;;;AHI.SubscribeMouseButton(secondMouseId, 2, True, Func("mouseCtlWheelClick"))
 }
 
 

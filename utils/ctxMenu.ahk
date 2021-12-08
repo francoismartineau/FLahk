@@ -1,80 +1,195 @@
-getKnobCtxMenuLength(debug = False)
+; -----------------------------------
+global ctxMenuColors := [0xb9c2c7, 0xbcc4c3] ;[0xbdc6cb, 0xb9c2c7, 0xBBC3C8, 0xb7bfc4, 0x5d6b74, 0xbac1c0, 0xb8c0c5, 0xbbc4c5]
+global ctxMenuColVar := 10
+global ctxMenuSepColor := [0x939d9c]
+global ctxMenuBorderColors := [0x141c1b, 0x151e23, 0x131c1d]
+global ctxMenuBorderColVar := 10
+global ctxMenuRowHeight := 26
+global ctxMenuY := {"normal": {}, "time": {}, "patcherMap": {}, "patcherTime": {}, "patcherSurface": {}, "notActivatedMap": {}, "notActivatedMapTime": {}, "notActivatedSurface": {}, "semiActivatedMap": {}, "semiActivatedMapTime": {}, "semiActivatedSurface": {}}
+global ctxMenuCheckX := 10
+global ctxMenuCheckBlack := [0x000000]
+
+; This is a pixel list (left to right)
+; This recognizes a "Activate" row in ctx menu
+; The first pixel is the blue pixel on the top right of c in "Activate"
+; Each ctxMenu entry with "Activate" has the y value where to check
+global ctxMenuActivateColorList := [0x284F85, 0x896A3A, 0x190200, 0x081B28] ;, 0x3B699B, 0xA79C64, 0x304886, 0xA29E68, 0x2D3773, 0xA2BFC5]
+global ctxMenuActivateColorListX := 31
+global ctxMenuPasteTMiddleX := 37
+global ctxMenuPasteTMiddleCol := [0x110000]
+
+ctxMenuY["normal"]["editEventsCheck"] := 50
+ctxMenuY["normal"]["automation"] := 147
+ctxMenuY["normal"]["linkCheck"] := 187
+ctxMenuY["normal"]["copy"] := 238
+ctxMenuY["normal"]["pasteTMiddleY"] := 256
+ctxMenuY["normal"]["length"] := 307
+
+ctxMenuY["time"]["editEventsCheck"] := 69
+ctxMenuY["time"]["automation"] := 170
+ctxMenuY["time"]["linkCheck"] := 206
+ctxMenuY["time"]["copy"] := 258
+ctxMenuY["time"]["pasteTMiddleY"] := 275
+ctxMenuY["time"]["length"] := 326
+
+ctxMenuY["patcherMap"]["activateCheck"] := 34
+ctxMenuY["patcherMap"]["activateColorListY"] := 30
+ctxMenuY["patcherMap"]["editEventsCheck"] := 76
+ctxMenuY["patcherMap"]["automation"] := 177
+ctxMenuY["patcherMap"]["linkCheck"] := 213
+ctxMenuY["patcherMap"]["copy"] := 265 
+ctxMenuY["patcherMap"]["pasteTMiddleY"] := 282 
+
+ctxMenuY["patcherTime"]["activateCheck"] := 53
+ctxMenuY["patcherTime"]["activateColorListY"] := 49
+ctxMenuY["patcherTime"]["editEventsCheck"] := 95
+ctxMenuY["patcherTime"]["automation"] := 194
+ctxMenuY["patcherTime"]["linkCheck"] := 232
+ctxMenuY["patcherTime"]["copy"] := 284
+ctxMenuY["patcherTime"]["pasteTMiddleY"] := 301
+ctxMenuY["patcherTime"]["length"] := 352
+
+ctxMenuY["patcherSurface"]["activateCheck"] := 41
+ctxMenuY["patcherSurface"]["activateColorListY"] := 37
+ctxMenuY["patcherSurface"]["editEventsCheck"] := ctxMenuY["patcherMap"]["editEventsCheck"]
+ctxMenuY["patcherSurface"]["automation"] := ctxMenuY["patcherMap"]["automation"]
+ctxMenuY["patcherSurface"]["linkCheck"] := ctxMenuY["patcherMap"]["linkCheck"]
+ctxMenuY["patcherSurface"]["copy"] := ctxMenuY["patcherMap"]["copy"]
+ctxMenuY["patcherSurface"]["pasteTMiddleY"] := ctxMenuY["patcherMap"]["pasteTMiddleY"]
+; ----
+
+; -- ctxMenuLen -----------------------------
+global linkKnobDontMoveWin := False     ;used only for 2nd mouse
+openKnobCtxMenu(mX, mY, ctxMenuLen := "", row := 0, patcherType := "") ;, winX, winY, winId)
 {
-    result := 
-    lightGrey := [0xB7BFC4]
-    MouseGetPos, x, y
-    if (!waitCtxMenuUnderMouse())
-        result := False     
-    else if (colorsMatch(x+84, y+350, lightGrey, 10, "", debug))  and !(colorsMatch(x-20, y+350, lightGrey, 10, "", debug)) 
-        result := "patcherTimeRelated"
-    else if (colorsMatch(x+84, y+330, lightGrey, 10, ""))
-        result := "patcher"
-    else if (colorsMatch(x+84, y+323, lightGrey, 10, ""))
-        result := "timeRelated"    
-    else if (colorsMatch(x+84, y+302, lightGrey, 10, ""))      ; small     (most knobs)
-        result := "other"
-    return result
+    if (!linkKnobDontMoveWin)
+        moveKnobWinIfNecessary(knobX, knobY, winX, winY, winId)
+
+    Click, Right
+    if (waitCtxMenuUnderMouse() and !ctxMenuLen)
+    {
+        if (row != 0)
+            ctxMenuLen := searchCtxMenuActivates(mX, mY, row, patcherType)
+        else
+        {
+            if (isNormalCtxMenu(mX, mY))
+                ctxMenuLen := "normal"
+            else if (isTimeCtxMenu(mX, mY))
+                ctxMenuLen := "time"           
+            else
+            {
+                patcherTypes := ["patcherSurface", "patcherMap", "patcherTime"]
+                i := 1
+                while (!ctxMenuLen and i <= patcherTypes.MaxIndex())
+                {
+                    patcherType := patcherTypes[i]
+                    ctxMenuLen := searchCtxMenuActivates(mX, mY, row, patcherType)
+                    i := i + 1
+                }
+            } 
+        }
+    }
+    return ctxMenuLen
 }
 
-linkControllerChecked()
+searchCtxMenuActivates(mX, mY, row, patcherType)
 {
-    ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
+    textX := mX + ctxMenuActivateColorListX
+    checkX := mX + ctxMenuCheckX
+
+    while (ctxMenuLen == "" and row < 10)
     {
-    Case "patcherTimeRelated":
-        y := 187+47
-    Case "patcher":
-        y := 187+27     
-    Case "timeRelated":
-        y := 187+22
-    Case "other":
-        y := 187
-    }  
-    lightGrey := [0xB7BFC4]
-    MouseGetPos, mX, mY
-    x := mX + 10
-    y := mY + y
-    return !colorsMatch(x, y, lightGrey)
+        ;msg("row: " row)
+        textY := mY + ctxMenuY[patcherType]["activateColorListY"] + row * ctxMenuRowHeight
+        activateFound := scanColorsLine(textX, textY, ctxMenuActivateColorList, ctxMenuColVar)
+        ;msg("activateFound: " activateFound)
+        if (activateFound)
+        {
+            checkY := mY + ctxMenuY[patcherType]["activateCheck"] + row * ctxMenuRowHeight
+            activateChecked := colorsMatch(checkX, checkY, ctxMenuCheckBlack)
+            ;msg("checked: " activateChecked)
+            row := row + 1
+            if (!activateChecked)
+            {
+                moveMouse(textX, textY)
+                Click
+                moveMouse(mX, mY)
+                ctxMenuLen := openKnobCtxMenu(mX, mY, "", row, patcherType)
+            }
+        }
+        else if (row > 0)
+            ctxMenuLen := patcherType "" row
+        else
+            break       ; no activate found for this patcherType
+    }
+    return ctxMenuLen
 }
 
-clickLinkController()
+moveKnobWinIfNecessary(mX, mY, winX, winY, winId, coord := "Client")
 {
-    ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
-    {
-    Case "patcherTimeRelated":
-        y := 229
-    Case "patcher":
-        y := 209
-    Case "timeRelated":
-        y := 204
-    Case "other":
-        y := 182
-    }      
-    MouseMove, 10, %y%, 0, R
-    Click
-    return waitNewWindowOfClass("TMIDIInputForm", winId)
-}
+    global Mon1Top, Mon2Top
+    movedWin := False
+    x := mX + winX
+    y := mY + winY
+    if (x >= 0)
+        top := Mon2Top
+    else
+        top := Mon1Top
 
-clickEditEvents(knobX, knobY, winId)
-{
-    ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
+    maxY := Mon2Height - ctxMenuY["patcherTime"]["length"] - 30 + top
+
+    if (y > maxY)
     {
-    Case "patcherTimeRelated":
-        y := 95
-    Case "patcher":
-        y := 76
-    Case "timeRelated":
-        y := 69
-    Case "other":
-        y := 50
+        dist := y - maxY
+        newWinY := winY - dist
+        WinMove, ahk_id %winId%,, %winX%, %newWinY%
+        moveMouse(mX, mY, coord)
+        movedWin := True
     }    
+    return movedWin
+}
 
+isNormalCtxMenu(mX, mY)
+{
+    return isCtxMenuLength(mX, mY, "normal")    
+}
 
-    x := 10 + knobX
-    y := y + knobY
-    eventWindowOpen := colorsMatch(x, y, [0x000000])
+isTimeCtxMenu(mX, mY)
+{
+    return isCtxMenuLength(mX, mY, "time")
+}
+
+isCtxMenuLength(mX, mY, ctxMenu)
+{
+    x := mX + 5
+    yIn := mY + ctxMenuY[ctxMenu]["length"]
+    yOut := mY + ctxMenuY[ctxMenu]["length"] + 1
+    res := colorsMatch(x, yIn, ctxMenuColors, ctxMenuColVar) and colorsMatch(x, yOut, ctxMenuBorderColors, ctxMenuBorderColVar)     
+    return res
+}
+
+getCtxMenuRowY(ctxMenuLen, option)
+{
+    rowOffset := 0
+    if (InStr(ctxMenuLen, "patcher"))
+    {
+        row := SubStr(ctxMenuLen, 0)
+        rowOffset := (row-1) * ctxMenuRowHeight
+        ctxMenuLen := SubStr(ctxMenuLen, 1, -1)
+    }
+    y := ctxMenuY[ctxMenuLen][option] + rowOffset
+    return y
+}
+; -----
+
+; -- Edit Events ----
+clickEditEvents(ctxMenuLen)
+{
+    MouseGetPos, mX, mY, winId
+    x := mX + ctxMenuCheckX
+
+    y := mY + getCtxMenuRowY(ctxMenuLen, "editEventsCheck")
+    eventWindowOpen := colorsMatch(x, y, ctxMenuCheckBlack)
     if (!eventWindowOpen)
     {
         MouseMove, %x%, %y%
@@ -89,40 +204,69 @@ clickEditEvents(knobX, knobY, winId)
     }
     return eventWinId
 }
+; ----
 
-clickCopy()
+; -- Automation ----
+clickCreateAutomation(ctxMenuLen)
 {
-    ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
-    {
-    Case "patcherTimeRelated":
-        y := 280
-    Case "patcher":
-        y := 267
-    Case "timeRelated":
-        y := 258
-    Case "other":
-        y := 237
-    }
-    MouseMove, 46,  %y%, 0, R
+    y := getCtxMenuRowY(ctxMenuLen, "automation")
+    MouseMove, ctxMenuCheckX,  %y%, 0, R
+    Click
+}
+; ----
+
+; -- Link ------
+clickLinkController(ctxMenuLen)
+{
+    y := getCtxMenuRowY(ctxMenuLen, "linkCheck")
+    MouseMove, ctxMenuCheckX, %y%, 0, R
+    Click
+    return waitNewWindowOfClass("TMIDIInputForm", winId)
+}
+
+linkControllerChecked(ctxMenuLen)
+{
+    MouseGetPos, mX, mY
+    x := mX + ctxMenuCheckX
+    y := mY + getCtxMenuRowY(ctxMenuLen, "linkCheck")
+    res := colorsMatch(x, y, ctxMenuCheckBlack)
+    return res
+}
+; ----
+
+; -- Clipboard ----
+clickCopy(ctxMenuLen)
+{
+    y := getCtxMenuRowY(ctxMenuLen, "copy")
+    MouseMove, ctxMenuCheckX,  %y%, 0, R
     Click
 }
 
-clickPaste(ctxMenuLen = "")
+clickPaste(ctxMenuLen)
 {
-    if (ctxMenuLen == "")
-        ctxMenuLen := getKnobCtxMenuLength()
-    Switch ctxMenuLen
+    if (pasteClickable(ctxMenuLen))
     {
-    Case "patcherTimeRelated":
-        y := 305
-    Case "patcher":
-        y := 284
-    Case "timeRelated":
-        y := 277
-    Case "other":
-        y := 258
+        y := getCtxMenuRowY(ctxMenuLen, "pasteTMiddleY")
+        MouseMove, ctxMenuCheckX,  %y%, 0, R
+        Click     
+        res := True
     }
-    MouseMove, 46,  %y%, 0, R
-    Click     
+    else
+    {
+        msg("nothing to paste")
+        MouseMove, -1, 0, R
+        Click
+        res := False
+    }
+    return res
 }
+
+pasteClickable(ctxMenuLen)
+{
+    MouseGetPos, mX, mY
+    x := mX + ctxMenuPasteTMiddleX
+    y := mY + getCtxMenuRowY(ctxMenuLen, "pasteTMiddleY")
+    res := colorsMatch(x, y, ctxMenuPasteTMiddleCol, ctxMenuColVar)
+    return res
+}
+; ----

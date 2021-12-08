@@ -53,6 +53,7 @@ global ConcatAudioRunButtonID
 
 makeConcatAudioButtons()
 {
+    makeConcatAudioBrowseHint()
     makeConcatAudioPathsText()
     makeConcatAudioNumSlider()
     makeConcatAudioLenSlider()
@@ -83,6 +84,7 @@ showConcatAudio()
     randomizeConcatAudioGateSlider()
     chooseGateLenMode()
     Gui, Main2:Show, h%maxedGui2H%
+    moveMouse(783, 126)
 }
 
 
@@ -90,11 +92,16 @@ showConcatAudio()
 
 ; -- make ------------------------------
 ; paths
-makeConcatAudioPathsText()
+makeConcatAudioBrowseHint()
 {
     global gui2H
     y := gui2H + 25    
-    Gui, Main2:Add, Text, x10 y%y% h20 w200 vConcatAudioFolder1 hwndConcatAudioFolder1Id gPICK_CONCAT_AUDIO_PATH1,
+    Gui, Main2:Add, Text, x10 y%y% h20 w800 gCONCAT_AUDIO_BROWSE, Alt Scroll up: search      Alt Scroll down: go to run button
+}
+
+makeConcatAudioPathsText()
+{
+    Gui, Main2:Add, Text, x10 y+10 h20 w200 vConcatAudioFolder1 hwndConcatAudioFolder1Id gPICK_CONCAT_AUDIO_PATH1,
     Gui, Main2:Add, Text, x+10 h20 w200 vConcatAudioFolder2 hwndConcatAudioFolder2Id gPICK_CONCAT_AUDIO_PATH2,
     Gui, Main2:Add, Text, x+10 h20 w200 vConcatAudioFolder3 hwndConcatAudioFolder3Id gPICK_CONCAT_AUDIO_PATH3,
     Gui, Main2:Add, Text, x+10 h20 w200 vConcatAudioFolder4 hwndConcatAudioFolder4Id gPICK_CONCAT_AUDIO_PATH4,
@@ -113,7 +120,7 @@ makeConcatAudioNumSlider()
 {
     minSlider := LogarithmicToLinear(ConcatAudioMinNum)
     maxSlider := LogarithmicToLinear(ConcatAudioMaxNum)
-    Gui, Main2:Add, Slider, x10 y+30 w200 Range%minSlider%-%maxSlider% NoTicks vConcatAudioNumSliderVal gUPDATE_CONCAT_AUDIO_NUM_SLIDER AltSubmit hwndConcatAudioNumSliderID,
+    Gui, Main2:Add, Slider, x10 y+5 w200 Range%minSlider%-%maxSlider% NoTicks vConcatAudioNumSliderVal gUPDATE_CONCAT_AUDIO_NUM_SLIDER AltSubmit hwndConcatAudioNumSliderID,
     Gui, Main2:Add, Text, x+2 w22 vConcatAudioNumText hwndConcatAudioNumTextID,
     updateConcatAudioNumSlider()
 }
@@ -153,7 +160,7 @@ makeConcatAudioRunButton()
 }
 
 
-; -- checkmarks -----------------------------
+; -- Checkmarks -----------------------------
 checkConcatAudioGate()
 {
     global ConcatAudioLenToggle, ConcatAudioGateToggle

@@ -40,10 +40,14 @@ clonePattern()
 
 moveToPatternRow()
 {
+    toolTip("Patterns")
     mX := 314
     mY := 873
     moveMouse(mX, mY, "Screen")
+    toolTip("Patterns")
     WinGet, playlistId, ID, ahk_class TEventEditForm, Playlist
     clearWayToMouse(playlistId, mX, mY)
     retrieveMouse := False
+    Sleep, 300
+    toolTip()
 }

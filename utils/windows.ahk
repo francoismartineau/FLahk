@@ -12,6 +12,7 @@ getFlWindows()
    return flWins
 }
 
+/*
 closeAllWrapperPlugins()
 {
    WinGet, wins, List
@@ -22,6 +23,7 @@ closeAllWrapperPlugins()
         WinClose, ahk_id %id%
    }    
 }
+*/
 
 moveWinIfOverPos(posX, posY, winID)
 {
@@ -39,6 +41,13 @@ moveWinIfOverPos(posX, posY, winID)
         movedWin := True
     }
     return movedWin
+}
+
+isVisible(winId)
+{
+    WinGet, Style, Style, ahk_id %winId%
+    Transform, res, BitAnd, %Style%, 0x10000000
+    return res <> 0
 }
 
 

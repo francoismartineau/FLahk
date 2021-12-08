@@ -1,16 +1,19 @@
 showMidiDevices := True
 if (showMidiDevices)
 {
-    toolTip(MidiIn.QueryMidiInDevices())
+    msg(MidiIn.QueryMidiInDevices())
     ;toolTip(MidiOut.getDeviceList(), 2)
 }
 
 try
 {
     global midiI := new Midi()
-    midiI.OpenMidiIn(1)
-    global midiO_1 := new MidiOut(1)
-    global midiO_2 := new MidiOut(2)
+    midiI.OpenMidiIn(2)                         ; answers from FL    
+    ;global midiInKnob := new Midi()
+    ;midiInKnob.OpenMidiIn(1)                   ; knob
+
+    global midiO_1 := new MidiOut(2)    ; unidirectional requests, mouseCtl         2?  1?
+    global midiO_2 := new MidiOut(3)    ; bidirectional requests                    3?  2?
 }
 catch e
 {

@@ -1,4 +1,5 @@
-﻿global knobSaves := {}
+﻿global knobSavesDebug := False
+global knobSaves := {}
 ;global knobSaves := {"title1" :             ; winTitle      { winTitle   : panels of this win }
 ;
 ;                                {1:         ; panels        { panelId : array of position }
@@ -127,7 +128,7 @@ saveKnobPos(knobX, knobY, winId)        ; winId must be active
         panelId := getActivePanel() 
     else
         panelId := 1          
-    success := saveKnob(winTitle, panelId, knobX, knobY, "", False)
+    success := saveKnob(winTitle, panelId, knobX, knobY, "")
     return success
 }
 
@@ -154,37 +155,33 @@ saveLoadKnob(mode, saveSlot = "")
     ;loadPotentialAssociatedKnobSaves(mX, mY, winId)
     WinGetPos, winX, winY,,, ahk_id %winId%
     WinGetTitle, winTitle, ahk_id %winId%
-    res := openKnobCtxMenu(mX, mY, winX, winY, winID)
-    movedWin := res[1]
-    openedCtxMenu := res[2]
-    if (openedCtxMenu)
+    clipboardSave := clipboard
+    
+    if (isInstr())
+        panelId := getActivePanel() 
+    else
+        panelId := 1    
+
+    if (mode == "save")
+        success := saveKnob(winTitle, panelId, mX, mY, saveSlot)
+    else if (mode == "load")
+        success := loadKnob(winTitle, panelId, mX, mY, saveSlot)
+
+    if (success)
     {
-        clipboardSave := clipboard
-        if (isInstr())
-            panelId := getActivePanel() 
-        else
-            panelId := 1    
-        if (mode == "save")
-            success := saveKnob(winTitle, panelId, mX, mY, saveSlot, openedCtxMenu)
-        else if (mode == "load")
-            success := loadKnob(winTitle, panelId, mX, mY, saveSlot)
-        if (success)
-        {
-            MouseMove, %mX%, %mY%, 0
-            unfreezeMouse()
-            retrieveMouse := False
-            freezeExecuting := False
-            msgTip(mode " knob " saveSlot)
-        }
-        clipboard := clipboardSave
+        MouseMove, %mX%, %mY%, 0
+        unfreezeMouse()
+        retrieveMouse := False
+        freezeExecuting := False
+        msgTip(mode " knob " saveSlot)
     }
-    if (movedWin)
-        WinMove, ahk_id %winId%,, %winX%, %winY%  
+
+    clipboard := clipboardSave
+    retrieveWinPos(winX, winY, winId)
 }
 
 loadKnob(winTitle, panelId, mX, mY, saveSlot)
 {
-    Send {Esc}
     success := False
     winPanels := findSavedWindow(winTitle)
     if (winPanels)
@@ -203,23 +200,21 @@ loadKnob(winTitle, panelId, mX, mY, saveSlot)
     if (val != "")
     {
         clipboard := val
-        Click, Right
-        if (waitCtxMenuUnderMouse())
-            clickPaste()
+        ctxMenuLen := openKnobCtxMenu(mX, mY)
+        clickPaste(ctxMenuLen)
         success := True
     }
     return success
 }
 
-saveKnob(winTitle, panelId, mX, mY, saveSlot = "", ctxMenuOpen = True) ; if saveSlot is ommited, only Position is saved
+saveKnob(winTitle, panelId, mX, mY, saveSlot := "") ; if saveSlot is ommited, only Position is saved
 {
     if (saveSlot != "")
     {
-        clickCopy()
+        ctxMenuLen := openKnobCtxMenu(mX, mY)
+        clickCopy(ctxMenuLen)
         val := clipboard  
     }
-    else if (ctxMenuOpen)
-        Send {Esc}
 
     success := False
     winPanels := findSavedWindow(winTitle)
@@ -388,4 +383,11 @@ countNumKnobPos()
         for panelId, positions in panels
             numKnobPos := numKnobPos + positions.MaxIndex()
     }
+}
+
+; -- Debug -----------------------------------------------
+knobSavesDebuger()
+{
+    if (knobSavesDebug)
+        toolTipAtPos(1422, 82, knobSaves, debugToolTip)
 }

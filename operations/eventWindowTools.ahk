@@ -34,7 +34,22 @@ activateMuteTool()
     }
 }
 
+muteSelection()
+{
+    sendinput !m
+    sendinput ^d
+}
 
+unmuteSelection()
+{
+    sendinput +!m
+    sendinput ^d
+}
+
+invertSelection()
+{
+    sendinput +i
+}
 
 activateBrushTool()
 {
@@ -72,7 +87,6 @@ activatePencilTool()
         quickClick(x, y)
     }
 }
-
 
 
 ; --------------------------------------

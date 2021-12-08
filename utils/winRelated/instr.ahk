@@ -1,3 +1,6 @@
+global instrFullScreenXoffset := -6
+global instrFullScreenYoffset := -3
+
 ; -- Wrench Panel ------------------------------------------
 scrollWrenchPanel()
 {
@@ -164,7 +167,7 @@ setInstrArpSpeed()
     if (val != "")
     {
         val := vals[toolTipChoiceIndex]
-        pasteKnob(False, val, "timeRelated")
+        pasteKnob(False, val, "time")
     }
     if (!alreadyOpen)
         clickInstrMainPanel()
@@ -177,10 +180,9 @@ arpActivated()
 
 delayActivated()
 {
-    return colorsMatch(344, 243, [0x49bfef], 100)
+    return !colorsMatch(344, 241, [0x31373b])   ; check if grey at THE pixel
 }
 
-;;;; deadcode for the moment
 placeMouseOnArpOrDelay()
 {
     if (arpActivated())

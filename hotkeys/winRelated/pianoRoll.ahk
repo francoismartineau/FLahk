@@ -11,21 +11,39 @@ r::
     freezeExecute("randomizeStamp")
     return
 
+!x::
+    freezeExecute("activateParamX")
+    return
+!y::
+    freezeExecute("activateParamY")
+    return
+
+!v::
+    freezeExecute("activateParamVel")
+    return
+
+!XButton1::
+    pianoRollSetColor()
+    return
+
+!XButton2::
+    pianoRollSelColor()
+    return
+
 LWin & XButton1::
     freezeExecute("activatePianoRollLoop", True, False, False)
     return
 #If
 
 
-; -- Mouse ----------------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and isPianoRoll() and mouseOnLoopButton()
-LButton::
-    freezeExecute("activatePianoRollLoop", False, False, True)
-    return
+;LButton::
+;    freezeExecute("activatePianoRollLoop", False, False, True)
+;    return
 
-RButton::
-    freezeExecute("activatePianoRollLoop", False, False, False)
-    return
+;RButton::
+;    freezeExecute("activatePianoRollLoop", False, False, False)
+;    return
 
 !LButton::
     freezeExecute("burnLoopButton")

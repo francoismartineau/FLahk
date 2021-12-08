@@ -1,12 +1,44 @@
 global pianoRollSepY := 885
-
+global timelineCol := [0x1d2830, 0x9b5356]
 global noteModifierClasses := ["TPRRandomForm", "TPRScoreCreatorForm", "TPRLegatoForm", "TPRQuantizeForm", "TPRSliceForm", "TPRArpForm", "TPRStrumForm", "TPRFlamForm", "TPRTripletForm", "TPRKeyLimitForm", "TPRFlipForm", "TPRLevelScaleForm", "TPRLFOForm"]
 
+
+; -- Transpose -------------------------------------------------
+transposeNotes()
+{
+    toolTip("Select notes to transpose")
+    unfreezeMouse()
+    res := waitAcceptAbort()
+    toolTip()
+    if (res == "abort")
+        return
+    freezeMouse()
+
+    SendInput ^x
+    insertTempPattern()
+    SendInput ^v
+    
+    toolTip("")
+    
+    
+    scrollPatternDown()
+}
+
+insertTempPattern()
+{
+    msg("currPatt: " currPatt)
+    WinGet, winId, ID, A
+    SendInput +^{Insert}
+    nameEditorId := waitNewWindowOfClass("TNameEditForm", winId)
+    Send temp{Space}patt{Enter}
+}
+
+; ----
 
 ; -- Scroll Instruments ----------------------------------------
 global scrollingInstr := False
 global scrollInstrData := []
-scrollInstr(mode := "pianoRoll")
+scrollInstr(initMode := "pianoRoll")
 {
     scrollingInstr := True
     stopWinHistoryClock()
@@ -15,7 +47,7 @@ scrollInstr(mode := "pianoRoll")
     ssId := bringStepSeq(False)
     WinGetPos, ssX, ssY,, ssH, ahk_id %ssId%
     
-    Switch mode
+    Switch initMode
     {
     Case "pianoRoll":
         newSsX := -850
@@ -25,12 +57,15 @@ scrollInstr(mode := "pianoRoll")
         newSsY := 255        
     Case "plugin":
         newSsX := 1080
-        newSsY := 255        
+        newSsY := 255   
+    Case "stepSeq":
+        newSsX := ssX
+        newSsY := ssY   
     }
     WinMove, ahk_id %ssId%,, %newSsX%, %newSsY%
 
     moveMouseToSelY()
-    scrollInstrData := [ssId, ssX, ssY, mX, mY, mode, prevWinId]
+    scrollInstrData := [ssId, ssX, ssY, mX, mY, initMode, prevWinId]
     freezeMouse()
 
     msgX := 3
@@ -40,7 +75,7 @@ scrollInstr(mode := "pianoRoll")
     unfreezeMouse()
 }
 
-scrollInstrStop()
+scrollInstrStop(openTo := "pianoRoll")
 {
     toolTip()
     mX := scrollInstrData[4]
@@ -52,23 +87,16 @@ scrollInstrStop()
         moveMouse(mX, mY)
         return
     }
-
     freezeMouse()
-    ctrlPressed := keyIsDown("Ctrl")
 
-    if (ctrlPressed)
-        openTo := "pianoRoll"
-    else
-        openTo := "instr"
-
-    mode := scrollInstrData[6]
+    initMode := scrollInstrData[6]
     Switch openTo
     {
     Case "instr":
         openChannelUnderMouse()
 
     Case "pianoRoll":
-        centerM := mode != "pianoRoll"
+        centerM := initMode != "pianoRoll"
         openChannelUnderMouseInPianoRoll(centerM)
     }    
 
@@ -77,7 +105,7 @@ scrollInstrStop()
     ssY := scrollInstrData[3]
     WinMove, ahk_id %ssId%,, %ssX%, %ssY%
     
-    if (mode == "pianoRoll" and openTo == "pianoRoll")
+    if (initMode == "pianoRoll" and openTo == "pianoRoll")
         moveMouse(mX, mY)
 
     scrollingInstr := False
@@ -154,10 +182,10 @@ cyclePianoRollControl(dir)
 }
 
 
-adjustPianoRollSep(pianoRollId = "")
+adjustPianoRollSep(pianoRollId := "")
 {
     stopWinMenusClock()
-    Gui, PianoRollMenu:Hide
+    Gui, PianoRollMenu1:Hide
     if (!pianoRollId)
         pianoRollId := bringPianoRoll(False, False)
     else
@@ -172,7 +200,7 @@ adjustPianoRollSep(pianoRollId = "")
         MouseMove, %x%, %pianoRollSepY%, 0
         Click, up
     }
-    Gui, PianoRollMenu:Show
+    Gui, PianoRollMenu1:Show
     startWinMenusClock()
 }
 
@@ -196,6 +224,44 @@ locatePianoRollSep(x)
     return y
 }
 
+global pianoRollScrollingColors := False
+global pianoRollScrollingColorsMousePos := []
+pianoRollScrollColors(dir)
+{
+    if (!pianoRollScrollingColors)
+    {
+        MouseGetPos, mX, mY
+        moveMouse(37, 43)
+        Click
+        pianoRollScrollingColors := True
+        pianoRollScrollingColorsMousePos := [mX, mY]
+    }
+    if (dir == "up")
+        Send {WheelUp}
+    else if (dir == "down")
+        Send {WheelDown}
+}
+
+pianoRollStopScrollingColors()
+{
+    pianoRollScrollingColors := False
+    Click
+    mX := pianoRollScrollingColorsMousePos[1]
+    mY := pianoRollScrollingColorsMousePos[2]
+    moveMouse(mX, mY)
+}
+
+pianoRollSetColor()
+{
+    sendinput !c
+}
+
+pianoRollSelColor()
+{
+    sendinput +c
+}
+; ----
+
 ; -- Loop -------------------------------------------
 mouseOnLoopButton()
 {
@@ -206,76 +272,163 @@ mouseOnLoopButton()
 mouseOnPianoRollTimeline()
 {
     MouseGetPos, mx, my
-    return my < 82 and my > 65 and mx > 71 and mx < 1897
+    return my < getPianoRollMarkerY() and my > 65 and mx > 71 and mx < 1897
 }
 
 mouseOnPianoRollMarker()
 {
     MouseGetPos, mx, my
-    return !colorsMatch(mx, my, [0x1E2A31], 30)
+    return !colorsMatch(mx, my, timelineCol, 30)
 }
 
-activatePianoRollLoop(activate = True)
+activatePianoRollLoop(activate := True)
 {
-    markerY := 79
-    makeSureLoopArrowHasTheRightState(activate)
-
-    markerX := findLoopMarker()
+    toolTip((activate? "Activating":!activate? "Deactivating":) " loop")
+    markerY := getPianoRollMarkerY()
+    activateLoopArrow()
+    zoomOut()
+    
+    colorsMatchDebug := False
+    colorsMatchDebugTime := 75
+    markerX := findLoopMarker(activate)
+    colorsMatchDebug := False
     if (markerX)
     {
-        Sleep, 500
-        if (activate == True)
-        {
-            moveMouse(markerX, markerY)
+        moveMouse(markerX, markerY)
+        if (activate)
             activateLoopMarkerUnderMouse()
-        }
-        else 
-        {
-            moveMouse(95, 10)
-            Click
-            moveMouse(markerX, markerY)
+        else
             deactivateLoopMarkerUnderMouse()
-        }
-        markerX := findLoopMarker()
-        if (activate == True)
-            moveMouse(markerX-15, markerY)
+        ;markerX := findLoopMarker(activate)
+        ;if (activate)
+        ;    moveMouse(markerX-15, markerY)
     }
-    else
-        moveMouse(1115, markerY)
+    zoomRetrieve()
+    toolTip()
+    if (!activate)  
+        deactivateLoopArrow()
+    if (!markerX)
+        msg("Loop marker not found")
 }
 
-
-makeSureLoopArrowHasTheRightState(activate)
+getPianoRollMarkerY()
 {
-    ;MouseMove, 0, 100 , 0, R
-    ;Sleep, 30
+    if (pianoRollTimeLineIsThick())
+        y := 80
+    else
+        y := 62
+    return y
+}
+
+pianoRollTimeLineIsThick()
+{
+    ; check border between note color and vertical keyboard
+    x := 1
+    y := 64
+    col := [0x1d262b]
+    return !colorsMatch(x, y, col)
+}
+
+zoomOut()
+{
+    moveMouse(75, 88)
+    Send {Ctrl Down}{RButton Down}
+    moveMouse(1890, 811)    
+    Send {RButton Up}{Ctrl Up}
+    moveMouse(426, 105)
+    Send {CtrlDown}{Rbutton}{CtrlUp} 
+    Sleep, 40
+}
+
+zoomRetrieve()
+{
+    moveMouse(426, 105)
+    Send {CtrlDown}{Rbutton}{CtrlUp} 
+}
+
+activateLoopArrow()
+{
     loopActivated := colorsMatch(100, 11, [0x9BEF7D], 20)
-    ;debug("loopActivated: " loopActivated)
-    if ((activate == False and loopActivated) or (activate == True and !loopActivated))
+    if (!loopActivated)
     {
         MouseMove, 96, 10, 0
-        Click
+        Click        
     }
 }
 
-findLoopMarker()
+deactivateLoopArrow()
 {
+    loopActivated := colorsMatch(100, 11, [0x9BEF7D], 20)
+    if (loopActivated)
+    {
+        MouseMove, 96, 10, 0
+        Click        
+    }    
+}
 
-    timelineCol := [0x1B272E, 0xA25B5D]
+findLoopMarker(activate)
+{
+    ; could use getPianoRollMarkerY() ?     and other more global stuff ?
+    colVar := 3
     incr := 40
-    x := 123
-    y := 75
-    timelineW := 1820
-    colVar := 10
-    markerX := scanColorRight(x, y, timelineW, timelineCol, colVar, incr, "", False, True)
+    timeLineStart := 75
+    x := timeLineStart
+    y := 70
+    timelineEnd := 1895
+    w := timelineEnd - x
+
+    if (!colorsMatch(78, y, timelineCol, colVar))
+    {
+        moveMouse(78, y)
+        Send {LButton Down}
+        MouseMove, 100, 0 , 0, R
+        Send {LButton Up}
+    }
+    
+    doneSearching := False
+    while (!doneSearching and w > incr)
+    {
+        markerX := scanColorRight(x, y, w, timelineCol, colVar, incr, "", False, True)
+        if (markerX)
+        {
+            arrowGreen := 0x4AE4A8
+            if (colorComparison(lastColorMatchResCol, arrowGreen, colVar))
+                doneSearching := True
+            else
+            {
+                incr := 6
+                x := Max(markerX - 56, timeLineStart)
+                w := 56
+                colorsMatchDebug := False
+                arrowX := scanColorRight(x, y, w, [arrowGreen], 10, incr, "", False, False, "isTimeLinePixel")
+                colorsMatchDebug := False
+                if (arrowX)
+                    doneSearching := True
+            }
+        }
+        if (!doneSearching)
+        {
+            incr := 40
+            x := markerX + 56
+            w := timelineEnd - x
+        }
+    }
     return markerX
+}
+
+isTimeLinePixel(resCol)
+{
+    timelineCol := [0x1d2830, 0x9b5356]
+    colVar := 3
+    res := colorComparison(timelineCol[1], resCol, colVar) or colorComparison(timelineCol[2], resCol, colVar)
+    return res
 }
 
 
 activateLoopMarkerUnderMouse()
 {
     Click, Right
-    Send {WheelUp}{WheelUp}{WheelUp}{WheelUp}
+    MouseMove, 48, 116, 0, R
     Click
 }
 
@@ -299,6 +452,7 @@ burnLoopMarker()
     MouseMove, 23, 172 , 0, R
     Click
 }
+; ----
 
 ; -- Stamps -----------------------------------------
 global stampState := False
@@ -323,7 +477,7 @@ toggleStampState()
     }
     else
         deactivateStamp()
-    updatePianoRollMenuStampMode()
+    updatePianoRollMenu1StampMode()
 }
 
 minMajStamp()
@@ -341,7 +495,7 @@ minMajStamp()
         stampMode := "min"
         activateMinStamp()
     }
-    updatePianoRollMenuStampMode()
+    updatePianoRollMenu1StampMode()
 }
 
 activateMajStamp()
@@ -411,12 +565,35 @@ randomizeStamp()
     MouseMove, %x%, %y%, 0
     Sleep, 300
     Click
-    updatePianoRollMenuStampMode()
+    updatePianoRollMenu1StampMode()
 }
+; ----
 
 ; -- Tool windows ------------------------------
+proposePianoRollSel(prefix := "", mode := "time")
+{
+    Switch mode
+    {
+    Case "time":
+        txt := "sel TIME         accept / abort"
+        moveMouse(73, 54)
+    Case "notes":
+        txt := "sel NOTES        accept / abort"
+    }
+    if (prefix != "")
+        txt := prefix "`r`n" txt
+    pianoRollToolTip(txt)
+    unfreezeMouse()
+    res := waitAcceptAbort()
+    pianoRollToolTip()
+    freezeMouse()
+    return res
+}
+
 quantize()
 {
+    if (proposePianoRollSel("note lfo", "notes") == "abort")
+        return      
     WinGet, id, ID, A
     Send {AltDown}q{AltUp}
     qId := waitNewWindowOfClass("TPRQuantizeForm", id)
@@ -445,8 +622,10 @@ pianorollRand()
 { 
     WinGet, id, ID, A
     rec := recordEnabled()
+    proposePianoRollSel("Rand:", "time")
     Send {AltDown}r{AltUp}
     randId := waitNewWindowOfClass("TPRRandomForm", id)
+    pianoRollToolTip("1: Seed")
     if (rec)
         midiRequest("toggle_rec")       
     movePianorollToolWindow(randId)
@@ -458,6 +637,7 @@ pianorollArp()
 { 
     WinGet, id, ID, A
     rec := recordEnabled()
+    proposePianoRollSel("Arp:", "notes")
     Send {AltDown}a{AltUp}
     arpId := waitNewWindowOfClass("TPRArpForm", id)
     if (rec)
@@ -482,6 +662,8 @@ pianorollLen()
 
 pianorollMap()
 {
+    if (proposePianoRollSel("note lfo", "notes") == "abort")
+        return      
     WinGet, id, ID, A
     rec := recordEnabled()
     Send {AltDown}k{AltUp}    
@@ -490,11 +672,35 @@ pianorollMap()
         midiRequest("toggle_rec")      
     movePianorollToolWindow(mapId)
     MouseMove, 147, 68, 0
-    retrieveMouse := False      
+    retrieveMouse := False 
+    return mapId     
+}
+
+pianoRollDismissPitches()
+{
+    mapId := pianorollMap()
+    y := 179
+    moveMouse(10, y)
+    Send {LButton Down}
+    moveMouse(195, y)
+    Send {LButton Up}
+
+    moveMouse(418, y)
+    Send {LButton Down}
+    moveMouse(195, y)
+    Send {LButton Up}
+    Send {Enter}
+
+    sendinput +d  ; disable lenghts
+    sendinput ^g  ; remove overlaps
+
+    retrieveMouse := True      
 }
 
 pianorollStrum()
 {
+    if (proposePianoRollSel("note lfo", "notes") == "abort")
+        return       
     WinGet, id, ID, A
     rec := recordEnabled()
     Send {AltDown}s{AltUp}    
@@ -508,6 +714,8 @@ pianorollStrum()
 
 pianorollTwins()
 {
+    if (proposePianoRollSel("note lfo", "notes") == "abort")
+        return     
     WinGet, id, ID, A
     rec := recordEnabled()
     Send {AltDown}f{AltUp}    
@@ -521,6 +729,8 @@ pianorollTwins()
 
 pianorollChop()
 {
+    if (proposePianoRollSel("note lfo", "notes") == "abort")
+        return 
     WinGet, id, ID, A
     rec := recordEnabled()
     Send {AltDown}u{AltUp}    
@@ -534,41 +744,51 @@ pianorollChop()
 
 pianorollFlip()
 {
-    WinGet, id, ID, A
-    rec := recordEnabled()
-    Send {AltDown}y{AltUp}    
-    flipId := waitNewWindowOfClass("TPRFlipForm", id)
-    if (rec)
-        midiRequest("toggle_rec")      
-    movePianorollToolWindow(flipId)
-    MouseMove, 19, 45, 0
-    retrieveMouse := False       
+    if (proposePianoRollSel("note lfo", "notes") == "accept")
+    {       
+        WinGet, id, ID, A
+        rec := recordEnabled()
+        Send {AltDown}y{AltUp}    
+        flipId := waitNewWindowOfClass("TPRFlipForm", id)
+        if (rec)
+            midiRequest("toggle_rec")      
+        movePianorollToolWindow(flipId)
+        MouseMove, 19, 45, 0
+        retrieveMouse := False       
+    }
 }
 
 pianorollScale()
 {
-    WinGet, id, ID, A
-    rec := recordEnabled()
-    Send {AltDown}x{AltUp}    
-    scaleId := waitNewWindowOfClass("TPRLevelScaleForm", id)
-    if (rec)
-        midiRequest("toggle_rec")      
-    movePianorollToolWindow(scaleId)
-    MouseMove, 85, 100, 0
-    retrieveMouse := False       
+    if (proposePianoRollSel("note lfo", "notes") == "accept")
+    {    
+        WinGet, id, ID, A
+        rec := recordEnabled()
+        Send {AltDown}x{AltUp}    
+        scaleId := waitNewWindowOfClass("TPRLevelScaleForm", id)
+        if (rec)
+            midiRequest("toggle_rec")      
+        movePianorollToolWindow(scaleId)
+        QuickClick(44, 249) ; Reset scaling
+        MouseMove, 85, 100, 0
+        retrieveMouse := False       
+    }
 }
 
 pianorollLfo()
 {
-    WinGet, id, ID, A
-    rec := recordEnabled()
-    Send {AltDown}o{AltUp}    
-    lfoId := waitNewWindowOfClass("TPRLFOForm", id)
-    if (rec)
-        midiRequest("toggle_rec")      
-    movePianorollToolWindow(lfoId)
-    MouseMove, 85, 100, 0
-    retrieveMouse := False
+    if (proposePianoRollSel("note lfo", "notes") == "accept")
+    {
+        WinGet, id, ID, A
+        rec := recordEnabled()
+        Send {AltDown}o{AltUp}    
+        lfoId := waitNewWindowOfClass("TPRLFOForm", id)
+        if (rec)
+            midiRequest("toggle_rec")      
+        movePianorollToolWindow(lfoId)
+        MouseMove, 85, 100, 0
+        retrieveMouse := False
+    }
 }
 
 movePianorollToolWindow(id)
@@ -578,27 +798,45 @@ movePianorollToolWindow(id)
 ; ---------------
 toogleNoteSlide()
 {
-    QuickClick(60, 73)
+    if (pianoRollTimeLineIsThick())
+        y := 71
+    else
+        y := 55     
+    QuickClick(60, y)
+}
+
+pianoRollAddSpace()
+{
+    if (proposePianoRollSel("+space", "time") == "accept")
+        Send {CtrlDown}{AltDown}{Insert}{CtrlUp}{AltUp}
 }
 
 pianorollDisableLenghts()
 {
-    Send {ShiftDown}d{ShiftUp}
+    if (proposePianoRollSel("!len", "notes") == "accept")
+        Send {ShiftDown}d{ShiftUp}
 }
 
 pianoRollDelTimeSel()
 {
-    Send {CtrlDown}{Delete}{CtrlUp}
-    Send {CtrlDown}d{CtrlUp}
+    if (proposePianoRollSel("del time", "time") == "accept")
+    {
+        Send {CtrlDown}{Delete}{CtrlUp}
+        Send {CtrlDown}d{CtrlUp}
+    }
 }
 
 pianoRollCropTimeSel()
 {
-    QuickClick(12, 13)
-    Send {Down}{Down}{Right}
-    QuickClick(257, 479)
+    if (proposePianoRollSel("crop", "time") == "accept")
+    {
+        QuickClick(12, 13)
+        Send {Down}{Down}{Right}
+        QuickClick(257, 479)
+    }
 }
 
+/*
 transpose(dir)
 {
     if (dir == "up")
@@ -606,4 +844,62 @@ transpose(dir)
     else if (dir == "down")
         Send {ShiftDown}{Down}{ShiftUp}
 }
+*/
+; ----
 
+; -- Note params -----------------
+activateParamX()
+{
+    activatePianoRollParam(4)
+}
+
+activateParamY()
+{
+    activatePianoRollParam(5)
+}
+
+activateParamVel()
+{
+    activatePianoRollParam(2)
+}
+
+activatePianoRollParam(n)
+{
+    moveMouse(34, 909)
+    Click
+    y := 26 + (n-1) * 19
+    MouseMove, 0, y, 0, R
+    Click
+    retrieveMouse := False
+}
+
+pianoRollLfoSetTime()
+{
+    moveMouse(74, 169)
+
+    choices := ["1/4", "1/2", "1 beat", "2", "1 bar", "2", "4 bars", "8", "4 -----", "8 -----"]
+    initIndex := randInt(1, choices.MaxIndex())
+    toolTipChoice(choices, "", initIndex)
+    n := toolTipChoiceIndex
+    if (n == "")
+        return
+
+    Click, R
+    Loop %n%
+    {
+        Sleep, 20
+        Send {WheelDown}
+    }
+    Sleep, 20
+    Click
+}
+; ----
+
+; -- util ------------------------
+pianoRollToolTip(txt := "")
+{
+    prevMode := setToolTipCoordMode("Screen")
+    ToolTip, %txt%, -1848, 650, 3
+    setToolTipCoordMode(prevMode)
+}
+; ----

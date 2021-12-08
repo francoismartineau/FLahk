@@ -5,11 +5,11 @@
 
 #If WinActive("ahk_exe FL64.exe") and isPatcher4()
 Left::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return
     
 Right::
-    patcher4ChangeFx()
+    freezeExecute("patcher4ChangeFx")
     return    
 #If
 

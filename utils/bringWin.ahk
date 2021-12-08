@@ -60,6 +60,9 @@ bringMixer(moveMouse = True)
 bringPianoRoll(focusNotes = True, moveMouse = True)
 {
     WinGet, pianoRollId, ID, ahk_class TEventEditForm, Piano roll
+    if (isPianoRoll())
+        return  
+
     if (!pianoRollId)
     {
         WinGet, currId, ID, A
@@ -80,7 +83,8 @@ bringPianoRoll(focusNotes = True, moveMouse = True)
 
     if (moveMouse)
         centerMouse(pianoRollId)
-        
+
+    
     return pianoRollId
 }
 
@@ -149,16 +153,14 @@ bringMainFLWindow()
     return id    
 }
 
+bringTouchKeyboard()
+{
+    WinActivate, ahk_class TTouchKeybForm
+}
+
 bringFL()
 {
     WinGet, exe, ProcessName, A
     if (exe != "FL64.exe")
         WinActivate, ahk_exe FL64.exe
-}
-
-isVisible(winId)
-{
-    WinGet, Style, Style, ahk_id %winId%
-    Transform, res, BitAnd, %Style%, 0x10000000
-    return res <> 0
 }

@@ -1,9 +1,419 @@
 MidiControlChange127:
-    cc := midi.MidiIn()
-    ;toolTip("chan: " cc.channel "   cc: " 127 "     val: " cc.value)
+    cc := midiI.MidiIn()
     if (cc.channel == 16)
     {
         midiAnswer := cc.value
         midiRequesting := False
     }
+    return
 
+;;; -- oxygen ------------------------------------------
+/*
+MidiControlChange73:                    ; C1
+    knobCcIn(73)
+    return
+MidiControlChange75:                    ; C2
+    knobCcIn(75)
+    return  
+MidiControlChange72:                    ; C3
+    knobCcIn(72)
+    return  
+MidiControlChange74:                    ; C4
+    knobCcIn(74)
+    return  
+
+
+MidiControlChange94:                    ; C7
+    knobCcIn(94)
+    return  
+MidiControlChange95:                    ; C8
+    knobCcIn(95)
+    return  
+*/
+
+
+
+;;; -- knob ------------------------------------------
+/*
+MidiControlChange0: 
+   knobCCIn(0)      
+    return
+MidiControlChange1: 
+   knobCCIn(1)      
+    return
+MidiControlChange2: 
+   knobCCIn(2)      
+    return
+MidiControlChange3: 
+   knobCCIn(3)      
+    return
+MidiControlChange4: 
+   knobCCIn(4)      
+    return
+MidiControlChange5: 
+   knobCCIn(5)      
+    return
+MidiControlChange6: 
+   knobCCIn(6)      
+    return
+MidiControlChange7: 
+   knobCCIn(7)      
+    return
+MidiControlChange8: 
+   knobCCIn(8)      
+    return
+MidiControlChange9: 
+   knobCCIn(9)      
+    return
+MidiControlChange10:
+   knobCCIn(10)     
+    return
+MidiControlChange11:
+   knobCCIn(11)     
+    return
+MidiControlChange12:
+   knobCCIn(12)
+    return
+MidiControlChange13:
+   knobCCIn(13)
+    return
+MidiControlChange14:
+   knobCCIn(14)
+    return
+MidiControlChange15:
+   knobCCIn(15)
+    return
+MidiControlChange16:
+   knobCCIn(16)
+    return
+MidiControlChange17:
+   knobCCIn(17)
+    return
+MidiControlChange18:
+   knobCCIn(18)
+    return
+MidiControlChange19:
+   knobCCIn(19)
+    return
+MidiControlChange20:
+   knobCCIn(20)
+    return
+MidiControlChange21:
+   knobCCIn(21)
+    return
+MidiControlChange22:
+   knobCCIn(22)
+    return
+MidiControlChange23:
+   knobCCIn(23)
+    return
+MidiControlChange24:
+   knobCCIn(24)
+    return
+MidiControlChange25:
+   knobCCIn(25)
+    return
+MidiControlChange26:
+   knobCCIn(26)
+    return
+MidiControlChange27:
+   knobCCIn(27)
+    return
+MidiControlChange28:
+   knobCCIn(28)
+    return
+MidiControlChange29:
+   knobCCIn(29)
+    return
+MidiControlChange30:
+   knobCCIn(30)
+    return
+MidiControlChange31:
+   knobCCIn(31)
+    return
+MidiControlChange32:
+   knobCCIn(32)
+    return
+MidiControlChange33:
+   knobCCIn(33)
+    return
+MidiControlChange34:
+   knobCCIn(34)
+    return
+MidiControlChange35:
+   knobCCIn(35)
+    return
+MidiControlChange36:
+   knobCCIn(36)
+    return
+MidiControlChange37:
+   knobCCIn(37)
+    return
+MidiControlChange38:
+   knobCCIn(38)
+    return
+MidiControlChange39:
+   knobCCIn(39)
+    return
+MidiControlChange40:
+   knobCCIn(40)
+    return
+MidiControlChange41:
+   knobCCIn(41)
+    return
+MidiControlChange42:
+   knobCCIn(42)
+    return
+MidiControlChange43:
+   knobCCIn(43)
+    return
+MidiControlChange44:
+   knobCCIn(44)
+    return
+MidiControlChange45:
+   knobCCIn(45)
+    return
+MidiControlChange46:
+   knobCCIn(46)
+    return
+MidiControlChange47:
+   knobCCIn(47)
+    return
+MidiControlChange48:
+   knobCCIn(48)
+    return
+MidiControlChange49:
+   knobCCIn(49)
+    return
+MidiControlChange50:
+   knobCCIn(50)
+    return
+MidiControlChange51:
+   knobCCIn(51)
+    return
+MidiControlChange52:
+   knobCCIn(52)
+    return
+MidiControlChange53:
+   knobCCIn(53)
+    return
+MidiControlChange54:
+   knobCCIn(54)
+    return
+MidiControlChange55:
+   knobCCIn(55)
+    return
+MidiControlChange56:
+   knobCCIn(56)
+    return
+MidiControlChange57:
+   knobCCIn(57)
+    return
+MidiControlChange58:
+   knobCCIn(58)
+    return
+MidiControlChange59:
+   knobCCIn(59)
+    return
+MidiControlChange60:
+   knobCCIn(60)
+    return
+MidiControlChange61:
+   knobCCIn(61)
+    return
+MidiControlChange62:
+   knobCCIn(62)
+    return
+MidiControlChange63:
+   knobCCIn(63)
+    return
+MidiControlChange64:
+   knobCCIn(64)
+    return
+MidiControlChange65:
+   knobCCIn(65)
+    return
+MidiControlChange66:
+   knobCCIn(66)
+    return
+MidiControlChange67:
+   knobCCIn(67)
+    return
+MidiControlChange68:
+   knobCCIn(68)
+    return
+MidiControlChange69:
+   knobCCIn(69)
+    return
+MidiControlChange70:
+   knobCCIn(70)
+    return
+MidiControlChange71:
+   knobCCIn(71)
+    return
+MidiControlChange72:
+   knobCCIn(72)
+    return
+MidiControlChange73:
+   knobCCIn(73)
+    return
+MidiControlChange74:
+   knobCCIn(74)
+    return
+MidiControlChange75:
+   knobCCIn(75)
+    return
+MidiControlChange76:
+   knobCCIn(76)
+    return
+MidiControlChange77:
+   knobCCIn(77)
+    return
+MidiControlChange78:
+   knobCCIn(78)
+    return
+MidiControlChange79:
+   knobCCIn(79)
+    return
+MidiControlChange80:
+   knobCCIn(80)
+    return
+MidiControlChange81:
+   knobCCIn(81)
+    return
+MidiControlChange82:
+   knobCCIn(82)
+    return
+MidiControlChange83:
+   knobCCIn(83)
+    return
+MidiControlChange84:
+   knobCCIn(84)
+    return
+MidiControlChange85:
+   knobCCIn(85)
+    return
+MidiControlChange86:
+   knobCCIn(86)
+    return
+MidiControlChange87:
+   knobCCIn(87)
+    return
+MidiControlChange88:
+   knobCCIn(88)
+    return
+MidiControlChange89:
+   knobCCIn(89)
+    return
+MidiControlChange90:
+   knobCCIn(90)
+    return
+MidiControlChange91:
+   knobCCIn(91)
+    return
+MidiControlChange92:
+   knobCCIn(92)
+    return
+MidiControlChange93:
+   knobCCIn(93)
+    return
+MidiControlChange94:
+   knobCCIn(94)
+    return
+MidiControlChange95:
+   knobCCIn(95)
+    return
+MidiControlChange96:
+   knobCCIn(96)
+    return
+MidiControlChange97:
+   knobCCIn(97)
+    return
+MidiControlChange98:
+   knobCCIn(98)
+    return
+MidiControlChange99:
+   knobCCIn(99)
+    return
+MidiControlChange100:
+   knobCCIn(100)
+    return
+MidiControlChange101:
+   knobCCIn(101)
+    return
+MidiControlChange102:
+   knobCCIn(102)
+    return
+MidiControlChange103:
+   knobCCIn(103)
+    return
+MidiControlChange104:
+   knobCCIn(104)
+    return
+MidiControlChange105:
+   knobCCIn(105)
+    return
+MidiControlChange106:
+   knobCCIn(106)
+    return
+MidiControlChange107:
+   knobCCIn(107)
+    return
+MidiControlChange108:
+   knobCCIn(108)
+    return
+MidiControlChange109:
+   knobCCIn(109)
+    return
+MidiControlChange110:
+   knobCCIn(110)
+    return
+MidiControlChange111:
+   knobCCIn(111)
+    return
+MidiControlChange112:
+   knobCCIn(112)
+    return
+MidiControlChange113:
+   knobCCIn(113)
+    return
+MidiControlChange114:
+   knobCCIn(114)
+    return
+MidiControlChange115:
+   knobCCIn(115)
+    return
+MidiControlChange116:
+   knobCCIn(116)
+    return
+MidiControlChange117:
+   knobCCIn(117)
+    return
+MidiControlChange118:
+   knobCCIn(118)
+    return
+MidiControlChange119:
+   knobCCIn(119)
+    return
+MidiControlChange120:
+   knobCCIn(120)
+    return
+MidiControlChange121:
+   knobCCIn(121)
+    return
+MidiControlChange122:
+   knobCCIn(122)
+    return
+MidiControlChange123:
+   knobCCIn(123)
+    return
+MidiControlChange124:
+   knobCCIn(124)
+    return
+MidiControlChange125:
+   knobCCIn(125)
+    return
+MidiControlChange126:
+   knobCCIn(126)
+    return
+*/

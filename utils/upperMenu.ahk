@@ -2,40 +2,39 @@
 togglePatternSong()
 {
     if (isPianoRollTool())
-        togglePatternSongActivateWin()
+        togglePatternSongFromPianoRollToolWin()
     else
         togglePatternSongClick()
 }
 
 togglePatternSongClick()
 {
-    CoordMode, Mouse, Screen
+    prevMode := setMouseCoordMode("Screen")
     MouseGetPos, mx
     if (mx < 0)
         MouseMove, 0, 781, 0
     MouseMove, 355, 16, 0
     Click
-    CoordMode, Mouse, Client
+    setMouseCoordMode(prevMode)
 }
 
-togglePatternSongActivateWin()
+togglePatternSongFromPianoRollToolWin()
 {
-    winId := WinActive("A")
+    WinGet, toolWinId, ID, A
     typingKeyEnabled := typingKeyboardEnabled()
     if (typingKeyEnabled)
     {
         bringMainFLWindow()
-        Send {Ctrl down}t{Ctrl up}
-    }
-    bringPlaylist(False)
+        SendInput ^t
+    }    
+    bringTouchKeyboard()
     Send l
     if (typingKeyEnabled)
     {
         bringMainFLWindow()
-        Send {Ctrl down}t{Ctrl up}
-    }    
-    bringHistoryWins()
-    WinActivate, ahk_id %winId%
+        SendInput ^t
+    }       
+    WinActivate, ahk_id %toolWinId%    
 }
 
 songEnabled()
@@ -46,6 +45,7 @@ songEnabled()
     return res
 }
 
+/*
 toggleRecord()
 {
     winId := WinActive("A")
@@ -54,6 +54,7 @@ toggleRecord()
     bringHistoryWins()
     WinActivate, ahk_id %winId%
 }
+*/
 
 recordEnabled()
 {
@@ -115,13 +116,12 @@ toggleTypingKeyboard()
 
 typingKeyboardEnabled()
 {
-    winId := WinActive("A")
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm
-    x := 457
+    prevMode := setPixelCoordMode("Screen")
+    x := 490
     y := 52
     cols := [0xFFE294]
     isEnabled := colorsMatch(x, y, cols, 20)
-    WinActivate, ahk_id %winId%
+    setPixelCoordMode(prevMode)
     return isEnabled
 }
 

@@ -1,4 +1,4 @@
-global concatAudioScriptPath := "C:\Util2\FLahk\concatAudio\"
+global concatAudioScriptPath := "C:\Util2\concat_audio\"
 
 pickConcatAudioPaths(n)
 {
@@ -70,16 +70,25 @@ getRandomSoundDir()
 
 concatAudioRun()
 {
-    pathsArg := ""
-    i := 1
-    while (i <= ConcatAudioPaths.MaxIndex())
+    if (preGenBrowsing)
     {
-        if (ConcatAudioPaths[i] != ConcatAudioFolderEmpty)
+        hideMsgRefresh()
+        dir := createPreGenBrowsingDir()
+        pathsArg = "%dir%"
+    }
+    else
+    {
+        i := 1
+        pathsArg := ""
+        while (i <= ConcatAudioPaths.MaxIndex())
         {
-            p := removeBreakLines(ConcatAudioPaths[i])
-            pathsArg = %pathsArg% "%p%"
-        }        
-        i := i + 1
+            if (ConcatAudioPaths[i] != ConcatAudioFolderEmpty)
+            {
+                p := removeBreakLines(ConcatAudioPaths[i])
+                pathsArg = %pathsArg% "%p%"
+            }        
+            i := i + 1
+        }
     }
     if (!pathsArg)
     {
@@ -99,7 +108,18 @@ concatAudioRun()
         len := 0
     }
     cmd = cmd.exe /q /c python
-    cmd = %cmd% %concatAudioScriptPath%concatAudio.py
+    cmd = %cmd% %concatAudioScriptPath%concat_audio.py
     cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
+    if (preGenBrowsing)
+        cmd = %cmd% --browse 1
+    clipboard := cmd
     ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
+    if (preGenBrowsing)
+        stoppreGenBrowsing()
+}
+
+moveMouseToConcatAudio()
+{
+    WinActivate, ahk_id %FLahkGuiId2%
+    moveMouse(783, 126)
 }

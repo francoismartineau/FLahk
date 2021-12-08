@@ -7,7 +7,7 @@ LFO()
         minMax := knobCopyMinMax()
         Sleep, 20
         pluginName := copyName()
-        lfoID := applyController(4, False, OcrToggleEnabled, 3)
+        lfoID := applyController(4, False, True, 2)
         lfoName := makeControllerName("LFO", pluginName, randString(1))
         rename(lfoName)
         adjustLfo(minMax)
@@ -18,6 +18,7 @@ LFO()
         adjustLfo()
         rename("LFO " randString(1), True)
     }
+    centerMouse(lfoID)
 }
 
 adjustLfo(minMax = "")
@@ -29,7 +30,7 @@ adjustLfo(minMax = "")
         min := minMax[1]
         max := minMax[2]
 
-        lfoBaseX := 235
+        lfoBaseX := 235 
         lfoBaseY := 81
         base := min
         setKnobValue(lfoBaseX, lfoBaseY, base)  

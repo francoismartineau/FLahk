@@ -14,7 +14,7 @@ stopWinHistoryClock() {
     SetTimer, WINDOW_HISTORY_CLOCK, Off           
 }
 
-startWinMenusClock(speed = 400) {
+startWinMenusClock(speed := 400) {
     SetTimer, WINDOW_MENUS_CLOCK, %speed%
 }
 
@@ -32,9 +32,41 @@ stopMouseCtlClock()
     SetTimer, MOUSE_CTL_TICK, Off
 }
 
+startMsgRefreshClock()
+{
+    SetTimer, MSG_REFRESH_TICK, 100
+}
+
+hideMsgRefreshClock()
+{
+    SetTimer, MSG_REFRESH_TICK, Off
+}
+
+startObsClock()
+{
+    SetTimer, OBS_CHECK_MOUSE_POS_TICK, 100
+}
+
+stopObsClock()
+{
+    SetTimer, OBS_CHECK_MOUSE_POS_TICK, Off
+}
+
+global bringWinAtMouseToggle := False
+startBringWinAtMouseClock()
+{
+    SetTimer, MOVE_WIN_AT_MOUSE, 100
+    bringWinAtMouseToggle := True
+}
+
+stopBringWinAtMouseClock()
+{
+    SetTimer, MOVE_WIN_AT_MOUSE, Off
+    bringWinAtMouseToggle := False
+}
 
 SetTimer, SAVE_REMINDER_CLOCK, %saveReminderMilliseconds%
 startMainClock()
 startWinHistoryClock()
 startWinMenusClock()
-startMouseCtlClock()
+;startMouseCtlClock()

@@ -6,6 +6,8 @@ WinMaximize, FL Studio 20 ahk_class TFruityLoopsMainForm
 
 global FLahkGuiId1
 global FLahkGuiId2
+;global MainGuiMsg := "-"
+
 ;global FLahkBackgroundGuiId
 
 global maxedGui2H := 150
@@ -14,22 +16,25 @@ global gui2W := 985
 
 global GuiMouseCtlL, GuiMouseCtlR, GuiMouseCtlActive, GuiMouseCtlIncrMode, GuiMouseCtlIncrActive
 
-global OcrToggleGui
-global OcrToggleEnabled := 0
-global FileSavedToggleGui
-global fileSavedToggleEnabled := 0
+global winHistoryDebugGui
+global knobSavesDebugToggleGui
+global ProjPathGui
 
 makeWindow()
 {
     ;makeBackgroundWindow()
-    makePianoRollMenu()
+    makePianoRollMenus()
     makeEventEditorMenu()
+    makePatcherMapMenu()
     makeStepSeqMenus()
     makeMixerMenu()
+    makeAudacityMenu()
+    makeMelodyneMenu()
 
     makeWindowRow1()
     makeWindowRow2()
     makeConcatAudioButtons()
+    makeNumpadG()
     
     Menu, Tray, Icon, fl.ico,,1
     
@@ -51,12 +56,23 @@ makeWindowRow1()
     Gui, Main1:Add, Button, x+8 gRAND_PLUGIN, 🎲
     Gui, Main1:Add, Button, x+10 gCONCAT_AUDIO, _gen    
 
-    ;Gui, Main1:Add, Text, x+45, -Encaps
     Gui, Main1:Add, Button, x+52 h20 gUNWRAP_PROJECT, unwrap
-    Gui, Main1:Add, Button, x+10 h20 gPREV_PROJECT, prev proj    
+    Gui, Main1:Add, Button, x+10 h20 gPREV_PROJECT, prev proj
+
+
+    Gui, Main1:Add, Text, x+50 h50 w260 vProjPathGui gOPEN_PROJECT_FOLDERS,
+    Gui, Main1:Add, Text, x+10, !F3: win@mouse
+
+    ;;; marche pas? 
+    ;Gui, Main1:Add, Text, x+50 vMainGuiMsg, %MainGuiMsg%
 }
 
-
+mouseOverAhkGui()
+{
+    MouseGetPos,,, mWinId
+    WinGetClass, class, ahk_id %mWinId%
+    return class == "AutoHotkeyGUI"
+}
 
 
 makeWindowRow2()
@@ -79,8 +95,8 @@ makeWindowRow2()
     Gui, Main2:Add, Text, x+10 w45 vGuiMouseCtlR, R:
     Gui, Main2:Add, Text, x+10 w45 w50 gTOGGLE_MOUSE_CTL_INTERPOLATION_MODE vGuiMouseCtlIncrMode, stop
     Gui, Main2:Add, Text, x+10 w45 w100, ^(+)mclick
-    Gui, Main2:Add, CheckBox, x+10 vOcrToggleGui gOCR_TOGGLE, OCR
-    Gui, Main2:Add, CheckBox, x+10 vFileSavedToggleGui gFILE_SAVED_TOGGLE, File saved
+    Gui, Main2:Add, CheckBox, x+10 vwinHistoryDebugGui gWIN_HISTORY_DEBUG_TOGGLE, winHistory
+    Gui, Main2:Add, CheckBox, x+10 vknobSavesDebugToggleGui gKNOB_SAVES_DEBUG_TOGGLE, knobSaves
 
     Gui, Main2:Add, Text, x438 y20 w100 vGuiMouseCtlActive, ^
     Gui, Main2:Add, Text, x+10 y20 w200 vGuiMouseCtlIncrActive, L0 R0
@@ -103,6 +119,19 @@ makeWindowControls()
     
     questionButtonX := minimizeButtonX - quitButtonSize - 3
     Gui, Main1:Add, Button, x%questionButtonX% y5 w%quitButtonSize% h%quitButtonSize% gQUESTION_BUTTON, ?
+}
+
+; -----
+hideMainGuis()
+{
+    WinHide, ahk_id %FLahkGuiId1%
+    WinHide, ahk_id %FLahkGuiId2%    
+}
+
+showMainGuis()
+{
+    WinShow, ahk_id %FLahkGuiId1%
+    WinShow, ahk_id %FLahkGuiId2%    
 }
 
 /*

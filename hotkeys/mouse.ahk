@@ -11,7 +11,7 @@
 
 
 ;-- moveWin --------------------------------
-#If WinActive("ahk_class TStepSeqForm") or (WinActive("ahk_class TPluginForm") and !isMasterEdison())
+#If !numpadGShown and (WinActive("ahk_class TStepSeqForm") or (WinActive("ahk_class TPluginForm") and !isMasterEdison()))
 +!XButton1::
     moveWinLeftScreen()
     return
@@ -66,6 +66,14 @@ LButton::
 #If
 
 
+; -- patcherMod ------------------
+#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOverPatcherModChorusSpeed()
+~!LButton Up::
+    freezeExecute("patcherModChorusSpeed")
+    return
+#If
+; ----
+
 ; -- Delb --------------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOverDelBTurnOffWetVols()
 ~!LButton Up::
@@ -87,44 +95,35 @@ LButton::
 #If
 ; ----
 
-
-; -- XButton ---------------------------
-#If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Code.exe")
-^!XButton1 Up::
-    freezeExecute("sendDelete")
+; -- Patcher4 -----------------------------------------------
+#If WinActive("ahk_exe FL64.exe") and isPlugin() and isPatcher4()
+~!LButton Up::
+    freezeExecute("patcher4ShowPlugin", False, False)
     return
-
-XButton1::
-    xbutton1Released := False
-    advanceInSong(False)
-    return
-
-XButton2::
-    xbutton2Released := False
-    advanceInSong(True)   
-    return 
-
-XButton1 Up::
-    xbutton1Released := True
-    return
-
-^XButton1 Up::
-    xbutton1Released := True
-    return
-
-XButton2 Up::
-    xbutton2Released := True
-    return
-
-^XButton2 Up::
-    xbutton2Released := True
-    return    
-;--
 #If
+; ----
 
+
+; XButton
 #If True
 ^!XButton1 Up::
     waitForModifierKeys()
     Send {Delete}
     return
 #If
+
+; ---------
+#If preGenBrowsing
+RButton::
+    removePreGenSound()
+    return
+#If
+
+
+; -- ^Click: pianoRoll
+#If WinActive("ahk_exe FL64.exe") and (isMixer("", True) or isMainFlWindow("", True) or (!isInstr() and isPlugin("", True)))
+^LButton::
+    bringPianoRoll()
+    return
+#If
+; --

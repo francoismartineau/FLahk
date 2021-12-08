@@ -1,17 +1,19 @@
-isFLWindow(winId)
+isFLWindow(winId := "")
 {
+    if (winId == "")
+        WinGet, winId, ID, A
     WinGet, program, ProcessName, ahk_id %winId%
     return program == "FL64.exe"
 }
 
-isOneOfMainWindows(winId = "")
+isOneOfMainWindows(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
     return isMixer(winId) or isMainFlWindow(winId) or isPlaylist(winId) or isMasterEdison(winId) or isTouchKeyboard(winId)
 }
 
-isWindowHistoryExclude(winId = "")
+isWindowHistoryExclude(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
@@ -33,7 +35,6 @@ isMixer(winId := "", underMouse := False)
 }
 
 
-
 isStepSeq(winId := "", underMouse := False)
 {
     if (!winId)
@@ -47,26 +48,61 @@ isStepSeq(winId := "", underMouse := False)
     return class == "TStepSeqForm"
 }
 
-isMainFlWindow(winId = "")
+isMainFlWindow(winId := "", underMouse := False, test := False)
 {
     if (!winId)
-        WinGetClass, class, A
-    else
-        WinGetClass, class, ahk_id %winId%
+    {
+        if (underMouse)
+            MouseGetPos,,, winId
+        else
+            WinGet, winId, ID, A
+    }
+    WinGetClass, class, ahk_id %winId%
     return class == "TFruityLoopsMainForm"
 }
 
-isTouchKeyboard(winId = "")
+isTouchKeyboard(winId := "")
 {
     if (!winId)
         WinGetClass, class, A
-    else
-        WinGetClass, class, ahk_id %winId%
+    WinGetClass, class, ahk_id %winId%
     return class == "TTouchKeybForm"    
 }
 
+isAudacity(winId := "")
+{
+    if (winId == "")
+        WinGet, winId, ID, A
+    WinGet, exe, ProcessName, ahk_id %winId%
+    WinGetClass, class, ahk_id %winId%
+    return exe == "audacity.exe" and class == "wxWindowNR"
+}
+
+isMelodyne(winId := "")
+{
+    if (winId == "")
+        WinGet, exe, ProcessName, A
+    else
+        WinGet, exe, ProcessName, ahk_id %winId%
+    return exe == "Melodyne singletrack.exe"
+}
+
+isKnobsWin(winId := "")
+{
+    if (!winId)
+        WinGetTitle, title, A    
+    else
+        WinGetTitle, title, ahk_id %winId%
+    return InStr(title, "Control Surface")
+}
+
+isAhkGui()
+{
+    WinGetClass, class, A
+    return class == "AutoHotkeyGUI"
+}
 ; -- EventEditForms ---------------
-isPianoRoll(winId = "")
+isPianoRoll(winId := "")
 {
     res := False
     if (!winId)
@@ -77,10 +113,10 @@ isPianoRoll(winId = "")
         WinGetTitle, title, ahk_id %winId%
         res := InStr(title, "Piano roll -")
     }
-    return res or winId == PianoRollMenuId
+    return res or winId == PianoRollMenu1Id or winId == PianoRollMenu2Id
 }
 
-isPlaylist(winId = "")
+isPlaylist(winId := "")
 {
     res := False
     if (!winId)
@@ -94,7 +130,7 @@ isPlaylist(winId = "")
     return res
 }
 
-isEventEditForm(winId = "")
+isEventEditForm(winId := "")
 {
     if (!winId)
         WinGetClass, class, A
@@ -103,7 +139,7 @@ isEventEditForm(winId = "")
     return class == "TEventEditForm"
 }
 
-isEventEditor(winId = "")
+isEventEditor(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
@@ -113,7 +149,7 @@ isEventEditor(winId = "")
 }
 
 ; -- PianoRoll Tool Windows ------
-isPianoRollTool(id = "")
+isPianoRollTool(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -121,7 +157,7 @@ isPianoRollTool(id = "")
     return InStr(class, "TPR")
 }
 
-isPianorollLen(id = "")
+isPianorollLen(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -129,7 +165,7 @@ isPianorollLen(id = "")
     return class == "TPRLegatoForm"    
 }
 
-isPianorollArp(id = "")
+isPianorollArp(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -137,7 +173,7 @@ isPianorollArp(id = "")
     return class == "TPRArpForm"    
 }
 
-isPianorollRand(id = "")
+isPianorollRand(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -145,7 +181,7 @@ isPianorollRand(id = "")
     return class == "TPRRandomForm"    
 }
 
-isPianorollGen(id = "")
+isPianorollGen(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -153,7 +189,7 @@ isPianorollGen(id = "")
     return class == "TPRScoreCreatorForm"    
 }
 
-isPianorollQuantize(id = "")
+isPianorollQuantize(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -161,8 +197,16 @@ isPianorollQuantize(id = "")
     return class == "TPRQuantizeForm"    
 }
 
+isPianoRollLfo(id := "")
+{
+    if (id == "")
+        WinGet, id, ID, A
+    WinGetClass, class, ahk_id %id%
+    return class == "TPRLFOForm" 
+}
+
 ; -- Plugins ---------------------
-isInstr(id = "")
+isInstr(id := "")
 {
     ; look at the red around the pitch bend range
     res := False
@@ -171,10 +215,11 @@ isInstr(id = "")
     if (isPlugin(id))
     {
         WinGetPos,,, winW,, ahk_id %id%
-        x := winW - 100
+        x1 := winW - 100
+        x2 := x1 - instrFullScreenXoffset ; - because right side
         y := 36
         col := [0x79434A]
-        if colorsMatch(x, y, col, 10, "")
+        if colorsMatch(x1, y, col, 10) or colorsMatch(x2, y, col, 10)
             res := True
     }
     return res
@@ -237,12 +282,47 @@ isEdison(winId = "")
     return res
 }
 
-isPlugin(id = "")
+isPlugin(id = "", underMouse = False)
+{
+    if (id == "")
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
+    WinGetClass, class, ahk_id %id%
+    return class == "TPluginForm" or isWrapperPlugin(id)
+}
+
+
+isPatcherMap(id := "")
+{
+    res := False
+    if (!id)
+        WinGet, id, ID, A
+    restoreWin(id)
+    ; look at colors around Map / Surface menu
+    if (isPlugin(id))
+    {
+        colorListX := 55    ; in the V of Map's M, lowest background pixel (slightly diff from actual background)
+        if (isWrapperPlugin(id))
+            colorListY := 41
+        else
+            colorListY := 87
+        colorList := [0x32383d, 0x303c53, 0x6faed6]
+        res := scanColorsLine(colorListX, colorListY, colorList)
+    }
+    return res
+}
+
+global yOffsetWrapperPlugin := 46
+isWrapperPlugin(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
     WinGetClass, class, ahk_id %id%
-    return class == "TPluginForm" 
+    return class == "TWrapperPluginForm"    
 }
 
 isOneOfTheSamplers(id = "", underMouse = False)
@@ -261,6 +341,10 @@ isPatcherSampler(id = "", underMouse = False)
     }
     x := 380
     y := 120 + 4
+
+    if (isWrapperPlugin(id))
+        y := y - yOffsetWrapperPlugin
+
     col := [0x353A4A]
     WinGetPos, winX, winY,,, ahk_id %id%
     setPixelCoordMode("Screen")
@@ -280,6 +364,10 @@ isPatcherSlicex(id = "", underMouse = False)
     }
     x := 103
     y := 116
+
+    if (isWrapperPlugin(id))
+        y := y - yOffsetWrapperPlugin
+
     col := [0x8D4E86]
     WinGetPos, winX, winY,,, ahk_id %id%
     setPixelCoordMode("Screen")
@@ -299,6 +387,8 @@ isPatcherGranular(id = "", underMouse = False)
     }
     x := 30
     y := 162
+    if (isWrapperPlugin(id))
+        y := y - yOffsetWrapperPlugin
     col := [0x574D5A]
     WinGetPos, winX, winY,,, ahk_id %id%
     setPixelCoordMode("Screen")
@@ -307,6 +397,8 @@ isPatcherGranular(id = "", underMouse = False)
     {
         x := 48
         y := 161
+        if (isWrapperPlugin(id))
+            y := y - yOffsetWrapperPlugin        
         col := [0x2D4E52]    
         res := res and colorsMatch(winX + x, winY + y, col) 
     }
@@ -314,41 +406,51 @@ isPatcherGranular(id = "", underMouse = False)
     return res  
 }
 
-isPatcher4(id = "")
-{
-    if (id == "")
-        WinGet, id, ID, A
-    return colorsMatch(315, 73, [0x9B8E8A]) and colorsMatch(250, 74, [0xA8B985])
-}
-
 isHarmless(id = "")
 {
     if (id == "")
         WinGet, id, ID, A
     WinGetPos,,, winW, winH, ahk_id %id%
-    return winW == 858 and winH == 646 and colorsMatch(255, 237, [0x584451])
+    h := 646
+    y := 237
+    if (isWrapperPlugin(id))
+    {
+        y := y - yOffsetWrapperPlugin
+        h := h - yOffsetWrapperPlugin
+    }
+    return winW == 858 and winH == h and colorsMatch(255, y, [0x584451])
 }
 
-isWrapperPlugin(id = "")
-{
-    if (id == "")
-        WinGet, id, ID, A
-    WinGetClass, class, ahk_id %id%
-    return class == "TWrapperPluginForm"    
-}
+
 
 isRaveGen(id = "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return colorsMatch(472, 415, [0x425B6B]) and colorsMatch(691, 366, [0x433D36])
+    y1 := 415
+    y2 := 366
+    if (isWrapperPlugin(id))
+    {
+        y1 := y1 - yOffsetWrapperPlugin
+        y2 := y2 - yOffsetWrapperPlugin
+    }    
+    return colorsMatch(472, y1, [0x425B6B]) and colorsMatch(691, y2, [0x433D36])
 }
 
 isSytrus(id = "")
 {
     if (id == "")
         WinGet, id, ID, A   
-    return colorsMatch(35, 105, [0x2C3338]) and colorsMatch(10, 369, [0x31373B]) and colorsMatch(23, 210, [0x2C3338])
+    y1 := 105
+    y2 := 369
+    y3 := 210
+    if (isWrapperPlugin(id))
+    {
+        y1 := y1 - yOffsetWrapperPlugin
+        y2 := y2 - yOffsetWrapperPlugin
+        y3 := y3 - yOffsetWrapperPlugin
+    }    
+    return colorsMatch(35, y1, [0x2C3338]) and colorsMatch(10, y2, [0x31373B]) and colorsMatch(23, y3, [0x2C3338])
 }
 
 isPlucked(id = "")
@@ -356,7 +458,14 @@ isPlucked(id = "")
     if (id == "")
         WinGet, id, ID, A
     WinGetPos,,, winW, winH, ahk_id %id%
-    return winW == 370 and winH == 233 and colorsMatch(31, 134, [0xBD883F])
+    h := 233
+    y := 134
+    if (isWrapperPlugin(id))
+    {
+        y := y - yOffsetWrapperPlugin
+        h := h - yOffsetWrapperPlugin
+    }    
+    return winW == 370 and winH == h and colorsMatch(31, y, [0xBD883F])
 }
 
 isPiano(id = "")
@@ -364,7 +473,14 @@ isPiano(id = "")
     if (id == "")
         WinGet, id, ID, A
     WinGetPos,,, winW, winH, ahk_id %id%
-    return and winW == 494 and winH == 351 and colorsMatch(162, 91, [0x242424])
+    h := 351
+    y := 91
+    if (isWrapperPlugin(id))
+    {
+        y := y - yOffsetWrapperPlugin
+        h := h - yOffsetWrapperPlugin
+    }      
+    return and winW == 494 and winH == h and colorsMatch(162, y, [0x242424])
 }
 
 isBeepMap(id = "")
@@ -372,7 +488,16 @@ isBeepMap(id = "")
     if (id == "")
         WinGet, id, ID, A
     WinGetPos,,, winW, winH, ahk_id %id%
-    return winW == 390 and 220 < winH and winH < 275 and colorsMatch(144, 80, [0x2F424E])
+    h1 := 220
+    h2 := 275
+    y := 80
+    if (isWrapperPlugin(id))
+    {
+        y := y - yOffsetWrapperPlugin
+        h1 := h1 - yOffsetWrapperPlugin
+        h2 := h2 - yOffsetWrapperPlugin
+    }      
+    return winW == 390 and h1 < winH and winH < h2 and colorsMatch(144, y, [0x2F424E])
 }
 
 isAutogun(id = "")
@@ -380,14 +505,20 @@ isAutogun(id = "")
     if (id == "")
         WinGet, id, ID, A
     WinGetPos,,, winW, winH, ahk_id %id%
-    return winW == 312 and winH == 456
+    h := 456
+    if (isWrapperPlugin(id))
+        h := h - yOffsetWrapperPlugin
+    return winW == 312 and winH == h
 }
 
 isFlex(id = "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return colorsMatch(399, 164, [0xD8833A])
+    y := 164
+    if (isWrapperPlugin(id))
+        y := y - yOffsetWrapperPlugin       
+    return colorsMatch(399, y, [0xD8833A])
 }
 
 isSampleClip(id = "")
@@ -404,6 +535,21 @@ isSampleClip(id = "")
 }
 
 ; -- fx ---------------------------------------------
+isPatcher4(id = "")
+{
+    if (id == "")
+        WinGet, id, ID, A
+    y := 74
+    return colorsMatch(315, y, [0x9B8E8A]) and colorsMatch(250, y, [0xA8B985])
+}
+
+isPatcherMod(id = "")
+{
+    if (id == "")
+        WinGet, id, ID, A
+    return colorsMatch(185, 82, [0x40354A]) and colorsMatch(211, 86, [0xA5375D])
+}
+
 isDelB(id = "")
 {
     if (id == "")
@@ -435,10 +581,13 @@ isProbablyEq(id = "")
     return winW == 646 and winH == 354 ;and colorsMatch(10, 32, [0x2D3537]) and colorsMatch(18, 42, [0x565C5F])
 }
 
-isLfo(id = "")
+isLfo(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
+
+    if (isPianoRollLfo(id))
+        return False
 
     res := False
     WinGetTitle, title, ahk_id %id%

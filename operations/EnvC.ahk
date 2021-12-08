@@ -6,7 +6,7 @@
         minMax := knobCopyMinMax()
         Sleep, 20
         pluginName := copyName()
-        ecId := applyController(2, True, OcrToggleEnabled)
+        ecId := applyController(2, True, False)
         envCname := makeControllerName("EC", pluginName, randString(1))
         rename(envCname)
         adjustEC(minMax)

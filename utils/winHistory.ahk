@@ -16,7 +16,7 @@ winHistoryTic()
     
         if (isFLWindow(id) and justChangedWindow(id) and !isWindowHistoryExclude(id))
         {
-            if (isPlugin(id) and !isMasterEdison(id))
+            if (isPlugin(id) or isWrapperPlugin(id))
                 mode := "plugin"
             else
                 mode := "mainWin"
@@ -72,6 +72,50 @@ removeWinFromHistory(index, mode)
         %historyIndex% := %historyIndex% - 1
 }
 
+removeWinFromHistoryById(winId, mode)
+{
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    }    
+
+    index := pluginWinHistoryIndex
+    i := 1
+    while (%history%.MaxIndex() >= 1 and i <= %history%.MaxIndex())
+    {
+        if (index > %history%.MaxIndex())
+            index := 1            
+        currWinId := %history%[index]
+        if (winId == currWinId)
+        {
+            removeWinFromHistory(index, mode)
+            break
+        }
+        i := i + 1
+        index := index + 1
+    }
+}
+
+removeFromHistoryIfInvisible(winId)
+{
+    res := False
+    if (!isVisible(winId))
+    {
+        if (isPlugin(winId))
+            mode := "plugin"
+        else
+            mode := "mainWin"
+        removeWinFromHistoryById(winId, mode)
+        res := True
+    }    
+    return res
+}
+
 registerWinToHistory(id, mode)
 {
     Switch mode
@@ -119,28 +163,28 @@ displayHistoryContent(moreInfo = "")
             msg := msg " "
         msg = %msg%%A_Index% : %title%
     }
-    toolTip(msg)
+    toolTipAtPos(1422, 82, msg, debugToolTip)
 }
 
 ; -- Tab Caps -------------------------------------
 activatePrevPlugin()
 {
-    activatePrevNextWin("plugin", "prev")
+    winId := activatePrevNextWin("plugin", "prev")
 }
 
 activateNextPlugin()
 {
-    activatePrevNextWin("plugin", "next")
+    winId := activatePrevNextWin("plugin", "next")
 }
 
 activatePrevMainWin()
 {
-    activatePrevNextWin("mainWin", "next")
+    winId := activatePrevNextWin("mainWin", "next")
 }
 
 activateNextMainWin()
 {
-    activatePrevNextWin("mainWin", "next")
+    winId := activatePrevNextWin("mainWin", "next")
 }
 
 activatePrevNextWin(mode, dir)
@@ -177,7 +221,7 @@ activatePrevNextWin(mode, dir)
         else if (index < 1)
             index := %history%.MaxIndex()     
         id := %history%[index]
-        if (WinExist("ahk_id " id))
+        if (WinExist("ahk_id " id) and isVisible(id))
             found := True
         else
             removeWinFromHistory(index, mode)
@@ -256,9 +300,8 @@ findInPluginWinHistory(filterFunction)
     found := False
     index := pluginWinHistoryIndex
     i := 1
-    while (pluginWinHistory.MaxIndex() > 1 and !found and i <= pluginWinHistory.MaxIndex())
+    while (pluginWinHistory.MaxIndex() >= 1 and !found and i <= pluginWinHistory.MaxIndex())
     {
-        i := i + 1
         index := index + 1
         if (index > pluginWinHistory.MaxIndex())
             index := 1            
@@ -270,6 +313,7 @@ findInPluginWinHistory(filterFunction)
         }
         else
             removeWinFromHistory(index, mode)
+        i := i + 1
     }
     if (found)
         return id

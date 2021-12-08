@@ -1,4 +1,35 @@
+global timelineMouseDownX := 
+global timelineMouseUpX := 
+
 ; -- timeline --------------------
+playlistUnselectClips()
+{
+    moveMouse(566, 103)
+    Send {CtrlDown}
+    Click
+    Send {ShiftDown}
+    Click
+    Send {ShiftUp}{CtrlUp}
+}
+
+moveMouseOverPlaylistTimeline()
+{
+    mouseGetPos(mX, _)
+    moveMouse(mX, 65)
+}
+
+playlistTimelineIsSelected()
+{
+    playlistId := bringPlaylist(False)
+    colorsMatch(280, 53, [0xA05A5B])
+    x := 280
+    y := 53
+    w := 1365
+    colVar := 20
+    incr := 10
+    return scanColorRight(x, y, w, timelineRed, colVar, incr)
+}
+
 mouseOverPlaylist()
 {
     MouseGetPos,,, winId
@@ -159,6 +190,18 @@ deleteNextPlaylist()
         Click
     }
 }
+
+playlistCtrlB()
+{
+    if playlistTimelineIsSelected()
+    {
+        moveMouseOverPlaylistTimeline()
+        SendInput ^{LButton}
+
+
+    }
+}
+
 ; ----
 
 
