@@ -5,9 +5,10 @@
 FLahk provides a better workflow in FL Studio. In depth overview coming soon.
 
 <br/><br/>
-## -- Basic window history tutorial ----
 
-#### First steps with AHK:
+# -- Basic window history tutorial ----
+
+## First steps with AHK:
 Install [AHK](https://www.autohotkey.com/). It features a little program called Window Spy that will be useful. Here's what it [looks like](https://i.imgur.com/tNnV2wl.jpg). Window Spy shows you basic information about the currently active window and the mouse position. (As you can see in the image, even though Chrome was the active window, Window Spy stays on top so we can see it) In the upper rectangle you can see in order: The [window title](https://i.imgur.com/lhZsUna.png), the window class (in FL Studio, plugins are of class TPluginForm, the mixer is TFXForm, etc), the window's executable (chrome.exe in this instance or FL64.exe when it's FL Studio) and Pid (process ID) is an arbitrary number given to every exe running. And like for processes, every single window also has an ID. So every time a window is spawned, your operating system gives it an arbitrary number to distinguish it from others and AHK can access this number.
 
 Summary: Windows can be distinguished with there title, class, exe, pid and id. Title: It's usually the text on top, it can change. Class:  It's always the same for a particular window but many window can have the same class. Exe: in our case, we only want FL64.exe windows. Pid: useless in our case. Id: It's new every time a window is spawned but it's unique. So in the script, once you're sure you found the window of interest, keep its ID and use only that to manipulate it.
@@ -15,7 +16,8 @@ Summary: Windows can be distinguished with there title, class, exe, pid and id. 
 Important: In FL, you need to [make all your windows Detached](https://i.imgur.com/i2Yd9KP.png). Otherwise, your operating system will only perceive FL Studio as one window.
 
 <br/>
-#### First look at a script file:
+
+## First look at a script file:
 
 A AHK script is a regular text file but its name should end with .ahk (instead of the regular .txt extension). Here's what it can look like:
 
@@ -93,7 +95,7 @@ And finally, I suggest you edit your code with [VSCode](https://code.visualstudi
 
 &#x200B;
 
-#### The interesting part: keeping track of the FL Studio windows
+## The interesting part: keeping track of the FL Studio windows
 
 We will make a clock that will periodically look at the current window and decide if we want to keep track of it. I chose to keep two window histories. One for the plugins and another one for the main windows (channel rack, piano roll, mixer, etc). Then we will set {Tab} to activate the previously active plugin and {Caps} for the previous main window. And Pressing these keys with Ctrl will do the same but go forward in the history.
 
@@ -126,7 +128,7 @@ Here's our Goto:
 
 &#x200B;
 
-##### The winHistoryTick function:
+## The winHistoryTick function:
 
 *tick as the sound a clock does*
 
@@ -237,7 +239,7 @@ And the functions they call:
     ; and make it equal to winHistory.MaxIndex()
 
 <br/>
-#### Summary
+## Summary
 
 For the sake of this explanation, I simplified a bit these functions in order to display their key features. For example a missing feature in activatePrevWin() considers the case where the previous window in the history has been closed. We could check if it's still open with [WinExist](https://www.autohotkey.com/docs/commands/WinExist.htm). If not, we would get rid of this id from the history and make the same verification for the next window until we find one that is still open. (or until we realize there are no other opened window)
 
