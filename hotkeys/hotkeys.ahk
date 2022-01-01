@@ -1,4 +1,32 @@
 ; -- Enter / NumpadEnter / MButton ------------------------------------------
+#If WinActive("ahk_exe FL64.exe")
+Enter::
+NumpadEnter::
+    return
+
+Enter Up::
+NumpadEnter Up::
+    if (!acceptPressed)
+        acceptPressed := True
+    else if (mouseOverMixerSlotSection())
+        mixerOpenSlot()
+    else if (isPlugin() or isEventEditForm())
+        return
+    else
+        send {Enter}
+    return
+
++Enter Up::
++NumpadEnter Up::
+    if (!acceptPressed)
+        acceptPressed := True
+    else
+        SendInput +{Enter}
+    return
+#If
+
+
+/*
 
 ; Accept abort
 #If !acceptPressed and !numpad1Context.IsActive
@@ -41,162 +69,112 @@ NumpadEnter::
 
 #If WinActive("ahk_exe FL64.exe") and acceptPressed and isInstr()
 MButton::
+MButton Up::
     return
 #If
 
 #If WinActive("ahk_exe Code.exe") or WinActive("ahk_exe FL64.exe") and acceptPressed and !isEventEditForm() and !isStepSeq() and !mouseOverMixerSlotSection() or WinActive("ahk_exe ahk.exe")
 MButton::
+    return
+MButton Up::
     Send {Enter}
-    pianoRollToolTip()
+    pianoRollTempMsg()
     return
 #If
+*/
 ; ----
 
 
 ; -- Esc ------------------------------------------
-#If numpadGShown
-Esc::
-    hideNumpadG()
-    return
-#If
-
-#If preGenBrowsing
-Esc::
-    return
-
-Esc Up::
-    stoppreGenBrowsing()
-    return
-#If 
-
-#If ConcatAudioShown
-Esc Up::
-    hideConcatAudio()
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and !acceptPressed
-Esc::
-    return
-Esc Up::            ; otherwise, esc up was sent to fl after esc down
-    abortPressed := True   
-    return
-
-+Esc Up::           ;for accept abort while +pressed
-    abortPressed := True   
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and freezeExecuting
-F4::
-Esc::
-    return
-F4 Up::
-Esc Up::
-    stopExec := True
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and isStepSeq()
-Esc Up::
-    Send {F6}
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and isPianoRollTool()
+#If WinActive("ahk_exe FL64.exe")
 Esc::
     return
 Esc Up::
-    pianoRollToolTip()
-    Send {Enter}
-    return
-#If
+    if (!acceptPressed)
+        abortPressed := True 
+    else if (whileWaiting)
+        stopWaitFunction()
+    else if (numpadGShown)
+        hideNumpadG()
+    else if (preGenBrowsing)
+        stoppreGenBrowsing()
+    else if (ConcatAudioShown)
+        hideConcatAudio()
+    else if (freezeExecuting)  
+        stopExec := True
 
-#If WinActive("ahk_exe FL64.exe") and (isPlaylist() or isMainFlWindow()) ;and (leftScreenWindowsShown and isOneOfMainWindows()) or (!leftScreenWindowsShown and (isMainFlWindow() or isPlaylist()))
-Esc::
-    return
-Esc Up::
-    freezeExecute("bringHistoryWins")
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and isEventEditor()
-Esc::
-    return
-Esc Up::
-    freezeExecute("activatePrevPlugin")
-    return
-#If
-
-/*
-
-#If WinActive("ahk_exe FL64.exe") and isWrapperPlugin()
-Esc::
-    closeAllWrapperPlugins()
-    freezeExecute("activatePrevPlugin")
-    return
-#If
-*/
-
-#If WinActive("ahk_exe FL64.exe") and isMasterEdison()
-Esc::
-    return
-Esc Up::
-    freezeExecute("activatePrevPlugin")
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and isInstr() and acceptPressed
-~Esc::
-    return
-Esc Up::
-    freezeExecute("bringStepSeq")
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and isPlugin()
-Esc::
-    return
-Esc Up::
-    if (isWrapperPlugin())
+    else if (isStepSeq())
+        Send {F6}
+    else if (isPianoRollTool())
+    {
+        Send {Enter}
+    }        
+    else if (isPlaylist() or isMainFlWindow())
+        freezeExecute("bringHistoryWins")
+    else if (isMasterEdison() or isControlSurface())
+        freezeExecute("activatePrevPlugin")
+    else if (isInstr())
+    {
+        Send {Esc}
+        freezeExecute("bringStepSeq")
+    }
+    else if (isWrapperPlugin())
+    {
+        closeWrapperPlugin()
+        freezeExecute("activatePrevPlugin")
+    }
+    else if (isPlugin() or isEventEditor())
     {
         WinClose, A
-        msg("closing wrapper plugin", 100)
+        freezeExecute("activatePrevPlugin")
     }
     else
-        WinClose, A
-    freezeExecute("activatePrevPlugin")
+        Send {Esc}
     return
-#If
+
++Esc::
+    if (!acceptPressed)
+        abortPressed := True
+    else
+        SendInput +{Esc}
+    return
 
 ; ----
 
-; -- Space -----------------------------------------
-#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm")
-Space::
-    ;isEdison := isMasterEdison()
-    ;if (isEdison)
-    ;    bringStepSeq(False)
-    midiRequest("toggle_play_pause")
-    if (!songPlaying() and recordEnabled())
-        midiRequest("toggle_rec")
-    ;if (isEdison)    
-    ;    bringMasterEdison(False)
+#If WinActive("ahk_exe FL64.exe") and isMasterEdison()
+!t::
+    freezeExecute("masterEdisonTruncateAudio")
     return
+#If
 
-!Space::
-    freezeExecute("masterEdisonTransport", True, True, "playPause")
+; -- Space -----------------------------------------
+#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm") and !isFormulaCtl()
+Space::
+    if (!freezeExecuting)
+    {
+        midiRequest("toggle_play_pause")
+        ;if (songPlaying() and recordEnabled())
+        ;    midiRequest("toggle_rec")
+    }
+    else
+        Send {Space}
     return
 
 ^Space::
-    ;isEdison := isMasterEdison()
-    ;if (isEdison)
-    ;    bringStepSeq(False)
-    midiRequest("stop")
-    if (recordEnabled())
-        midiRequest("toggle_rec")
-    ;if (isEdison)    
-    ;    bringMasterEdison(False)
+    if (!freezeExecuting)
+    {
+        midiRequest("stop")
+        ;if (recordEnabled())
+        ;    midiRequest("toggle_rec")
+    }
+    else
+        Send {Space}
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm")
+!Space::
+    freezeExecute("masterEdisonTransport", True, True, "playPause")
     return
 
 ^!Space::
@@ -207,8 +185,7 @@ Space::
 
 ; -- misc ------------------------------------------
 #If True
-!F2::
-^Esc::              ; Quit app
+!F2::               ; Quit app
     exitFlahk()
     return
     
@@ -228,12 +205,7 @@ Space::
 #If
 #If WinActive("ahk_exe FL64.exe") and !IsEdison()
 ^n::                                                            ; new
-    WinActivate, ahk_class TFruityLoopsMainForm
-    WinGet, winId, ID, A
-    Click, 16, 15
-    Send {Down}{Enter}
-    promptWinId := waitNewWindow(winId)
-    centerMouse(promptWinId)
+    freezeExecute("createNewProject")
     return
 #If
 
@@ -242,7 +214,7 @@ Space::
     if (isEdison())
         saveEdisonSound(packsPath)
     else
-        saveProject()
+        freezeExecute("saveProject")
     return
 
 
@@ -279,13 +251,28 @@ CapsLock::
     freezeExecute("activateNextMainWin")
     return     
 
-LWin & Tab::
-    toolTip("History: last 3 plugins")
-    winHistoryClosePluginsExceptLast(3)
-    closePluginsNotInHistory()
-    Sleep, 200
-    toolTip()
++^Tab::
+    freezeExecute("toolTipChoiceActivatePlugin")
     return
++^CapsLock::
+    freezeExecute("toolTipChoiceActivateMainWin")
+    return
+#If
+#If whileToolTipChoiceActivateWin and !acceptPressed
+~Shift & Ctrl Up::
+~Ctrl & Shift Up::
+    acceptPressed := True
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe")
+;LWin & Tab::
+;    toolTip("History: last 3 plugins")
+;    winHistoryClosePluginsExceptLast(3)
+;    closePluginsNotInHistory()
+;    Sleep, 200
+;    toolTip()
+;    return
 
 +Tab::
     incrLoadKnobPosIndex()

@@ -5,67 +5,82 @@ lockChanFromInstrWin()
     lockChan()
 }
 
-lockChan()
+; -------------------------------
+lockChan(device := "")
 {
-    chan := getLockDevice()
-    if (chan == "")
-        return
+    if (device == "")
+    {
+        device := getLockDevice()
+        if (device == "")
+            return
+    }
 
+    lockChanGoToDeviceCtxMenu()
+
+    MouseGetPos, mX, mY
+    isLocked := colorsMatch(mX+71, mY, [0x302d75], 30)
+
+
+    if (device == "----")
+        lockChanUnlockDevice(isLocked)
+    else if (device == "keyboard")
+    {
+        if (isLocked)
+            Send {Down}            
+        Send {Down}{Enter}
+    }
+    else if (InStr(device, "PY"))
+    {
+        Send p
+        Send {Down}         ; All channels
+        chan := StrSplit(device, " ")[2]
+        if chan is integer
+            Loop, %chan%
+                Send {Down}
+        Send {Enter}
+        ;maximizePattLen()
+    }
+    ;if (!songEnabled())
+    ;    togglePatternSong()
+}
+
+getLockDevice()
+{
+    choices := ["----", "PY", "PY 10", "PY 11", "PY 12", "keyboard"]
+    return toolTipChoice(choices, "", 1)
+}
+
+lockChanGoToDeviceCtxMenu()
+{
     Click, Right
-
     Loop, 3
     {
         Sleep, 10
         Send {WheelUp}
     }
-
     Click
-    if (chan == "----")
-    {
-        MouseGetPos, mX, mY
-        isLocked := colorsMatch(mX+71, mY, [0x302d75], 30)
-        if (isLocked)
-        {
-            MouseMove, 71, 0, 0, R
-            Click
-        }
-        else
-        {
-            Send {Escape}
-            Sleep, 2
-            Send {Escape}
+}
 
-        }
+lockChanUnlockDevice(isLocked)
+{
+    if (isLocked)
+    {
+        MouseMove, 71, 0, 0, R
+        Click
     }
     else
     {
-        if (chan == "keyboard")
-        {
-            Loop, 4
-                Send {Up}
-        }
-        else
-        {
-            Send {Up}
-            Send {Right}
-
-            n := chan + 1
-            Loop, %n%
-                Send {Down}
-        }
-        Send {Enter}
-        maximizePattLen()
+        Send {Escape}
+        Sleep, 2
+        Send {Escape}
     }
-    
-    if (!songEnabled())
-        togglePatternSong()
-
 }
 
-getLockDevice()
+; -------------------------------
+toggleLockKeyboardUnlock()
 {
-    choices := ["----", 2, 3, 4, "keyboard"]
-    return toolTipChoice(choices, "", 1)
+    Click, Right
+    Send {Up}{Up}{Up}{Right}{Down}{Enter}
 }
 
 maximizePattLen()

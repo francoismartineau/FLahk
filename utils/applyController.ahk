@@ -28,34 +28,40 @@ linkControllerOnly()
 knobCopyMinMax()
 {
     choices := ["max", "min"]
-    choice := toolTipChoice(choices, "Curr value is:", randInt(1,2))
+    choice := toolTipChoice(choices, "Set and accept:", randInt(1,2))
     if (choice != "")
     {
         saveMousePos()
+        unfreezeMouse()
+        toolTip("accept")
+        res := waitAcceptAbort()
+        if (res == "abort")
+            return
+        freezeMouse()
         initVal := copyKnob(False)
+    
         retrieveMousePos()
-        
         toolTip("Set " choices[1+(2-toolTipChoiceIndex)] " and accept")
         unfreezeMouse()
-
-        accepted := waitAcceptAbort() == "accept"
+        res := waitAcceptAbort()
+        if (res == "abort")
+            return
         freezeMouse()
+
         retrieveMousePos()        
-        if (accepted)
+        secVal := copyKnob(False)
+        retrieveMousePos()
+        toolTip()
+        Switch choice
         {
-            secVal := copyKnob(False)
-            retrieveMousePos()
-            toolTip()
-            Switch choice
-            {
-            Case "max":
-                max := initVal
-                min := secVal        
-            Case "min":
-                min := initVal
-                max := secVal        
-            }            
-        }
+        Case "max":
+            max := initVal
+            min := secVal        
+        Case "min":
+            min := initVal
+            max := secVal        
+        }           
+
         return [min, max]      
     }
 }
@@ -170,7 +176,7 @@ chooseLink(autoChooseLink := False, nRowsUnderWord := 0)
         incr := 7
         cols := [0xc0c5c9, 0x94999d]
         colVar := 0
-        mY := scanColorDown(x, y, h, cols, incr)
+        mY := scanColorsDown(x, y, h, cols, incr)
         moveMouse(mX, mY)
         Loop, %nRowsUnderWord%
             Send {Down}

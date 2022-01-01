@@ -3,7 +3,7 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
     Switch choice
     {
     Case "mod":
-        choices := ["Chorus+3F", "ringmod", "chorus", "phaser"]
+        choices := ["Chorus+3F", "ringmod", "chorus", "phaser", "ModMidi"]
     Case "filter":
         choices := ["EQ", "Equo", "3xFilter", "bass"]
     Case "pitch":
@@ -16,6 +16,8 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
         choices := ["stereos", "equos", "mod+lfos", "phasers"]
     Case "room":
         choices := ["rev", "delay", "conv", "delB"]
+    Case "seq":
+        choices := ["3xGross", "EnvFx", "3xGrossKnobs"]
     }
     Switch toolTipChoice(choices, "", randInt(1, choices.MaxIndex()), A_ThisHotkey)
     {
@@ -63,6 +65,22 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
         loadModLfos(mode)
     Case "phasers":
         loadPhasers(mode)
+    Case "rev":
+        loadRev(mode)
+    Case "delay":
+        loadDelay(mode)
+    Case "conv":
+        loadConv(mode)
+    Case "delB":
+        loadDelB(mode)
+    Case "3xGrossKnobs":
+        load3xGross(mode, "classic")
+    Case "3xGross":
+        load3xGross(mode, "midi")
+    Case "ModMidi":
+        loadModMidi(mode)
+    Case "EnvFx":
+        loadEnvFx(mode)
     }        
 }
 
@@ -104,8 +122,8 @@ loadLfoPromptFunc()
     onAudioKnot := False
     while (!onAudioKnot)
     {
-        res := unfreezeWhileExec("Place LFO, Leave mouse over left knot")
-        if (res == "abort")
+        res := waitToolTip("Place LFO, Leave mouse over left knot")
+        if (!res)
             return
         onAudioKnot := mouseOverAudioKnot()   
     }
@@ -144,8 +162,8 @@ loadFormulaCtl(mode := "mixer")
 
 loadFormulaCtlPromptFunc()
 {
-    res := unfreezeWhileExec("Place Formula Ctl, leave mouse over")
-    if (res == "abort")
+    res := waitToolTip("Place Formula Ctl, leave mouse over")
+    if (!res)
         return
     Click, R
     Sleep, 100
@@ -507,18 +525,51 @@ loadBass(mode := "mixer")
         patcherLoadPlugin("fx", "bass", 30)
 }
 
-load3xGross(mode := "mixer")
+load3xGross(mode := "mixer", version := "midi")
 {
+    Switch version
+    {
+    Case "midi":
+        preset := 14
+    Case "classic":
+        preset := 9
+    }
     if (mode == "mixer")
     {       
         mixerChannName := getMixerChanNameAndColor()
-        winId := loadFx(1, 9)
+        winId := loadFx(1, preset)
         Sleep, 300
         rename(mixerChannName " Gross", False, True)
         centerMouse(winId)
     }
     else if (mode == "patcher")
-        patcherLoadPlugin("fx", "3xGross", 1, 9)
+    {
+        if (version == "midi")
+        {
+            res := waitToolTip("Midi port will not work. Instead route port 21-26 from Root Patcher to its main entry.")
+            if (!res)
+                return
+        }
+        patcherLoadPlugin("fx", "3xGross", 1, preset)
+    }
+}
+
+loadModMidi(mode := "mixer")
+{
+    inst := 1
+    preset := 15
+    if (mode == "mixer")
+    {       
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(inst, preset)
+        Sleep, 300
+        rename(mixerChannName " ModMidi", False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+    {
+        patcherLoadPlugin("fx", "MidiMod", inst, preset)
+    }    
 }
 
 loadPitchShifter(mode := "mixer")
@@ -532,6 +583,22 @@ loadPitchShifter(mode := "mixer")
     }
     else if (mode == "patcher")
         patcherLoadPlugin("fx", "pitch shift", 1, 8)
+}
+
+loadEnvFx(mode := "mixer")
+{
+    inst := 1
+    preset := 16
+    name := "EnvFx"
+    if (mode == "mixer")
+    {
+        mixerChannName := getMixerChanNameAndColor()
+        winId := loadFx(inst, preset)
+        rename(mixerChannName " " name, False, True)
+        centerMouse(winId)
+    }
+    else if (mode == "patcher")
+        patcherLoadPlugin("fx", name, inst, preset)
 }
 ; ----
 
@@ -572,7 +639,7 @@ loadFx(n, preset = False, prompt = "")
 getFX1Y(x)
 {
     col := [0x929DA4]                                               ; couleur bande séparatrice
-    y := scanColorDown(x, -409  , 100, col, 10, 4, "")              ; à partir d'en haut du menu effets
+    y := scanColorsDown(x, -409  , 100, col, 10, 4, "")              ; à partir d'en haut du menu effets
     return y + 25
 }
 
@@ -633,10 +700,11 @@ getMixerChanNameAndColor()
     {
 
         Send {F2}
-        clipboardSave := clipboard
-        Send {CtrlDown}c{CtrlUp}{Esc}
-        name := clipboard
-        clipboard := clipboardSave
+        ;clipboardSave := clipboard
+        ;Send {CtrlDown}c{CtrlUp}{Esc}
+        name := copyTextWithClipboard()
+        Send {Esc}
+        ;clipboard := clipboardSave
     }
     return name    
 }

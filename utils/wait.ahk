@@ -20,16 +20,16 @@ waitForUserToMakeTimeSelection(ByRef automX, ByRef automY)
 global acceptPressed := True
 global abortPressed := True
 global clickAlsoAccepts := False
-global acceptedWithClick := False
-global winAlsoAccepts := False
 global acceptAbortSpecialKey := ""
-waitAcceptAbort(pressEnterOrEsc = False, hint = False, specialKey = "")
+waitAcceptAbort(pressEnterOrEsc := False, hint := False, specialKey := "")
 {
-    acceptedWithClick := False    
+    if (!acceptPressed or !abortPressed)
+        return
+        
     res := ""
    
-    if (hint)
-        toolTip("Enter / Esc")   
+    if (hint == True)
+        hint := "Enter / Esc"
 
     acceptAbortSpecialKey := specialKey
     
@@ -38,6 +38,8 @@ waitAcceptAbort(pressEnterOrEsc = False, hint = False, specialKey = "")
 
     while (!(acceptPressed or abortPressed))
     {
+        if (hint)
+            toolTip(hint, toolTipIndex["acceptAbort"])
         if (acceptAbortSpecialKey != "")
         {
             acceptPressed := acceptPressed or GetKeyState(acceptAbortSpecialKey)
@@ -63,10 +65,9 @@ waitAcceptAbort(pressEnterOrEsc = False, hint = False, specialKey = "")
     acceptPressed := True
     abortPressed := True
     clickAlsoAccepts := False
-    winAlsoAccepts := False
     acceptAbortSpecialKey := ""
     if (hint)
-        toolTip("")
+        toolTip("", toolTipIndex["acceptAbort"])
 
     return res
 }
@@ -92,11 +93,23 @@ waitClipCtxMenu()
 }
 */
 
-waitForColor(x, y, cols, colVar = 0, timeout = 2000, hint = " ", debug = False, reverse = False) {
+waitToolTip(msg := "")
+{
+    if (freezeExecuting)
+        unfreezeMouse()
+    res := "accept" == waitAcceptAbort(False, msg)
+    if (freezeExecuting)
+        freezeMouse()
+    return res
+}
+
+waitForColor(x, y, cols, colVar := 0, timeout := 2000, hint := "", debug := False, reverse := False)
+{
     t1 := A_TickCount
     if (debug)
         timeout = 10
-    while (!matches and (t2 - t1 < timeout)) {
+    while (!matches and (t2 - t1 < timeout))
+    {
         matches := colorsMatch(x, y, cols, colVar, hint, debug, reverse)
         t2 := A_TickCount
         Sleep, 20

@@ -234,3 +234,90 @@ mouseOnMixerButUnderMenu()
     return mY < 30 and isMixer(winId) and mX  > 208 and mX < 1685
 }
 ; ----
+
+
+; -- MIXER LOADFX --------------------------------------
+loadMixer1_1()
+{
+    loadFxFromChoice("room")
+}
+loadMixer1_2()
+{
+    loadFxFromChoice("mod")
+}
+
+loadMixer2_1()
+{
+    loadFxFromChoice("seq")
+}
+loadMixer2_2()
+{
+    loadFxFromChoice("filter")
+}
+
+loadMixer3_1()
+{
+    loadFxFromChoice("pitch")
+}
+loadMixer3_2()
+{
+    loadFxFromChoice("patcher4")
+}
+
+loadMixer4_1()
+{
+    loadFxFromChoice("dyn")
+}
+loadMixer4_2()
+{
+    loadDist()
+}
+
+loadMixer5_1()
+{
+}
+loadMixer5_2()
+{
+    loadAutoPan()
+}
+
+loadMixer6_1()
+{
+}
+loadMixer6_2()
+{
+    loadSpeaker()
+}
+
+loadMixer7_1()
+{
+}
+loadMixer7_2()
+{
+}
+
+loadMixer8_1()
+{
+}
+loadMixer8_2()
+{
+    loadScratch()
+}
+
+loadMixer9_1()
+{
+    loadLfo()
+}
+loadMixer9_2()
+{
+}
+
+loadMixer0_1()
+{
+    loadFxFromChoice("edit")
+}
+loadMixer0_2()
+{
+}
+
+; ----

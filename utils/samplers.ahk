@@ -7,7 +7,6 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
         if (!isOneOfTheSamplers(winId))
             activatePrevPlugin()
         unfreezeMouse()
-        ;clickAlsoAccepts := True
         waitAcceptAbort()
         freezeMouse()
         toolTip()
@@ -26,8 +25,8 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
     Case "patcherSlicex":
         dragDropPatcherSlicex(samplerId, oriX, oriY, oriWin)
         baseName := "Slcx"
-    Case "patcherGranular":
-        dragDropPatcherGranular(samplerId, oriX, oriY, oriWin)
+    Case "patcherGrnl":
+        dragDropPatcherGrnl(samplerId, oriX, oriY, oriWin)
         baseName := "Grnl"
     }
     if (movedSampler)
@@ -41,32 +40,33 @@ detectWhichSampler(samplerId)
         which := "patcherSampler"
     else if (isPatcherSlicex(samplerId))
         which := "patcherSlicex"
-    else if (isPatcherGranular(samplerId))
-        which := "patcherGranular"
+    else if (isPatcherGrnl(samplerId))
+        which := "patcherGrnl"
     return which
 }
 
-
 ; -----------------------------------------------
-dragDropPatcherSampler(patcherId, oriX, oriY, oriWin)
+altClickSampler()
 {
-    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, patcherId)
-}
+    if (isPatcherSampler("", True))
+        whichSampler := "patcherSampler"
+    else if isPatcherGrnl("", True)
+        whichSampler := "patcherGrnl"
 
-dragDropPatcherSlicex(patcherId, oriX, oriY, oriWin)
-{
-
-    slicexId := revealInternalSlicex(samplerID)
-    if (!slicexId)
-        return
-    dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
-    hideInternalSampler(slicexId, samplerID)
-}
-
-dragDropPatcherGranular(patcherId, oriX, oriY, oriWin)
-{
-    dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, patcherId, True)
-
-    ;MouseMove, 447, 633, 0          ; loop
-    ;Send {LButton}{WheelDown}{WheelDown}{LButton}
+    if (whichSampler)        
+    {
+        whichLfo := mouseOverSamplerLfoSpeedSet()
+        if (whichLfo)
+            samplerLfoSetTime(whichLfo, whichSampler)
+        else if (mouseOverSamplerPatcherArp())
+            randomizeArpParams()
+        else if (mouseOverSamplerPatcherDel())
+            randomizeDelayParams()
+        else
+        {
+            n := mouseOverNsetter()
+            if (n)
+                patcherSamplerSetKnobN(n)   
+        }
+    }
 }

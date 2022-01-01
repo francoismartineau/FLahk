@@ -1,10 +1,6 @@
 ; This lets ahk detect double clicks
 ~LButton::
     return
-
-
-
-
 ; -------
 
 
@@ -27,81 +23,99 @@
 ~!XButton2::
     moveWinRight("XButton2")
     return
- #If
-; -------
+#If
+; ------- 
 
-
-
-#If !acceptPressed
+;-- MButton --------------------------------
+#If WinActive("ahk_exe FL64.exe")
+MButton::
+    return
 MButton Up::
-    acceptPressed := True
+    if (!acceptPressed)
+        acceptPressed := True
+    else if (isInstr())
+        return
+    else
+        Send {MButton}
     return
 
-+MButton  Up::      ; with shift also for selectSourceForAllSelectedClips()
-    acceptPressed := True
++MButton::
     return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and !acceptPressed and winAlsoAccepts
-~LWin Up::
-    acceptPressed := True
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and !acceptPressed and clickAlsoAccepts
-LButton Up::
-    acceptedWithClick := True
-    acceptPressed := True
-    return
-
-+LButton::      ; with shift also for selectSourceForAllSelectedClips()
-    acceptPressed := True
++MButton Up::
+    if (!acceptPressed)
+        acceptPressed := True
+    else
+        SendInput +{MButton}
     return    
 #If
 
-#If hoveringUpperMenuPattern() and doubleClicked()
+#If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe ahk.exe") or WinActive("ahk_exe Code.exe")
+MButton::
+    return
+MButton Up::
+    Send {Enter}
+    return
+#If
+; ------------------------------------------
+
+
+;-- LButton --------------------------------
+#If WinActive("ahk_exe FL64.exe") and mouseOverRecordButton()
 LButton::
+    return
+LButton Up::
+    msg("Use upper razer buttons  [_][N][A][NA]")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and mouseOverMainFileMenu("new")
+LButton::
+    return
+LButton Up::
+    freezeExecute("createNewProject", False, False, True)
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and mouseOverPlayPauseButton()
+~LButton::
+    midiRequest("toggle_play_pause_external")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and mouseOverStopButton()
+~LButton::
+    midiRequest("stop_external")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and !acceptPressed and clickAlsoAccepts
+LButton::
+    return
+LButton Up::
+    acceptPressed := True
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and !acceptPressed and mouseOverSavePromptSaveButton()
+LButton::
+    return
+LButton Up::
+    msg("Don't click save. Accept.")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and doubleClicked() and hoveringUpperMenuPattern()
+LButton::
+    return
+LButton Up::
     Send {ShiftDown}{CtrlDown}p{ShiftUp}{CtrlUp}
     return
-#If
-
-
-; -- patcherMod ------------------
-#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOverPatcherModChorusSpeed()
-~!LButton Up::
-    freezeExecute("patcherModChorusSpeed")
+#If 
+#If WinActive("ahk_exe FL64.exe") and !acceptPressed and clickAlsoAccepts
++LButton::
+    return
++LButton Up::
+    acceptPressed := True
     return
 #If
-; ----
+;------------------------------------------------
 
-; -- Delb --------------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOverDelBTurnOffWetVols()
-~!LButton Up::
-    freezeExecute("delBTurnOffWetVols")
-    return
-#If
 
-#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOverDelBSetTime()
-~!LButton Up::
-    freezeExecute("delBSetTime")
-    return
-; ----
 
-; -- 3xGross -----------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and isPlugin() and mouseOn3xGrossReveal()
-~!LButton Up::
-    freezeExecute("reveal3xGross", True, True)
-    return
-#If
-; ----
-
-; -- Patcher4 -----------------------------------------------
-#If WinActive("ahk_exe FL64.exe") and isPlugin() and isPatcher4()
-~!LButton Up::
-    freezeExecute("patcher4ShowPlugin", False, False)
-    return
-#If
-; ----
 
 
 ; XButton
@@ -121,9 +135,41 @@ RButton::
 
 
 ; -- ^Click: pianoRoll
-#If WinActive("ahk_exe FL64.exe") and (isMixer("", True) or isMainFlWindow("", True) or (!isInstr() and isPlugin("", True)))
+#If WinActive("ahk_exe FL64.exe") and ((isMixer("", True) or isMainFlWindow("", True) or (!isInstr("", True) and !isEdison("", True) and isPlugin("", True))))
 ^LButton::
     bringPianoRoll()
+    return
+#If
+; --
+
+
+; -- Razer Mouse Specifics --------
+#If WinActive("ahk_exe FL64.exe") and whileRecordModeChoice
+!F16::                                  ; 6
+    acceptPressed := True
+    return
+!F13::                                  ; 3
+    abortPressed := True
+    freezeUnfreezeMouse("disableRecord")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and !whileRecordModeChoice
+!F13::                                  ; 3
+    freezeExecute("disableRecord")
+    return
+
+!F16::                                  ; 6
+    freezeExecute("recordModeChoice")
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") 
+!F17::                                  ; 7
+    setPyToFlMode()
+    return
+
+!F20::                                  ; 10
+    Send {Volume_Mute}
     return
 #If
 ; --

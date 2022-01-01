@@ -94,7 +94,9 @@ Shift Up::
         preGenBrowsingMove()     
     else if (ConcatAudioShown)  
         freezeExecute("startPreGenBrowsing", False) 
-    else if (isStepSeq() or (isPlugin() and !isMasterEdison()))
+    else if (isMasterEdison())
+        freezeExecute("setMasterEdisonMode", True, False, "onPlay")
+    else if (isStepSeq() or (isPlugin())) ; and !isMasterEdison()))
         moveWinUp()
     else if (isMixer())
         Send {Left}  
@@ -105,7 +107,9 @@ Shift Up::
 !WheelDown::
     if (preGenBrowsing)
         moveMouseToConcatAudio() 
-    else if (isStepSeq() or (isPlugin() and !isMasterEdison()))
+    else if (isMasterEdison())
+        freezeExecute("setMasterEdisonMode", True, False, "input")
+    else if (isStepSeq() or (isPlugin())) ; and !isMasterEdison()))
         moveWinDown()
     else if (isMixer())
         Send {Right}        
@@ -180,6 +184,7 @@ LWin::
     {
         if (mouseOverBrowser())
         {
+            tempMsg("start drag")
             readyToDrag := True
             startHighlight("browser")
         }
@@ -224,7 +229,7 @@ LWin Up::
 ; --    ^    --------------------------------------
 ^WheelUp::
     if (isMasterEdison())
-        freezeExecute("setMasterEdisonOnPlay")
+        freezeExecute("armEdison")
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", False, False, "up")        
     else if (isPianoRoll())
@@ -241,7 +246,7 @@ LWin Up::
 
 ^WheelDown::
     if (isMasterEdison())
-        freezeExecute("setMasterEdisonOnInput")    
+        freezeExecute("unarmEdison")    
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", False, False, "down")        
     else if (isPianoRoll())
@@ -269,6 +274,14 @@ Ctrl Up::
 +^WheelUp::
     if (scrollingInstr or mouseOverStepSeqInstruments())
         scrollChannels("up")        
+    ;else if (mouseOverStepSeqInstruments())        ; move instr doesnt work probably because of modifier keys conflict
+    ;{
+    ;    Send {Ctrl Up}
+    ;    Send {WheelUp}
+    ;    Send {Ctrl Down}
+    ;}   
+    else if (whileToolTipChoice)
+       incrToolTipChoiceIndex()
     else if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
         freezeExecute("insertPattern")
     else
@@ -278,10 +291,14 @@ Ctrl Up::
 +^WheelDown::
     if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())    
         freezeExecute("clonePattern", True, True)
+    else if (whileToolTipChoice)
+       decrToolTipChoiceIndex()
     else if (isInstr())
         freezeExecute("cloneActiveInstr")
     else if (scrollingInstr or mouseOverStepSeqInstruments()) 
         scrollChannels("down")
+    ;else if (mouseOverStepSeqInstruments())        ; move instr doesnt work probably because of modifier keys conflict
+    ;    SendInput +^{WheelDown}
     else if (isMixer("", True)) mouseOverMixerDuplicateTrackRegion()
         freezeUnfreezeMouse("cloneMixerTrackState")
     return
@@ -413,7 +430,7 @@ XButton1::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Code.exe")
+#If WinActive("ahk_exe FL64.exe")
 ^!XButton1 Up::
     freezeExecute("sendDelete")
     return

@@ -1,12 +1,15 @@
 Autom()
 {
     MouseGetPos, knobX, knobY, pluginId
-    if (WinExist("A") != winId)
-        WinActivate, ahk_id %winId%
+    if (pluginId != WinExist("A"))
+        WinActivate, ahk_id %pluginId%
     
     minMax := knobCopyMinMax()
+    if (minMax.MaxIndex() != 2)
+        return
+        
     pluginName := copyName()
-    
+
     bringPlaylist(False)
     waitForUserToMakeTimeSelection(automX, automY)
     if (knobCreateAutomation(knobX, knobY, pluginId))

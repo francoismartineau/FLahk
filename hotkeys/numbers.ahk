@@ -32,12 +32,16 @@
 3::
     freezeExecute("insertCurrentControllerValue")
     return    
+
+4::
+    freezeExecute("turnEventsIntoAutomation")
+    return       
 #If
 ; ----
 
 
 ; ---- Knob Save --------------------------------
-#If WinActive("ahk_exe FL64.exe") and isPlugin()
+#If WinActive("ahk_exe FL64.exe") and isPlugin() and !isFormulaCtl()
 1 Up::
     freezeExecute("saveLoadKnob", False, False, "load", 1)
     return

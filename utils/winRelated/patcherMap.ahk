@@ -11,7 +11,7 @@ patcherLoadPatcherSlicex()
     return pluginId
 }
 
-patcherLoadPatcherGranular()
+patcherLoadPatcherGrnl()
 {
     pluginId := patcherLoadPlugin("instr", "Grnl", 1, 3)
     return pluginId
@@ -91,7 +91,7 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
 
     moveMouse(loadAreaX, loadAreaY)
     if (func == "")
-        res := unfreezeWhileExec("Place plugin, leave mouse over")
+        res := waitToolTip("Place plugin, leave mouse over")
     else
         res := %func%(patcherId)
     if (res == "abort")
@@ -99,16 +99,23 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
 
     if (name != "")
     {
-        Sleep, 100
-        clipboardSave := clipboard
-        Sleep, 100
-        clipboard := name
-        Sleep, 100
+        ;Sleep, 100
+        ;clipboardSave := clipboard
+        ;Sleep, 200
+        ;clipboard := name
+        ;Sleep, 200
         Click, R
         Send r
-        SendInput ^v
-        Send {Enter}
-        clipboard := clipboardSave
+        toolTip("Waiting name editor")
+        nameEditorId := waitNewWindowOfClass("TNameEditForm", patcherId, 0)
+        toolTip()
+        if (nameEditorId)
+        {
+            typeText(name)
+            ;SendInput ^v
+            Send {Enter}
+            ;clipboard := clipboardSave
+        }
     }
     
     Send {AltDown}
@@ -141,7 +148,7 @@ patcherPluginInArea(areaX, areaY)
     colVar := 0
     incr := 5
     reverse := True
-    res := scanColorDown(areaX, areaY, h, patcherCol, colVar, incr, "", False, reverse)
+    res := scanColorsDown(areaX, areaY, h, patcherCol, colVar, incr, "", False, reverse)
     return res != ""
 }
 ; ----

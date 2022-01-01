@@ -1,42 +1,31 @@
-global masterEdisonId = ""
-
-
-
-bringMasterEdison(moveMouse = True)
+﻿global masterEdisonId = ""
+bringMasterEdison(moveMouse := True)
 {
-    global masterEdisonId
     WinGet, currWinId, ID, A
-    WinGet, edisonId, ID, Master Edison
-    currentlyEdison := edisonId == currWinId
-    if (!currentlyEdison)
+    WinGet, freshMasterEdisonId, ID, Master Edison
+    if (currWinId != freshMasterEdisonId)
     {
-        if (!edisonId)
+        if (!freshMasterEdisonId)
         {
-            currTrack := getMixerTrack()
-            bringMixer(False)
-            Click, 83, 130, 1               ; Master Track
-            Click, 1793, 73, 1              ; First Slot
-            WinWaitActive, Master Edison,, 3
-            WinGet, edisonId, ID, Master Edison
-            if (currTrack > 0)
-                setMixerTrack(currTrack)     
+            mixerId := bringMixer(False)
+            setMixerTrack(0)                    ; Master track
+            quickClick(1793, 73)                ; First Slot
+            freshMasterEdisonId := waitNewWindowTitled("Master Edison", mixerId, 0, "waiting for Master Edison")
         }
         else
-            WinActivate, ahk_id %edisonId%
+            WinActivate, ahk_id %freshMasterEdisonId%
 
-        masterEdisonId := currWinId
+        masterEdisonId := freshMasterEdisonId
         if (moveMouse)
-            centerMouse(edisonId)
+            centerMouse(masterEdisonId)
     }
     else if (masterEdisonId != "")
     {
-        ;msgTip("bringMasterEdison situation bizarre?")
         WinActivate, ahk_id %masterEdisonId%
         if (moveMouse)
             centerMouse(masterEdisonId)
     }
-
-    return edisonId
+    return masterEdisonId
 }
 
 bringMixer(moveMouse = True)
@@ -57,7 +46,7 @@ bringMixer(moveMouse = True)
     return mixerId
 }
 
-bringPianoRoll(focusNotes = True, moveMouse = True)
+bringPianoRoll(focusNotes := True, moveMouse := True)
 {
     WinGet, pianoRollId, ID, ahk_class TEventEditForm, Piano roll
     if (isPianoRoll())
@@ -88,7 +77,7 @@ bringPianoRoll(focusNotes = True, moveMouse = True)
     return pianoRollId
 }
 
-bringPlaylist(moveMouse = True)
+bringPlaylist(moveMouse := True)
 {
     WinGet, playlistId, ID, ahk_class TEventEditForm, Playlist
     if (!playlistId or !isVisible(playlistId))
@@ -106,9 +95,20 @@ bringPlaylist(moveMouse = True)
     return playlistId
 }
 
+bringControlSurface(moveMouse := True)
+{
+    WinGet, controlSurfaceId, ID, Control Surface (knobs)
+    if (controlSurfaceId)
+    {
+        WinActivate, ahk_id %controlSurfaceId%
+        if (moveMouse)
+            centerMouse(controlSurfaceId)
+    }
+    return controlSurfaceId
+}
 
 
-bringStepSeq(moveMouse = True)
+bringStepSeq(moveMouse := True)
 {
     WinGet, stepSeqId, ID, ahk_class TStepSeqForm
     if (!stepSeqId or !isVisible(stepSeqId))
@@ -132,7 +132,7 @@ bringStepSeq(moveMouse = True)
     return stepSeqId
 }
 
-bringEventEditor(moveMouse = True)
+bringEventEditor(moveMouse := True)
 {
     WinGet, eventEditorId, ID, Events -
     if (eventEditorId != "")
@@ -148,7 +148,7 @@ bringEventEditor(moveMouse = True)
 
 bringMainFLWindow()
 {
-    WinGet, id, ID, FL Studio 20 ahk_class TFruityLoopsMainForm
+    WinGet, id, ID, ahk_class TFruityLoopsMainForm
     WinActivate, ahk_id %id%
     return id    
 }

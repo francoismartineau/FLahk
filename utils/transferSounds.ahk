@@ -1,5 +1,5 @@
 global transferFolder := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_transfert"
-global transferFileName := "latestTransferFile.wav"
+global transferFileName := "latestTransferFile"
 clearTransferFolder()
 {
     transferFiles := transferFolder "\" transferFileName ".*"
@@ -16,7 +16,7 @@ edisonToTransfer()                 ; from edison, save a sound file to _transfer
         return
 
     clearTransferFolder()
-    saveEdisonSound(transferFolder, transferFileName)
+    saveEdisonSound(transferFolder, transferFileName ".wav")
 }
 
 saveEdisonSound(destinationFolder, fileName := "")
@@ -43,8 +43,15 @@ saveEdisonSound(destinationFolder, fileName := "")
     }
 }
 
+browseTransferFile()
+{
+    WinActivate, ahk_exe FL64.exe
+    bringMainFLWindow()
+    browsePacks(9)
+}
+
 ; -- Audacity ---------------------------
-activateAudacity()
+getAudacityId()
 {
     WinGet, WinList, List, ahk_exe audacity.exe ahk_class wxWindowNR
     Loop %WinList%
@@ -56,7 +63,9 @@ activateAudacity()
             break
         }
     }
+    return id
 }
+
 
 fromEdisonToAudacity()
 {
@@ -65,7 +74,10 @@ fromEdisonToAudacity()
     if (!audacityId)
         audacityId := openAudacity()
     else
-        activateAudacity()
+    {
+        audacityId := getAudacityId()
+        WinActivate, ahk_id %audacityId%
+    }
     openTransferSoundInAudacity(audacityId)      
 }
 
@@ -167,10 +179,8 @@ dragSoundFromAudacity()
     Sleep, 100
     Send {Enter}
     
-    WinActivate, ahk_exe FL64.exe
-    bringMainFLWindow()
-    browsePacks(9)
 
+    browseTransferFile()
     toolTip("Place mouse on transferFile, Accept")
     MouseMove, 0, 46, 0, R
     unfreezeMouse()
@@ -180,8 +190,11 @@ dragSoundFromAudacity()
     freezeMouse()
     toolTip("Dragging to Edison")
     dragSampleToEdison()
-    toolTip("Choose file name")
-    saveEdisonSound(packsPath)
+    toolTip()
+    mouseOverEdisonDrag()
+    readyToDrag := True
+    startHighlight("edisonDrag")
+    WinClose, ahk_id %audacityId%
 }
 ; ----
 
@@ -189,7 +202,13 @@ dragSoundFromAudacity()
 ; -- Melodyne ----------------------------
 fromEdisonToMelodyne()
 {
-    msg("fromEdisonToMelodyne not implemented")
+    edisonToTransfer()
+    melodyneId := WinExist("ahk_exe Melodyne singletrack.exe ahk_class GNWindowDoc")
+    if (!melodyneId)
+        melodyneId := openMelodyne()
+    else
+        WinActivate, ahk_exe Melodyne singletrack.exe ahk_class GNWindowDoc
+    melodyneLoadTransferSound(melodyneId)
 }
 
 
@@ -205,7 +224,7 @@ openMelodyne()
     return melodyneId
 }
 
-melodyneLoadSound(melodyneId, fileName = "latestTransferFile.wav")
+melodyneLoadTransferSound(melodyneId)
 {
     SendInput, ^o
     openWinId := waitNewWindowOfClass("#32770", melodyneId)
@@ -239,7 +258,7 @@ melodyneLoadSound(melodyneId, fileName = "latestTransferFile.wav")
     MouseMove, 229, 413     
     Sleep, 100
     Click
-    TypeText(fileName)
+    TypeText(transferFileName ".wav")
     Send {Enter}
 
     Sleep, 100
@@ -278,6 +297,8 @@ melodyneExportMidi(melodyneId)
 
     Sleep, 1000
     WinClose, ahk_exe Melodyne singletrack.exe
+
+    browseTransferFile()
 }
 ; ----
 
@@ -303,8 +324,7 @@ cellphoneToTransferFolder()
     if (res == "accept")
     {
         Send {F2}
-        Send {CtrlDown}c{CtrlUp}
-        fileName := clipboard
+        fileName := copyTextWithClipboard()
         Send {Esc}
         SendInput ^c
         Run, utils\browseTransferFolder.bat
@@ -320,6 +340,12 @@ cellphoneToTransferFolder()
 
 cellphoneWavToMidi()
 {
+    msg("cellphoneWavToMidi() deprecated")
+    return
+    /*
+    ; This function melodyneLoadSound() became melodyneLoadTransferSound()
+    ; You could make a function that copies the cellphone file to the transferSound.wav file
+
     fileName := cellphoneToTransferFolder()
     melodyneId := openMelodyne()
     melodyneLoadSound(melodyneId, fileName)
@@ -331,5 +357,7 @@ cellphoneWavToMidi()
     melodyneExportMidi(melodyneId)
     WinActivate, ahk_exe FL64.exe
     browsePacks(9)
+    */
+
 }
 ; ----

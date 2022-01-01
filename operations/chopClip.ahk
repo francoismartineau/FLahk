@@ -98,7 +98,7 @@ findExactCutX(x, y) {
     ;w := Floor(width / 2)
     y := y - 10
     x := Floor(x - width / 2)
-    x := scanColorRight(x, y, width, cols, colVar, incr, hint)
+    x := scanColorsRight(x, y, width, cols, colVar, incr, hint)
     ;x := scanColorLeftRight(x, y, w, cols, colVar, incr, hint)
     return x
 }

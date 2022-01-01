@@ -4,7 +4,6 @@
 #InstallMouseHook
 #KeyHistory
 #MaxHotkeysPerInterval 150
-FileEncoding, UTF-8
 
 ; -- utils
 #Include utils/utils.ahk
@@ -28,6 +27,8 @@ FileEncoding, UTF-8
 #Include utils/pattern.ahk 
 
 #Include utils/msgRefresh.ahk 
+#Include utils/project.ahk 
+#Include utils/openingMessage.ahk 
 #Include utils/transferSounds.ahk 
 #Include utils/winRelated/eventEditor.ahk
 #Include utils/winRelated/pianoRoll.ahk
@@ -42,16 +43,17 @@ FileEncoding, UTF-8
 #Include utils/winRelated/instr.ahk
 #Include utils/winRelated/patcherSampler.ahk
 #Include utils/winRelated/patcherSlicex.ahk
-#Include utils/winRelated/patcherGranular.ahk
+#Include utils/winRelated/patcherGrnl.ahk
 #Include utils/winRelated/patcherMap.ahk
+#Include utils/winRelated/5lfo.ahk
+#Include utils/winRelated/patcher.ahk
 
 ; -- operations
-#Include operations/EditEvents.ahk
 #Include operations/EnvC.ahk
 #Include operations/showChannelWindows.ahk
 #Include operations/Note.ahk
 #Include operations/equo.ahk
-#Include operations/BPM.ahk
+#Include operations/bpm.ahk
 #Include operations/LFO.ahk
 #Include operations/Encapsulation.ahk
 #Include operations/Arp.ahk
@@ -87,6 +89,7 @@ FileEncoding, UTF-8
 ; -- lib
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
 #Include %A_MyDocuments%/AutoHotkey/Lib/vision.ahk
+
 ; -- gui
 #Include gui/g.ahk
 #Include gui/concatAudio.ahk
@@ -95,16 +98,18 @@ FileEncoding, UTF-8
 #Include gui/highlight.ahk
 #Include gui/numpadG.ahk
 #Include gui/secondMouse.ahk
+#Include gui/recordEnabledGui.ahk
 ; -- Test
 #Include Test.ahk
 
-; -- midi I/O
-#Include midi/MidiIn.ahk
-#Include midi/MidiOut.ahk
+; -- midi
+#Include %A_MyDocuments%/AutoHotkey/Lib/midi/MidiIn.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/midi/MidiOut.ahk
 #Include midi/midiRequest.ahk
-#Include hotkeys/mouseCtl.ahk
+#Include midi/midiInput.ahk
 #Include midi/midiInit.ahk
-;#Include midi/knobIn.ahk
+#Include midi/PYnotes.ahk
+#Include hotkeys/mouseCtl.ahk
 
 
 
@@ -119,16 +124,17 @@ setFlahkWallpaper()
 showSplashScreen()
 makeWindow()
 hideSplashScreen()
-WinActivate, ahk_exe FL64.exe
-isSaved := freezeExecute("loadSaveFileIfExists")
+;WinActivate, ahk_exe FL64.exe
+;isSaved := freezeExecute("loadSaveFileIfExists")
 if (isSaved)
     bringStepSeq(True)
 toolTip()
+displayRandomOpeningMessage()
 
 
 
 ; -- hotkeys
-#Include AutoHotInterception/AutoHotInterception.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/AutoHotInterception/AutoHotInterception.ahk
 #Include hotkeys/AutoHotInterception.ahk 
 #Include hotkeys/secondMouse.ahk
 #Include hotkeys/numpad.ahk
@@ -136,7 +142,7 @@ toolTip()
 #Include hotkeys/winRelated/patcherMap.ahk
 #Include hotkeys/numbers.ahk
 #Include hotkeys/fKeys.ahk
-;#Include midi/midiInputs.ahk
+#Include midi/midiHotkeys.ahk
 #Include hotkeys/mouse.ahk  
 #Include hotkeys/scroll.ahk  
 #Include hotkeys/hotkeys.ahk
@@ -147,10 +153,11 @@ toolTip()
 #Include hotkeys/winRelated/stepSeq.ahk
 #Include hotkeys/winRelated/playlist.ahk
 #Include hotkeys/winRelated/mixer.ahk
-#Include hotkeys/winRelated/patcherSampler.ahk
+#Include hotkeys/winRelated/samplers.ahk
 #Include hotkeys/winRelated/patcherSlicex.ahk
 #Include hotkeys/winRelated/transferSounds.ahk
 #Include hotkeys/winRelated/instr.ahk
 
 ; -- goto
 #Include run/goto.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/libGoto.ahk

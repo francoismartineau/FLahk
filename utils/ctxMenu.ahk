@@ -63,7 +63,7 @@ global linkKnobDontMoveWin := False     ;used only for 2nd mouse
 openKnobCtxMenu(mX, mY, ctxMenuLen := "", row := 0, patcherType := "") ;, winX, winY, winId)
 {
     if (!linkKnobDontMoveWin)
-        moveKnobWinIfNecessary(knobX, knobY, winX, winY, winId)
+        moveKnobWinIfNecessary()
 
     Click, Right
     if (waitCtxMenuUnderMouse() and !ctxMenuLen)
@@ -125,27 +125,46 @@ searchCtxMenuActivates(mX, mY, row, patcherType)
     return ctxMenuLen
 }
 
-moveKnobWinIfNecessary(mX, mY, winX, winY, winId, coord := "Client")
+moveKnobWinIfNecessary(mX := "", mY := "", winId := "")
 {
     global Mon1Top, Mon2Top
     movedWin := False
+
+    if (mX == "" or mY == "" or winId == "")
+        winId := mouseGetPos(mX, mY, "Client")
+    WinGetPos, winX, winY,,, ahk_id %winId%
+
     x := mX + winX
     y := mY + winY
     if (x >= 0)
+    {
         top := Mon2Top
+        maxX := Mon2Right - 174
+    }
     else
+    {
         top := Mon1Top
+        maxX := Mon1Right - 174
+    }
 
     maxY := Mon2Height - ctxMenuY["patcherTime"]["length"] - 30 + top
-
     if (y > maxY)
     {
         dist := y - maxY
-        newWinY := winY - dist
-        WinMove, ahk_id %winId%,, %winX%, %newWinY%
-        moveMouse(mX, mY, coord)
+        winY := winY - dist
         movedWin := True
     }    
+    if (x > maxX)
+    {
+        dist := x - maxX
+        winX := winX - dist
+        movedWin := True
+    }
+    if (movedWin)
+    {
+        WinMove, ahk_id %winId%,, winX, winY
+        moveMouse(mX, mY, "Client")
+    }
     return movedWin
 }
 
@@ -194,7 +213,7 @@ clickEditEvents(ctxMenuLen)
     {
         MouseMove, %x%, %y%
         Click
-        eventWinId := waitNewWindow(winId)        
+        eventWinId := waitNewWindowOfClass("TEventEditForm", winId)
     }
     else
     {
@@ -267,6 +286,23 @@ pasteClickable(ctxMenuLen)
     x := mX + ctxMenuPasteTMiddleX
     y := mY + getCtxMenuRowY(ctxMenuLen, "pasteTMiddleY")
     res := colorsMatch(x, y, ctxMenuPasteTMiddleCol, ctxMenuColVar)
+    return res
+}
+; ----
+
+; -- Record ----
+recordModeEnabled(mode)
+{
+    prevMode := setPixelCoordMode("Screen")
+    mouseGetPos(mX, mY, "Screen")
+    Switch mode
+    {
+    Case "autom":
+        res := colorsMatch(mX+ctxMenuCheckX, mY+recordCtxMenuAutomY, ctxMenuCheckBlack)
+    Case "note":
+        res := colorsMatch(mX+ctxMenuCheckX, mY+recordCtxMenuNoteY, ctxMenuCheckBlack)
+    }
+    setPixelCoordMode(prevMode)
     return res
 }
 ; ----

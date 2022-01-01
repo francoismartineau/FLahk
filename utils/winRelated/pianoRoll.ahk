@@ -213,7 +213,7 @@ locatePianoRollSep(x)
         startY := 1070
         h := 1020
         incr := -6
-        y := scanColorDown(x, startY, h, cols, colVar, incr, "searching separator")
+        y := scanColorsDown(x, startY, h, cols, colVar, incr, "searching separator")
         if (!y)
             msgTip("fail")
     }
@@ -272,7 +272,7 @@ mouseOnLoopButton()
 mouseOnPianoRollTimeline()
 {
     MouseGetPos, mx, my
-    return my < getPianoRollMarkerY() and my > 65 and mx > 71 and mx < 1897
+    return my < getPianoRollMarkerY()+10 and my > 65 and mx > 71 and mx < 1897
 }
 
 mouseOnPianoRollMarker()
@@ -284,16 +284,16 @@ mouseOnPianoRollMarker()
 activatePianoRollLoop(activate := True)
 {
     toolTip((activate? "Activating":!activate? "Deactivating":) " loop")
-    markerY := getPianoRollMarkerY()
     activateLoopArrow()
     zoomOut()
     
-    colorsMatchDebug := False
-    colorsMatchDebugTime := 75
+    ;colorsMatchDebug := True
+    ;colorsMatchDebugTime := 300
     markerX := findLoopMarker(activate)
     colorsMatchDebug := False
     if (markerX)
     {
+        markerY := getPianoRollMarkerY()
         moveMouse(markerX, markerY)
         if (activate)
             activateLoopMarkerUnderMouse()
@@ -314,9 +314,9 @@ activatePianoRollLoop(activate := True)
 getPianoRollMarkerY()
 {
     if (pianoRollTimeLineIsThick())
-        y := 80
+        y := 72
     else
-        y := 62
+        y := 58
     return y
 }
 
@@ -373,35 +373,47 @@ findLoopMarker(activate)
     incr := 40
     timeLineStart := 75
     x := timeLineStart
-    y := 70
+    y := 71
     timelineEnd := 1895
     w := timelineEnd - x
 
     if (!colorsMatch(78, y, timelineCol, colVar))
     {
+        toolTip("findLoopMarker(): est-ce que le marker est au début?")
         moveMouse(78, y)
+        Sleep, 1000
         Send {LButton Down}
+        Sleep, 1000
+        toolTip("Click down")
+        Sleep, 1000
         MouseMove, 100, 0 , 0, R
         Send {LButton Up}
+        toolTip("Click up")
+        Sleep, 1000
+        msg("what was it?", 2000)
     }
     
     doneSearching := False
     while (!doneSearching and w > incr)
     {
-        markerX := scanColorRight(x, y, w, timelineCol, colVar, incr, "", False, True)
-        if (markerX)
+        debug := False
+        if (debug)
+            msg("searching marker", 500)
+        markerX := scanColorsRight(x, y, w, timelineCol, colVar, incr, "", debug, True)
+        if (markerX)    ; found a marker, check if it's a loop one by looking at its arrow
         {
+            if (debug)
+                msg("found markerX", 500)
             arrowGreen := 0x4AE4A8
-            if (colorComparison(lastColorMatchResCol, arrowGreen, colVar))
+            arrowColVar := 50
+            if (colorComparison(lastColorMatchResCol, arrowGreen, arrowColVar))
                 doneSearching := True
             else
             {
-                incr := 6
-                x := Max(markerX - 56, timeLineStart)
-                w := 56
-                colorsMatchDebug := False
-                arrowX := scanColorRight(x, y, w, [arrowGreen], 10, incr, "", False, False, "isTimeLinePixel")
-                colorsMatchDebug := False
+                incr := 5
+                x := Max(markerX - 55, timeLineStart)
+                w := 55
+                arrowX := scanColorsRight(x, y, w, [arrowGreen], arrowColVar, incr, "", debug) ; dead-> , "", False, False, "isTimeLinePixel")
                 if (arrowX)
                     doneSearching := True
             }
@@ -416,6 +428,8 @@ findLoopMarker(activate)
     return markerX
 }
 
+/*
+Was used for the loop arrow scan. Which clearly is a mistake. Dead code?
 isTimeLinePixel(resCol)
 {
     timelineCol := [0x1d2830, 0x9b5356]
@@ -423,12 +437,17 @@ isTimeLinePixel(resCol)
     res := colorComparison(timelineCol[1], resCol, colVar) or colorComparison(timelineCol[2], resCol, colVar)
     return res
 }
-
+*/
 
 activateLoopMarkerUnderMouse()
 {
     Click, Right
-    MouseMove, 48, 116, 0, R
+    Loop, 5
+    {
+        Sleep, 3
+        Send {WheelDown}
+        Sleep, 3
+    }
     Click
 }
 
@@ -582,10 +601,9 @@ proposePianoRollSel(prefix := "", mode := "time")
     }
     if (prefix != "")
         txt := prefix "`r`n" txt
-    pianoRollToolTip(txt)
+    pianoRollTempMsg(txt)
     unfreezeMouse()
     res := waitAcceptAbort()
-    pianoRollToolTip()
     freezeMouse()
     return res
 }
@@ -625,7 +643,7 @@ pianorollRand()
     proposePianoRollSel("Rand:", "time")
     Send {AltDown}r{AltUp}
     randId := waitNewWindowOfClass("TPRRandomForm", id)
-    pianoRollToolTip("1: Seed")
+    pianoRollTempMsg("1: Seed")
     if (rec)
         midiRequest("toggle_rec")       
     movePianorollToolWindow(randId)
@@ -786,7 +804,7 @@ pianorollLfo()
         if (rec)
             midiRequest("toggle_rec")      
         movePianorollToolWindow(lfoId)
-        MouseMove, 85, 100, 0
+        pianoRollLfoSetTime()
         retrieveMouse := False
     }
 }
@@ -865,9 +883,9 @@ activateParamVel()
 
 activatePianoRollParam(n)
 {
-    moveMouse(34, 909)
+    moveMouse(34, 896)
     Click
-    y := 26 + (n-1) * 19
+    y := 35 + (n-1) * 19
     MouseMove, 0, y, 0, R
     Click
     retrieveMouse := False
@@ -896,10 +914,13 @@ pianoRollLfoSetTime()
 ; ----
 
 ; -- util ------------------------
-pianoRollToolTip(txt := "")
+pianoRollTempMsg(txt := "")
 {
-    prevMode := setToolTipCoordMode("Screen")
-    ToolTip, %txt%, -1848, 650, 3
-    setToolTipCoordMode(prevMode)
+    if (isPianoRoll())
+    {
+        prevMode := setToolTipCoordMode("Client")
+        tempMsg(txt, 1000, 74, 47, toolTipIndex["pianoRollTempMsg"])
+        setToolTipCoordMode(prevMode)
+    }
 }
 ; ----

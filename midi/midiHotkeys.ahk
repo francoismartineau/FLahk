@@ -1,10 +1,137 @@
+MidiControlChange1:
+MidiControlChange2:
+MidiControlChange3:
+MidiControlChange4:
+MidiControlChange5:
+MidiControlChange6:
+MidiControlChange7:
+MidiControlChange8:
+MidiControlChange9:
+MidiControlChange10:
+MidiControlChange11:
+MidiControlChange12:
+MidiControlChange13:
+MidiControlChange14:
+MidiControlChange15:
+MidiControlChange16:
+MidiControlChange17:
+MidiControlChange18:
+MidiControlChange19:
+MidiControlChange20:
+MidiControlChange21:
+MidiControlChange22:
+MidiControlChange23:
+MidiControlChange24:
+MidiControlChange25:
+MidiControlChange26:
+MidiControlChange27:
+MidiControlChange28:
+MidiControlChange29:
+MidiControlChange30:
+MidiControlChange31:
+MidiControlChange32:
+MidiControlChange33:
+MidiControlChange34:
+MidiControlChange35:
+MidiControlChange36:
+MidiControlChange37:
+MidiControlChange38:
+MidiControlChange39:
+MidiControlChange40:
+MidiControlChange41:
+MidiControlChange42:
+MidiControlChange43:
+MidiControlChange44:
+MidiControlChange45:
+MidiControlChange46:
+MidiControlChange47:
+MidiControlChange48:
+MidiControlChange49:
+MidiControlChange50:
+MidiControlChange51:
+MidiControlChange52:
+MidiControlChange53:
+MidiControlChange54:
+MidiControlChange55:
+MidiControlChange56:
+MidiControlChange57:
+MidiControlChange58:
+MidiControlChange59:
+MidiControlChange60:
+MidiControlChange61:
+MidiControlChange62:
+MidiControlChange63:
+MidiControlChange64:
+MidiControlChange65:
+MidiControlChange66:
+MidiControlChange67:
+MidiControlChange68:
+MidiControlChange69:
+MidiControlChange70:
+MidiControlChange71:
+MidiControlChange72:
+MidiControlChange73:
+MidiControlChange74:
+MidiControlChange75:
+MidiControlChange76:
+MidiControlChange77:
+MidiControlChange78:
+MidiControlChange79:
+MidiControlChange80:
+MidiControlChange81:
+MidiControlChange82:
+MidiControlChange83:
+MidiControlChange84:
+MidiControlChange85:
+MidiControlChange86:
+MidiControlChange87:
+MidiControlChange88:
+MidiControlChange89:
+MidiControlChange90:
+MidiControlChange91:
+MidiControlChange92:
+MidiControlChange93:
+MidiControlChange94:
+MidiControlChange95:
+MidiControlChange96:
+MidiControlChange97:
+MidiControlChange98:
+MidiControlChange99:
+MidiControlChange100:
+MidiControlChange101:
+MidiControlChange102:
+MidiControlChange103:
+MidiControlChange104:
+MidiControlChange105:
+MidiControlChange106:
+MidiControlChange107:
+MidiControlChange108:
+MidiControlChange109:
+MidiControlChange110:
+MidiControlChange111:
+MidiControlChange112:
+MidiControlChange113:
+MidiControlChange114:
+MidiControlChange115:
+MidiControlChange116:
+MidiControlChange117:
+MidiControlChange118:
+MidiControlChange119:
+MidiControlChange120:
+MidiControlChange121:
+MidiControlChange122:
+MidiControlChange123:
+MidiControlChange124:
+MidiControlChange125:
+MidiControlChange126:
 MidiControlChange127:
-    cc := midiI.MidiIn()
-    if (cc.channel == 16)
-    {
-        midiAnswer := cc.value
-        midiRequesting := False
-    }
+    /*  This python script prints the previous lines:
+    msg = ""
+    for i in range(127):
+        msg += "MidiControlChange{0}:\n   knobCCIn({0})\n    return\n".format(i)
+    print(msg)
+    */
+    receiveCc(midiI.MidiIn())
     return
 
 ;;; -- oxygen ------------------------------------------

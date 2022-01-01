@@ -1,7 +1,7 @@
 global knobValueSave
 
 ; -- Main -------
-knobEditEvents(centerMouse = True)
+knobEditEvents(centerMouse := True)
 {
     MouseGetPos, mX, mY, winId
     WinGetPos, winX, winY,,, ahk_id %winId%
@@ -12,15 +12,28 @@ knobEditEvents(centerMouse = True)
         ;bringPlaylist(False)
         ;bringStepSeq(False)
         moveWinRightScreen(winId)
-        WinActivate, ahk_id %winId%
         moveEventEditor(eventWinId)
         centerMouse(eventWinId)
+        registerWinToHistory(eventWinId, "mainWin")
     }
     retrieveWinPos(winX, winY, winId)
 }
 
 knobCreateAutomation(knobX, knobY, pluginId)
 {
+    if (!WinExist("ahk_id " pluginId))
+    {
+        freezeExecuting := False
+        if (waitToolTip("Bring back plugin and accept"))
+            WinGet, pluginId, ID, A
+        else
+        {
+            msg("Can't continue creating automation")
+            freezeExecuting := True
+            return False
+        }
+        freezeExecuting := True
+    }
     WinActivate, ahk_id %pluginId%
     WinGetPos, pluginX, pluginY,,, ahk_id %pluginId%
     MouseMove, %knobX%, %knobY%    
@@ -28,7 +41,7 @@ knobCreateAutomation(knobX, knobY, pluginId)
     if (ctxMenuLen)
         clickCreateAutomation(ctxMenuLen)
     retrieveWinPos(winX, winY, winId)
-    return ctxMenuLen != ""
+    return ctxMenuLen != ""        
 }
 
 linkKnob(function := False, autoClickAccept := True, autoChooseLink := False, nRowsUnderWord := 0, chooseCtl := True, ctlDropDown := True, removeConflicts := False)
@@ -78,8 +91,16 @@ copyKnob(hint = True, cut = False)
     if (ctxMenuLen)
     {
         clipboardSave := clipboard
+        clipboard := ""
+        Sleep, 10
         clickCopy(ctxMenuLen)
-        Sleep, 100
+        Sleep, 10
+        ClipWait, 2
+        if ErrorLevel
+        {
+            msg("couldn't copy val to clipboard")
+            return
+        }
         knobValueSave := clipboard
         clipboard := clipboardSave
 

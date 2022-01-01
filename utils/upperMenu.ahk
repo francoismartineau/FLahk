@@ -1,3 +1,92 @@
+; -- Record ------------------------------
+global recordButtonX := 459
+global recordButtonY := 20
+global recordCtxMenuAutomY := 31
+global recordCtxMenuNoteY := 50
+
+global recordMode
+global whileRecordModeChoice := False
+recordModeChoice()
+{
+    whileRecordModeChoice := True
+    title := "-- Record Mode ----"
+    choices := ["autom, note", "notes", "autom"]
+    initIndex := hasVal(choices, recordMode)
+    if (!initIndex)
+        initIndex := 1
+    recordMode := toolTipChoice(choices, title, initIndex)
+    if (recordMode != "")
+        enableRecord(recordMode)
+    whileRecordModeChoice := False
+}
+
+enableRecord(mode := "autom, note")
+{
+    if (!recordEnabled())
+        clickRecord()
+    setRecordMode(mode)
+    updateRecordModeGui()
+    startRecordEnabledClock()
+}
+
+setRecordMode(desiredMode)
+{
+    modes := ["note", "autom"]
+    for i, mode in modes
+    {
+        moveMouse(recordButtonX, recordButtonY, "Screen")
+        Click, R
+        Sleep, 10
+        modeEnabled := recordModeEnabled(mode)
+        if ((modeEnabled and !InStr(desiredMode, mode)) or (!modeEnabled and InStr(desiredMode, mode)))
+        {
+            varName := "recordCtxMenu" mode "Y"
+            y := %varName%
+            MouseMove, 10, %y%, 0, R
+            Click
+        }
+        else
+        {
+            MouseMove, 0, -1 , 0, R
+            Click            
+        }
+    }
+    moveMouse(recordButtonX, recordButtonY, "Screen")
+    Click, R
+    Sleep, 500
+    MouseMove, 0, -1 , 0, R
+    Click
+    global recordMode
+    recordMode := desiredMode
+}
+
+disableRecord()
+{
+    if (recordEnabled())
+        clickRecord()
+    stopRecordEnabledClock()
+    hideRecordEnabledGui()
+}
+
+clickRecord()
+{
+    moveMouse(recordButtonX, recordButtonY, "Screen")
+    winId := mouseGetPos(_, _)
+    if (isMainFlWindow(winId))
+        Click
+    else
+        msg("Can't click record")
+}
+
+recordEnabled()
+{
+    CoordMode, Pixel, Screen
+    res := colorsMatch(459, 13, [0xFF978A])
+    CoordMode, Pixel, Client
+    return res
+}
+; ----
+
 ; -- Pattern / song -------------------------
 togglePatternSong()
 {
@@ -36,7 +125,9 @@ togglePatternSongFromPianoRollToolWin()
     }       
     WinActivate, ahk_id %toolWinId%    
 }
+; ----
 
+; -- Vision --------------
 songEnabled()
 {
     CoordMode, Pixel, Screen
@@ -56,14 +147,6 @@ toggleRecord()
 }
 */
 
-recordEnabled()
-{
-    CoordMode, Pixel, Screen
-    res := colorsMatch(459, 13, [0xFF978A])
-    CoordMode, Pixel, Client
-    return res
-}
-
 songPlaying()
 {
     CoordMode, Pixel, Screen
@@ -71,6 +154,7 @@ songPlaying()
     CoordMode, Pixel, Client
     return res    
 }
+; ----
 
 ; -- Typing keyboard ---------------------------
 enableTypingKeyboard()
@@ -109,7 +193,7 @@ turnOffTypingKeyboard()
 toggleTypingKeyboard()
 {
     winId := WinActive("A")
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm
+    WinActivate, ahk_class TFruityLoopsMainForm
     Send {Ctrl down}t{Ctrl up}
     WinActivate, ahk_id %winId%
 }
@@ -127,7 +211,7 @@ typingKeyboardEnabled()
 
 randomizeTypingKeyboard()
 {
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm
+    WinActivate, ahk_class TFruityLoopsMainForm
     QuickClick(488, 62, "Right")
     Random, octave, 1, 3
     Loop, %octave%
@@ -139,19 +223,9 @@ randomizeTypingKeyboard()
         Send {WheelDown}    
     Send {LButton}
 }
-; -----------------------------
-hoveringUpperMenuPattern()
-{
-    CoordMode, Mouse , Screen
-    MouseGetPos, x, y, winId
-    CoordMode, Mouse , Client
-    WinGetClass, class, ahk_id %winId%
-    res:= class == "TFruityLoopsMainForm" and 650 < x and x < 745 and 50 < y and y < 75
-    ;msgTip("hovering: " res)
-    return res
-}
+; ----
 
-; -----------------------------
+; -- Step Edit ---------------------------
 toggleStepEdit()
 {
     ;winId := WinActive("A")
@@ -160,8 +234,9 @@ toggleStepEdit()
     ;Send {Ctrl down}e{Ctrl up}
     ;WinActivate, ahk_id %winId%
 }
+; ----
 
-; -----------------------
+; -- Patterns ---------------------
 scrollPatternUp()
 {
     Send {NumpadSub}
@@ -176,12 +251,13 @@ deletePattern()
 {
     Send {CtrlDown}{ShiftDown}{Delete}{ShiftUp}{CtrlUp}
 }
+; ----
 
 ; -- Loop recording ---------------------------
 loopRecordingEnabled()
 {
     winId := WinActive("A")
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm
+    WinActivate, ahk_class TFruityLoopsMainForm
     x := 491
     y := 54
     cols := [0xFFEC9E]
@@ -193,13 +269,14 @@ loopRecordingEnabled()
 toggleLoopRecording()
 {
     winId := WinActive("A")
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm
+    WinActivate, ahk_class TFruityLoopsMainForm
     x := 491
     y := 54
     MouseClick, Left, %x%, %y%,,1
     WinActivate, ahk_id %winId%
     return enabled        
 }
+; ----
 
 ; -- Snap ---------------------------
 checkIfSnap()
@@ -220,4 +297,48 @@ toggleSnap()
     CoordMode, Mouse, Client
     msgTip("toggleSnap():   faire par midi avec midi.FPT_Snap")
 }
+; ----
+
+; -- Mouse ---------------------------
+mouseOverPlayPauseButton()
+{
+    res := False
+    winId := mouseGetPos(mX, mY, "Screen")
+    if (isMainFlWindow(winId))
+        res := mY <= 36 and mX <= 407 and mX >= 377 and mY >=  5
+    return res
+}
+
+mouseOverStopButton()
+{
+    res := False
+    winId := mouseGetPos(mX, mY, "Screen")
+    if (isMainFlWindow(winId))
+        res := mY <= 36 and mX <= 442 and mX >= 409 and mY >=  5
+    return res   
+}
+
+
+hoveringUpperMenuPattern()
+{
+    CoordMode, Mouse , Screen
+    MouseGetPos, x, y, winId
+    CoordMode, Mouse , Client
+    WinGetClass, class, ahk_id %winId%
+    res:= class == "TFruityLoopsMainForm" and 650 < x and x < 745 and 50 < y and y < 75
+    ;msgTip("hovering: " res)
+    return res
+}
+
+mouseOverRecordButton()
+{
+    res := False
+    winId := mouseGetPos(mX, mY, "Screen")
+    if (isMainFlWindow(winId))
+    {
+        res := mY < 36 and mY > 5 and mX < 474 and mX > 445
+    }
+    return res
+}
+; ----
 

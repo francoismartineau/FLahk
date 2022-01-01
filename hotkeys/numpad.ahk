@@ -81,7 +81,7 @@ Numpad6::                                       ; rec
     return    
 
 ^Numpad6::                                      ; rec on play
-    freezeExecute("recOnPlay")              
+    freezeExecute("recOnPlay", True, True)              
     return
 
 !Numpad6::                                      ; Edison rec

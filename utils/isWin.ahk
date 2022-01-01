@@ -6,6 +6,14 @@ isFLWindow(winId := "")
     return program == "FL64.exe"
 }
 
+isPureData(winId := "")
+{
+    if (winId == "")
+        WinGet, winId, ID, A
+    WinGet, program, ProcessName, ahk_id %winId%
+    return program == "wish85.exe"
+}
+
 isOneOfMainWindows(winId := "")
 {
     if (!winId)
@@ -17,7 +25,7 @@ isWindowHistoryExclude(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
-    return isMainFlWindow(winId) or isPlaylist(winId) or isTouchKeyboard(winId)
+    return isMainFlWindow(winId) or isPlaylist(winId) or isTouchKeyboard(winId) or isControlSurface(winId)
 
 }
 
@@ -48,7 +56,7 @@ isStepSeq(winId := "", underMouse := False)
     return class == "TStepSeqForm"
 }
 
-isMainFlWindow(winId := "", underMouse := False, test := False)
+isMainFlWindow(winId := "", underMouse := False)
 {
     if (!winId)
     {
@@ -87,7 +95,7 @@ isMelodyne(winId := "")
     return exe == "Melodyne singletrack.exe"
 }
 
-isKnobsWin(winId := "")
+isControlSurface(winId := "")
 {
     if (!winId)
         WinGetTitle, title, A    
@@ -206,12 +214,17 @@ isPianoRollLfo(id := "")
 }
 
 ; -- Plugins ---------------------
-isInstr(id := "")
+isInstr(id := "", underMouse := False)
 {
     ; look at the red around the pitch bend range
     res := False
-    if (!id)
-        WinGet, id, ID, A
+    if (id == "")
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
     if (isPlugin(id))
     {
         WinGetPos,,, winW,, ahk_id %id%
@@ -225,7 +238,7 @@ isInstr(id := "")
     return res
 }
 
-isPluginWithKeyboard(id = "")
+isPluginWithKeyboard(id := "")
 {
     if (!id)
         WinGet, id, ID, A
@@ -241,8 +254,17 @@ isPluginWithKeyboard(id = "")
     return res
 }
 
+isFormulaCtl(id := "")
+{
+    if (!id)
+        WinGet, id, ID, A
+    res := False
+    if (isPlugin(id))    
+        res := colorsMatch(228, 63, [0x8da56c]) ; green from a knob
+    return res
+}
 
-is3xosc(id = "")
+is3xosc(id := "")
 {
     res := False
     if (!id)
@@ -254,7 +276,7 @@ is3xosc(id = "")
     return res
 }
 
-isMasterEdison(id = "", underMouse = False)
+isMasterEdison(id := "", underMouse := False)
 {
     if (id == "")
     {
@@ -267,22 +289,27 @@ isMasterEdison(id = "", underMouse = False)
     return InStr(title, "Master Edison")
 }
 
-isEdison(winId = "")
+isEdison(winId := "", underMouse = False)
 {
     ;;; Idée: donner une taille fixe à la fenetre.
     ;;;       ensuite regarder les couleurs
     res := False
-    if (!winId)
-        WinGet, winId, ID, A
+    if (id == "")
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
     if (isPlugin(winId))
     {
         WinGetPos,,, winW, winH, ahk_id %winId%
-        res := colorsMatch(11, 30, [0x777C81], 10) and colorsMatch(8, winH-9, [0x2A3141])
+        res := colorsMatch(11, 33, [0x797E83]) and colorsMatch(8, 126, [0x202329])
     }
     return res
 }
 
-isPlugin(id = "", underMouse = False)
+isPlugin(id := "", underMouse = False)
 {
     if (id == "")
     {
@@ -301,7 +328,6 @@ isPatcherMap(id := "")
     res := False
     if (!id)
         WinGet, id, ID, A
-    restoreWin(id)
     ; look at colors around Map / Surface menu
     if (isPlugin(id))
     {
@@ -325,12 +351,12 @@ isWrapperPlugin(id := "")
     return class == "TWrapperPluginForm"    
 }
 
-isOneOfTheSamplers(id = "", underMouse = False)
+isOneOfTheSamplers(id := "", underMouse = False)
 {
-    return isPatcherSampler(id, underMouse) or isPatcherSlicex(id, underMouse) or isPatcherGranular(id)
+    return isPatcherSampler(id, underMouse) or isPatcherSlicex(id, underMouse) or isPatcherGrnl(id)
 }
 
-isPatcherSampler(id = "", underMouse = False)
+isPatcherSampler(id := "", underMouse = False)
 {
     if (id == "")
     {
@@ -353,7 +379,7 @@ isPatcherSampler(id = "", underMouse = False)
     return res  
 }
 
-isPatcherSlicex(id = "", underMouse = False)
+isPatcherSlicex(id := "", underMouse = False)
 {
     if (id == "")
     {
@@ -376,7 +402,7 @@ isPatcherSlicex(id = "", underMouse = False)
     return res    
 }
 
-isPatcherGranular(id = "", underMouse = False)
+isPatcherGrnl(id := "", underMouse = False)
 {
     if (id == "")
     {
@@ -406,7 +432,7 @@ isPatcherGranular(id = "", underMouse = False)
     return res  
 }
 
-isHarmless(id = "")
+isHarmless(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -423,7 +449,7 @@ isHarmless(id = "")
 
 
 
-isRaveGen(id = "")
+isRaveGen(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -437,7 +463,7 @@ isRaveGen(id = "")
     return colorsMatch(472, y1, [0x425B6B]) and colorsMatch(691, y2, [0x433D36])
 }
 
-isSytrus(id = "")
+isSytrus(id := "")
 {
     if (id == "")
         WinGet, id, ID, A   
@@ -453,7 +479,7 @@ isSytrus(id = "")
     return colorsMatch(35, y1, [0x2C3338]) and colorsMatch(10, y2, [0x31373B]) and colorsMatch(23, y3, [0x2C3338])
 }
 
-isPlucked(id = "")
+isPlucked(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -468,7 +494,7 @@ isPlucked(id = "")
     return winW == 370 and winH == h and colorsMatch(31, y, [0xBD883F])
 }
 
-isPiano(id = "")
+isPiano(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -483,7 +509,7 @@ isPiano(id = "")
     return and winW == 494 and winH == h and colorsMatch(162, y, [0x242424])
 }
 
-isBeepMap(id = "")
+isBeepMap(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -500,7 +526,7 @@ isBeepMap(id = "")
     return winW == 390 and h1 < winH and winH < h2 and colorsMatch(144, y, [0x2F424E])
 }
 
-isAutogun(id = "")
+isAutogun(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -511,7 +537,7 @@ isAutogun(id = "")
     return winW == 312 and winH == h
 }
 
-isFlex(id = "")
+isFlex(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -521,7 +547,7 @@ isFlex(id = "")
     return colorsMatch(399, y, [0xD8833A])
 }
 
-isSampleClip(id = "")
+isSampleClip(id := "")
 {
     res := False
     if (id == "")
@@ -534,38 +560,73 @@ isSampleClip(id = "")
     return res    
 }
 
+is5lfo(id := "")
+{
+    res := False
+    if (id == "")
+        WinGet, id, ID, A
+    if (isPlugin(id))
+    {
+        res := colorsMatch(252, 250, [0x6E7FB7])
+    }
+    return res
+}
+
+isEnvC(id := "")
+{
+    res := False
+    if (id == "")
+        WinGet, id, ID, A
+    if (isPlugin(id))
+        res := colorsMatch(135, 76, [0x31373B]) and colorsMatch(129, 76, [0x21272B])
+    return res
+}
+
+isM1(id := "")
+{
+    res := False
+    if (id == "")
+        WinGet, id, ID, A
+    if (isEnvC(id))
+    {
+        WinGetTitle, winTitle, ahk_id %id%
+        res := InStr(winTitle, "m1")
+    }
+    return res    
+}
+
 ; -- fx ---------------------------------------------
-isPatcher4(id = "")
+isPatcher4(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
     y := 74
-    return colorsMatch(315, y, [0x9B8E8A]) and colorsMatch(250, y, [0xA8B985])
+    return isPlugin(id) and colorsMatch(315, y, [0x9B8E8A]) and colorsMatch(250, y, [0xA8B985])
 }
 
-isPatcherMod(id = "")
+isPatcherMod(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return colorsMatch(185, 82, [0x40354A]) and colorsMatch(211, 86, [0xA5375D])
+    return isPlugin(id) and colorsMatch(185, 82, [0x40354A]) and colorsMatch(211, 86, [0xA5375D])
 }
 
-isDelB(id = "")
+isDelB(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return colorsMatch(272, 110, [0xDBADD6]) and colorsMatch(182, 154, [0x3F2A7D])   
+    return isPlugin(id) and colorsMatch(272, 110, [0xDBADD6]) and colorsMatch(182, 154, [0x3F2A7D])   
 }
 
-is3xGross(id = "")
+is3xGross(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return colorsMatch(208, 89, [0xBACFBF]) and colorsMatch(269, 89, [0x624456])
+    return isPlugin(id) and colorsMatch(208, 89, [0xBACFBF]) and colorsMatch(269, 89, [0x624456])
 }
 
 
-isDelay(id = "")
+isDelay(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -573,7 +634,7 @@ isDelay(id = "")
     return winW == 757 and winH == 248   
 }
 
-isProbablyEq(id = "")
+isProbablyEq(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -601,7 +662,7 @@ isLfo(id := "")
     return res
 }
 
-isRev(id = "")
+isRev(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
@@ -609,7 +670,7 @@ isRev(id = "")
     return winW == 543 and winH == 195
 }
 
-isDistructor(id = "")
+isDistructor(id := "")
 {
     res := False
     if (!id)

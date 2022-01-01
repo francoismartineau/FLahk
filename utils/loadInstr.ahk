@@ -65,7 +65,7 @@ loadChords()
     centerMouse(winId)
 }
 
-loadGranular(centerM = True)
+loadGrnl(centerM = True)
 {
     winId := loadInstr(1, 3)
     rename("Gra " randString(randInt(1, 4)), True)

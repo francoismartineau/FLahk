@@ -110,12 +110,8 @@ cloneSetName()
     nameEditorId := bringNameEditor(winId)
     if (nameEditorId)
     {
-
         Send {F2}
-        clipboardSave := clipboard
-        Send {CtrlDown}c{CtrlUp}
-        name := clipboard
-        clipboard := clipboardSave
+        name := copyTextWithClipboard()
         splitName := StrSplit(name , " ")
         prefix := splitName[1] " "
         cloneNum := splitName[splitName.MaxIndex()]

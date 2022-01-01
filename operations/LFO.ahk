@@ -5,6 +5,9 @@ LFO()
     if (isPlugin())
     {
         minMax := knobCopyMinMax()
+        if (minMax.MaxIndex() != 2)
+            return
+            
         Sleep, 20
         pluginName := copyName()
         lfoID := applyController(4, False, True, 2)

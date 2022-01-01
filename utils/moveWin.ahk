@@ -3,7 +3,7 @@ global moveWinSpeed := 100
 
 moveWindows()
 {
-    WinMaximize, FL Studio 20 ahk_class TFruityLoopsMainForm 
+    WinMaximize, ahk_class TFruityLoopsMainForm 
     playlistId := bringPlaylist(False)
     movePlaylist(playlistId)
     if (leftScreenWindowsShown)
@@ -12,7 +12,7 @@ moveWindows()
         movePianoRoll()
         moveMixer()
         moveMasterEdison()
-        moveMasterPatcher()
+        moveRootPatcher()
 
         moveScreenKeyboard()
         moveKnobsWin()
@@ -105,11 +105,11 @@ hidePianoRoll()
     WinClose, ahk_id %pianoRollId%
 }
 
-moveMasterPatcher()
+moveRootPatcher()
 {
-    WinGet, masterPatcherId, ID, Master Patcher ahk_class TPluginForm
-    WinRestore, ahk_id %masterPatcherId%
-    WinMove, ahk_id %masterPatcherId%,, -1920, 568, 1920, 1080   
+    WinGet, rootPatcherId, ID, Root Patcher ahk_class TPluginForm
+    WinRestore, ahk_id %rootPatcherId%
+    WinMove, ahk_id %rootPatcherId%,, -1920, 568, 1920, 1080   
 }
 
 moveMasterEdison()

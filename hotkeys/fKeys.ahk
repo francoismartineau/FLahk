@@ -7,7 +7,9 @@
     return
 #If
 
-#If True
+#If WinActive("ahk_exe FL64.exe") ;True
+F5::
+    return
 F5 UP::
     Test()
     return

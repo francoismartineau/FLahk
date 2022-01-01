@@ -27,7 +27,7 @@ playlistTimelineIsSelected()
     w := 1365
     colVar := 20
     incr := 10
-    return scanColorRight(x, y, w, timelineRed, colVar, incr)
+    return scanColorsRight(x, y, w, timelineRed, colVar, incr)
 }
 
 mouseOverPlaylist()
@@ -111,7 +111,7 @@ setPlaylistLoop(mode)
     Send {Enter}
 
     WinActivate, ahk_id %playlistId%
-    mX := scanColorRight(mX , timeLineY, 30, [0x1C272F], 40, 20, "", False, True)
+    mX := scanColorsRight(mX , timeLineY, 30, [0x1C272F], 40, 20, "", False, True)
     if (mX)
     {
         MouseMove, %mX%, %timeLineY%, 0
@@ -156,7 +156,7 @@ fineTuneLoopPos(mX)
     w := 40
     colVar := 10
     timelineCol := [0x1B272E, 0xA25B5D]
-    tabX := scanColorRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
 
     MouseMove, %tabX%, %timeLineY%, 0
     Send {LButton down}
@@ -176,7 +176,7 @@ deleteNextPlaylist()
     playlistId := bringPlaylist(False)
     MouseGetPos, mX, mY
     timeLineY:= 80
-    mX := scanColorRight(mX , timeLineY, 100, [0x1C272F], 10, 20, "", False, True)
+    mX := scanColorsRight(mX , timeLineY, 100, [0x1C272F], 10, 20, "", False, True)
     if (mX)
     {
         MouseMove, %mX%, %timeLineY%, 1

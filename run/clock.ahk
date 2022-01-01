@@ -52,6 +52,27 @@ stopObsClock()
     SetTimer, OBS_CHECK_MOUSE_POS_TICK, Off
 }
 
+startRecordEnabledClock()
+{
+    SetTimer, RECORD_ENABLED_CLOCK, 50
+}
+
+stopRecordEnabledClock()
+{
+    SetTimer, RECORD_ENABLED_CLOCK, Off
+
+}
+
+startPYbootClock()
+{
+    SetTimer, PY_CHECK, 5000
+}
+stopPYbootClock()
+{
+    SetTimer, PY_CHECK, Off
+}
+
+
 global bringWinAtMouseToggle := False
 startBringWinAtMouseClock()
 {
@@ -65,8 +86,10 @@ stopBringWinAtMouseClock()
     bringWinAtMouseToggle := False
 }
 
+
 SetTimer, SAVE_REMINDER_CLOCK, %saveReminderMilliseconds%
 startMainClock()
 startWinHistoryClock()
 startWinMenusClock()
+startPYbootClock()
 ;startMouseCtlClock()

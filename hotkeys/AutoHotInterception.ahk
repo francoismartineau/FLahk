@@ -1,4 +1,4 @@
-global AHI := new AutoHotInterception()
+;global AHI := new AutoHotInterception()
 
 
 
@@ -33,6 +33,7 @@ else
 
 
 ; -- second  mouse --------------------------------------
+/*
 secondMouseId := AHI.GetMouseId(0x045E, 0x07FD)
 if (secondMouseId)
 {
@@ -48,7 +49,8 @@ if (secondMouseId)
     
     ;;;;AHI.SubscribeMouseButton(secondMouseId, 2, True, Func("mouseCtlWheelClick"))
 }
-
+*/
+; ----
 
 
 /*

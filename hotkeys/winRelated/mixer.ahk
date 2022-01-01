@@ -45,59 +45,55 @@ LButton Up::
     Switch pos
     {
     Case "1_1":
-        freezeExecute("loadRev")
+        freezeExecute("loadMixer1_1")
     Case "1_2":
-        freezeExecute("loadDelay")
+        freezeExecute("loadMixer1_2")
 
     Case "2_1":
-        freezeExecute("loadFxFromChoice", False, False, "mod")
+        freezeExecute("loadMixer2_1")
     Case "2_2":
-        freezeExecute("loadLfo")
+        freezeExecute("loadMixer2_2")
 
     Case "3_1":
-        freezeExecute("loadFxFromChoice", False, False, "filter")
+        freezeExecute("loadMixer3_1")
     Case "3_2":
-        freezeExecute("loadFxFromChoice", False, False, "patcher4")
+        freezeExecute("loadMixer3_2")
 
     Case "4_1":
-        freezeExecute("loadFxFromChoice", False, False, "pitch")
-   Case "4_2":
-        freezeExecute("loadDist")
+        freezeExecute("loadMixer4_1")
+    Case "4_2":
+        freezeExecute("loadMixer4_2")
 
     Case "5_1":
-        freezeExecute("loadFxFromChoice", False, False, "dyn")
+        freezeExecute("loadMixer5_1")
     Case "5_2":
-        freezeExecute("loadAutoPan")
+        freezeExecute("loadMixer5_2")
 
-    ;Case "6_1":
+    Case "6_1":
+        freezeExecute("loadMixer6_1")
     Case "6_2":
-        freezeExecute("loadSpeaker")
+        freezeExecute("loadMixer6_2")
 
-    ;Case "7_1":
+    Case "7_1":
+        freezeExecute("loadMixer7_1")
     Case "7_2":
-        freezeExecute("loadConv")
+        freezeExecute("loadMixer7_2")
 
-    ;Case "8_1":
+    Case "8_1":
+        freezeExecute("loadMixer8_1")
     Case "8_2":
-        freezeExecute("loadScratch")
+        freezeExecute("loadMixer8_2")
 
-    ;Case "9_1":
+    Case "9_1":
+        freezeExecute("loadMixer9_1")
     Case "9_2":
-        freezeExecute("load3xGross")
+        freezeExecute("loadMixer9_2")
 
     Case "0_1":
-        freezeExecute("loadFxFromChoice", False, False, "edit")
+        freezeExecute("loadMixer0_1")
+    Case "0_2":
+        freezeExecute("loadMixer0_2")
 
-    ;Case "0_2":
-
-    ;Case "F5_1":
-    ;Case "F5_2":
-
-    ;Case "F6_1":
-    ;Case "F6_2":
-
-    ;Case "F7_1":
-    ;Case "F7_2":
     Default:
         Click
     }
@@ -109,85 +105,74 @@ LButton Up::
 ; ---- Mixer --------------------------------
 #If WinActive("ahk_exe FL64.exe") and isMixer() and acceptAbortSpecialKey == ""
 1:: 
-    freezeExecute("loadRev")
+    freezeExecute("loadMixer1_1")
     return
 !1:: 
-    freezeExecute("loadDelay")
+    freezeExecute("loadMixer1_2")
     return    
 
 2:: 
-    freezeExecute("loadFxFromChoice", False, False, "mod")
+    freezeExecute("loadMixer2_1")
     return
 !2:: 
-    freezeExecute("loadLfo")
+    freezeExecute("loadMixer2_2")
     return    
 
 3::
-    freezeExecute("loadFxFromChoice", False, False, "filter")
+    freezeExecute("loadMixer3_1")
     return
 !3::
-    freezeExecute("loadStereos")
+    freezeExecute("loadMixer3_2")
     return    
 
 4::
-    freezeExecute("loadFxFromChoice", False, False, "pitch")
+    freezeExecute("loadMixer4_1")
     return    
 !4::
-    freezeExecute("loadDist")
+    freezeExecute("loadMixer4_2")
     return        
 
 5::
-    freezeExecute("loadFxFromChoice", False, False, "dyn")
+    freezeExecute("loadMixer5_1")
     return
 !5::
-    freezeExecute("loadAutoPan")
+    freezeExecute("loadMixer5_2")
     return    
 
 6::
+    freezeExecute("loadMixer6_1")
     return
 !6::
-    freezeExecute("loadSpeaker")
+    freezeExecute("loadMixer6_2")
     return    
 
 7::
+    freezeExecute("loadMixer7_1")
     return
 !7::
-    freezeExecute("loadConv")
+    freezeExecute("loadMixer7_2")
     return    
 
 8::
+    freezeExecute("loadMixer8_1")
     return
 !8::
-    freezeExecute("loadScratch")
+    freezeExecute("loadMixer8_2")
     return    
 
 9::
+    freezeExecute("loadMixer9_1")
     return
 !9::
-    freezeExecute("load3xGross")
+    freezeExecute("loadMixer9_2")
     return    
 
 0::
+    freezeExecute("loadMixer0_1")
     return
 !0::
+    freezeExecute("loadMixer0_2")
     return    
-
-F5::
-    return
-!F5::
-    return   
-
-F6::
-    return
-!F6::
-    return    
-
-F7::
-    freezeExecute("loadFxFromChoice", False, False, "edit")
-    return    
-!F7::
-    return    
-
 
 +1:: 
     freezeExecute("mouseOnM123", True, False, "m1")

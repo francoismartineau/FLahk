@@ -1,7 +1,6 @@
 ﻿
 SetTitleMatchMode, 2
 SetDefaultMouseSpeed, 2
-FileEncoding, UTF-16
 
 global Mon1Right
 global Mon2Right
@@ -27,7 +26,12 @@ global clipboardSave :=
 
 global freezeExecuting := False
 global stopExec := False     ; Esc while freezeExecute will turn True. Long functions should check this bool from time to time and quit if True.
-global debugToolTip := 5
+
+global toolTipIndex := {}
+toolTipIndex["toolTipChoice"] := 10
+toolTipIndex["pianoRollTempMsg"] := 11
+toolTipIndex["acceptAbort"] := 12
+toolTipIndex["debug"] := 13
 
 ; ---- Run functions -------------------------------------------
 freezeExecute(f, retrPos = True, retrWin = False, params*)  ; Change the signature: f, [params], pos, win)

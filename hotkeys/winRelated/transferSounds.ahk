@@ -33,7 +33,7 @@ LWin & WheelUp::                    ; load TransferSound
     freezeExecute("melodyneLoadSound", False, False, melodyneId)
     return
 
-LWin & WheelDown::                  ; save to TransferSound
+LWin & WheelDown::                  ; save to TransferMidi
     waitForModifierKeys()
     WinGet, melodyneId, ID, A
     freezeExecute("melodyneExportMidi", False, False, melodyneId)

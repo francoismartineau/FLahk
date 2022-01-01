@@ -66,7 +66,7 @@
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadChords")
     else if (mouseOverAudioKnot())
-        freezeExecute("load3xGross", False, False, "patcher")
+        freezeExecute("loadFxFromChoice", False, False, "seq")
     return
 
 #If

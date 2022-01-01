@@ -13,7 +13,8 @@
 ;placer les deux fenêtres à des endroits précis
 ;faire le drag and drop
 
-sampleToSlicex() {
+sampleToSlicex()
+{
     sampleName := tempRenameSample()
     createSlicex(sampleName)
     dragAndDropSample(sampleName)
@@ -21,20 +22,21 @@ sampleToSlicex() {
     dropNotesInNewPattern(sampleName)
 }
 
-tempRenameSample() {
+tempRenameSample()
+{
     WinActivate, ahk_class TPluginForm
     MouseMove 16, 12
     MouseClick
     MouseMove, 56, 339
     MouseClick
-    Send {CtrlDown}c{CtrlUp}
-    sampleName := clipboard
+    sampleName := copyTextWithClipboard()
     Send {Enter}
     WinMove, %sampleName%,, 300, 200
     return sampleName
 }
 
-createSlicex(sampleName) {
+createSlicex(sampleName)
+{
     Send {F8}
     MouseMove, 385, 939
     Sleep, 1000
@@ -47,7 +49,8 @@ createSlicex(sampleName) {
     WinMove, Slicex_%sampleName%,, 868, 200
 }
 
-renameActivatedSlicex(sampleName) {
+renameActivatedSlicex(sampleName)
+{
     MouseMove 16, 12
     MouseClick
     MouseMove, 88, 362
@@ -55,7 +58,8 @@ renameActivatedSlicex(sampleName) {
     Send, Slicex_%sampleName%{Enter}
 }
 
-dragAndDropSample(sampleName) {
+dragAndDropSample(sampleName)
+{
     ; ça va pas ici
     WinActivate, %sampleName%
     MouseMove, 277, 388
@@ -68,7 +72,8 @@ dragAndDropSample(sampleName) {
     Send {Space}{Space}
 }
 
-dropNotesInNewPattern(sampleName) {
+dropNotesInNewPattern(sampleName)
+{
     Send {ShiftDown}{CtrlDown}{Insert}{CtrlUp}{ShiftUp}
     Send %sampleName%{Enter}
     Sleep, 50

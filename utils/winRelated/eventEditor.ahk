@@ -52,11 +52,11 @@ scrollTabStart(mode)
     }    
     colVar := 10
     timelineCol := [0x1B272E, 0xA25B5D]
-    tabX := scanColorRight(x , timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    tabX := scanColorsRight(x , timeLineY, w, timelineCol, colVar, incr, "", False, True)
     x := tabX-(incr-6)
     w := incr
     incr := 7
-    tabX := scanColorRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
     if (tabX)
     {
         scrollingTab := True
@@ -76,8 +76,6 @@ scrollTabStop()
     MouseMove, %scrollingTabMx%, %scrollingTabMy%, 0
 }
 ; ----
-
-
 
 eventEditorCycleParam(dir)
 {
@@ -108,7 +106,88 @@ activateEventEditorScale()
     retrieveMouse := False
 }
 
+
+insertEditEventsValue()
+{
+    MouseGetPos, knobX, knobY, pluginId
+    val := copyKnob(False)
+    moveMouse(knobX, knobY)
+    knobEditEvents()
+
+    toolTip("Place mouse and Accept / Abort")
+    unfreezeMouse()
+    waitAcceptAbort(False)
+    freezeMouse()
+    toolTip()
+    
+    MouseGetPos, mx
+    MouseMove, %mx%, 57, 0
+    Send {CtrlDown}{LButton Down}
+    MouseMove, 100, 0, 0, R
+    Send {CtrlUp}{LButton Up}
+
+    WinActivate, ahk_id %pluginId%
+    moveMouse(knobX, knobY)
+    pasteKnob(False, val)
+    WinActivate, Events -
+
+    Sleep, 100
+    insertCurrentControllerValue()
+    Sleep, 100
+    Send {CtrlDown}d{CtrlUp}
+    Sleep, 400
+    retrieveMouse := True
+}
+
 insertCurrentControllerValue()
 {
     Send {CtrlDown}i{CtrlUp}
+}
+
+turnEventsIntoAutomation()
+{
+    WinGet, eventWinId, ID, A       
+    moveMouse(12, 16)
+    i := 0
+    while (True)
+    {
+        Click
+        ctxMenuOpen := colorsMatch(6, 29, [0Xbdc6cb])
+        if (ctxMenuOpen)
+            break
+        else
+        {
+            Sleep, 10
+            i += 1
+        }
+        if (i > 10)
+        {
+            msg("Couldn't open File menu")
+            return
+        }
+    }
+    Send {Down}{Down}{Right}{Up}{Enter}
+    toolTip("waiting decimate tool")
+    decimWinId := waitNewWindowOfClass("TMEDecimateToolForm", eventWinId, 0)
+    if (!decimWinId)
+    {
+        msg("Couldn't find decimate tool window")
+        return
+    }
+    toolTip()
+    centerMouse(decimWinId)
+    res := waitToolTip("complex <---> simple")
+    if (!res)
+    {
+        if (WinActive("ahk_id " decimWinId))
+            Send {Esc}
+        WinActivate, ahk_id %eventWinId%
+        return
+    }
+    Send {Enter}
+    autwinId := bringAutomationWindow()
+    registerWinToHistory(autwinId, "plugin")
+    playlistId := bringPlaylist(False)
+    registerWinToHistory(playlistId, "mainWin")
+    msg("Tab to bring automation")
 }

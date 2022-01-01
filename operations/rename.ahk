@@ -1,7 +1,7 @@
-global copypasteNameValue
+﻿global copypasteNameValue
 global randomizingNameLoop := False
 
-startRandomizeNameLoop(randomizeColor = False, pasteCol = False)
+startRandomizeNameLoop(randomizeColor := False, pasteCol := False)
 {
     randomizingNameLoop := True
     while (randomizingNameLoop)
@@ -14,7 +14,7 @@ startRandomizeNameLoop(randomizeColor = False, pasteCol = False)
     }
 }
 
-randomizeName(randomizeColor = False, pasteCol = False, forceKeepPos = False, prevName = "")
+randomizeName(randomizeColor := False, pasteCol := False, forceKeepPos := False, prevName := "")
 {
     if (!prevName)
     {
@@ -32,10 +32,12 @@ randomizeName(randomizeColor = False, pasteCol = False, forceKeepPos = False, pr
     rename(name, randomizeColor, pasteCol, forceKeepPos)
 }
 
-rename(name = "", randomizeColor = False, pasteCol = False, forceKeepPos = False)
+rename(name := "", randomizeColor := False, pasteCol := False, forceKeepPos := False)
 {
     WinGet, winId, ID, A
     nameEditorId := bringNameEditor(winId)
+    if (!nameEditorId)
+        return False
     if (randomizeColor)
         Send {F2}
     if (pasteCol)
@@ -59,27 +61,39 @@ rename(name = "", randomizeColor = False, pasteCol = False, forceKeepPos = False
     return acceptAbort
 }
 
-copyName(nameEditorId = "")
+copyName()
 {
-    MouseGetPos, mX, mY
+    WinGet, winId, ID, A
     WinGetClass, class, A
-    if (class == "TNameEditForm")
+    if (isWrapperPlugin(winId))
     {
-        WinGet, nameEditorId, ID, A
-        Send {CtrlDown}a{CtrlUp}
-    }
-    else
-        nameEditorId := bringNameEditor() 
+        WinGetTitle, winTitle, ahk_id %winId%
+        name := StrSplit(winTitle, " ")[1]
+    }    
+    else 
+    {
+        if (class == "TNameEditForm")
+        {
+            WinGet, nameEditorId, ID, A
+            Send {CtrlDown}a{CtrlUp}
+        }
+        else
+        {
+            MouseGetPos, mX, mY
+            nameEditorId := bringNameEditor() 
+            MouseMove, %mX%, %mY%
+        }
 
-    clipboardSave := clipboard
-    Send {CtrlDown}c{CtrlUp}{Esc}
-    copypasteNameValue := clipboard
-    clipboard := clipboardSave
-    MouseMove, %mX%, %mY%
-    return copypasteNameValue
+        ;clipboardSave := clipboard
+        ;Send {CtrlDown}c{CtrlUp}{Esc}
+        name := copyTextWithClipboard()
+        Send {Esc}
+        ;clipboard := clipboardSave
+    }
+    return name
 }
 
-pasteName(suffix = "", autoConfirm = True)
+pasteName(suffix := "", autoConfirm = True)
 {
     WinGetClass, class, A
     if (class == "TNameEditForm")
@@ -104,7 +118,7 @@ pasteName(suffix = "", autoConfirm = True)
         centerMouse(nameEditorId)
 }
 
-pasteColor(nameEditorId = "", autoConfirm = True)
+pasteColor(nameEditorId := "", autoConfirm := True)
 {
     if (!nameEditorId)
     {
@@ -126,10 +140,12 @@ pasteColor(nameEditorId = "", autoConfirm = True)
 }
 
 
-bringNameEditor(winId = "")
+bringNameEditor(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
+    if (isWrapperPlugin(winId))
+        return False
     if (isPlugin(winId))
     {
         if (isRaveGen())

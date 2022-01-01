@@ -118,11 +118,11 @@ scrollWrenchPanel()
 setInstrDelaySpeed()
 {
     alreadyOpen := clickInstrWrench()
-    if (!delayActivated())
-    {
-        feed := expRand(.1, .9, 3)
-        setKnobValue(350, 230, feed)    
-    }
+    ;if (!delayActivated())
+    ;{
+    ;    feed := expRand(.1, .9, 3)
+    ;    setKnobValue(350, 230, feed)    
+    ;}
 
     delX := 536
     y := 228
@@ -142,6 +142,30 @@ setInstrDelaySpeed()
     }
     if (!alreadyOpen)
         clickInstrMainPanel()
+}
+
+setInstrDelayPitch()
+{
+    alreadyOpen := clickInstrWrench()
+
+    pitchX := 490
+    y := 228
+    static vals := [1, 0.958333333022892, 0.916666666977108, 0.875, 0.833333333022892, 0.791666666977108, 0.708333333022892, 0.708333333022892, 0.666666666977108, 0.625, 0.583333333022892, 0.541666666977108, 0.5, 0.458333333022892, 0.416666666977108, 0.375, 0.333333333022892, 0.291666666977108, 0.291666666977108, 0.25, 0.208333333022892, 0.166666666977108, 0.125, 0.0833333330228925, 0.0416666669771075, 0]
+    static choices := ["12 ----", "11", "10", "9", "8", "7 --", "6", "5", "4", "3", "2", "1", "0 ----", "-1", "-2", "-3", "-4", "-5", "-6", "-7 --", "-8", "-9", "-10", "-11", "-12 ----"]
+    
+    MouseMove, %pitchX%, %y%, 0
+    knobVal := copyKnob(False)
+    MouseMove, %pitchX%, %y%, 0
+
+    index := indexOfClosestValue(knobVal, vals)
+    val := toolTipChoice(choices, "", index)
+    if (val != "")
+    {
+        val := vals[toolTipChoiceIndex]
+        pasteKnob(False, val, "other")
+    }
+    if (!alreadyOpen)
+        clickInstrMainPanel()    
 }
 
 setInstrArpSpeed()
@@ -235,7 +259,6 @@ getActivePanel()
         panel := 4
     return panel
 }
-
 
 clickInstrMainPanel(checkIfOpen = True, centerM = True)
 {
@@ -340,8 +363,8 @@ instrHasNoMixerChannel()
     WinGetPos,,, instrW,, A
     debug := False
     drakSectionCol := [0x191f23]
-    darkSectionY := scanColorDown(instrW-30, 24, 5, drakSectionCol, 0, 1)
-    darkSectionRightX := scanColorRight(instrW-3, 40, 5, drakSectionCol, 0, -1)
+    darkSectionY := scanColorsDown(instrW-30, 24, 5, drakSectionCol, 0, 1)
+    darkSectionRightX := scanColorsRight(instrW-3, 40, 5, drakSectionCol, 0, -1)
     threeLinesY := darkSectionY + 20
 
     ;threeLinesY := 47  ;;; rel to upper grey bar
@@ -371,3 +394,27 @@ instrHasNoMixerChannel()
     }
     return res
 }
+; ----
+
+
+; -- patcher synth --------
+mouseOnSynthUseShapesButtons()
+{
+    res := False
+    winId := mouseGetPos(mX, mY)
+    if (mX > 253 and mx < 283 and mY < 183 and mY > 167 and isPlugin(winId, True))
+        res := colorsMatch(mX, mY, [0x29632F])
+    return res
+}
+
+synthUseShapes()
+{
+    buttonX := [173, 219, 270, 324, 381]
+    buttonY := 210
+    for _, x in buttonX
+    {
+        moveMouse(x, buttonY)
+        Click, 2
+    }
+}
+; ----

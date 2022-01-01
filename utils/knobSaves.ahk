@@ -151,6 +151,12 @@ searchForNextPos()
 ; -- Save Load Knob Values ------------------------------------------------
 saveLoadKnob(mode, saveSlot = "")
 {
+    if (currProjPath == "")
+    {
+        msg("Save project first")
+        return
+    }
+
     MouseGetPos, mX, mY, winId
     ;loadPotentialAssociatedKnobSaves(mX, mY, winId)
     WinGetPos, winX, winY,,, ahk_id %winId%
@@ -389,5 +395,5 @@ countNumKnobPos()
 knobSavesDebuger()
 {
     if (knobSavesDebug)
-        toolTipAtPos(1422, 82, knobSaves, debugToolTip)
+        toolTip(knobSaves, toolTipIndex["debug"], 1422, 82, "Screen")
 }

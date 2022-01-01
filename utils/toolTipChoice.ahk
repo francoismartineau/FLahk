@@ -20,7 +20,7 @@ decrToolTipChoiceIndex()
     displayToolTipChoice()
 }
 
-toolTipChoice(choices, title = "", initIndex = 1, specialKey = "")
+toolTipChoice(choices, title := "", initIndex := 1, specialKey := "")
 {
     toolTipChoiceIndex := initIndex
     tooTipChoices := choices
@@ -34,8 +34,7 @@ toolTipChoice(choices, title = "", initIndex = 1, specialKey = "")
         choice := choices[toolTipChoiceIndex]
     else if (res == "abort")
         choice := ""
-
-    toolTip()
+    toolTip("", toolTipIndex["toolTipChoice"])
     tooTipChoices := []
     toolTipTitle := ""
     whileToolTipChoice := False
@@ -55,9 +54,11 @@ displayToolTipChoice()
             msg := msg  "  "
         msg := msg "" choice "`r`n"
     }
-    toolTip(msg)
+    toolTip(msg, toolTipIndex["toolTipChoice"])
 }
 
+
+; vals must be from high to low
 indexOfClosestValue(val, vals)
 {
     for i, newVal in vals
@@ -67,7 +68,7 @@ indexOfClosestValue(val, vals)
             index := i
             break
         }
-        else if (val > newVal)
+        else if (i > 1 and val > newVal)
         {
             prevVal := vals[i-1]
             diffPrevVal := Abs(val - prevVal)

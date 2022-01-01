@@ -1,21 +1,57 @@
-showMidiDevices := True
-if (showMidiDevices)
+getMidiInputDevice(midiI, name)
 {
-    msg(MidiIn.QueryMidiInDevices())
-    ;toolTip(MidiOut.getDeviceList(), 2)
+    for i, d in __midiInDevices
+    {
+        if (d.deviceName == name)
+        {
+            index := d.deviceNumber
+            break
+        }
+    }
+    if index != ""
+        midiI.OpenMidiIn(index)
+    else
+        msg("Couldn't not start " name)
 }
+
+getMidiOutputDevice(name)
+{
+    for i, d in MidiOut.getDeviceList()
+    {
+        if (d.name == name)
+        {
+            index := d.id
+            break
+        }
+    }
+    if index != ""
+        midiO := new MidiOut(index)
+    else
+        msg("Couldn't not start " name)
+    return midiO
+}
+
+; ----------------------------------------------------------
 
 try
 {
-    global midiI := new Midi()
-    midiI.OpenMidiIn(2)                         ; answers from FL    
-    ;global midiInKnob := new Midi()
-    ;midiInKnob.OpenMidiIn(1)                   ; knob
+    global midiO_FL
+    midiO_FL := getMidiOutputDevice("AHK_TO_FL")
 
-    global midiO_1 := new MidiOut(2)    ; unidirectional requests, mouseCtl         2?  1?
-    global midiO_2 := new MidiOut(3)    ; bidirectional requests                    3?  2?
+    ;global midiO_TD
+    ;midiO_TD := getMidiOutputDevice("AHK_TO_TD")
+
+    ;global midiO_PD
+    ;midiO_PD := getMidiOutputDevice("AHK_TO_PD")
+
+    global midiO_PY
+    midiO_PY := getMidiOutputDevice("AHK_TO_PY")
+
+    global midiI := new Midi()    
+    getMidiInputDevice(midiI, "FL_TO_AHK")
+    getMidiInputDevice(midiI, "PY_TO_AHK")
 }
 catch e
 {
-    msgTip("Midi error. Are loopMidi and its virtual midi devices running?`r`n"  e)
+    msgTip("midiInit.ahk error. Are loopMidi and its virtual midi devices running?`r`n" e)
 }

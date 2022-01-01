@@ -41,7 +41,7 @@ XButton2::
     return
 
 7::
-    freezeExecute("loadGranular")
+    freezeExecute("loadGrnl")
     return
 
 8::
@@ -115,7 +115,7 @@ LButton::
 
 #If WinActive("ahk_exe FL64.exe") and isStepSeq() and mouseOverStepSeqInstruments()
 l::
-    freezeExecute("lockWithTypingKeyboard")
+    freezeExecute("toggleLockKeyboardUnlock")
     return
 #If
 
@@ -139,7 +139,7 @@ LButton Up::
     Case "6_1":
         freezeExecute("loadSpeech")
     Case "7_1":
-        freezeExecute("loadGranular")
+        freezeExecute("loadGrnl")
     Case "8_1":
         freezeExecute("load3xosc")
     Case "9_1":

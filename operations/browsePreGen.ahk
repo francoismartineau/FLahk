@@ -35,7 +35,6 @@ addPreGenSound(isFolder := False)
     if (propertiesWinId)
     {
         Sleep, 1
-        clipboardSave := clipboard
         soundDir := copySoundDir(isFolder)
         if (soundDir)
         {
@@ -49,7 +48,6 @@ addPreGenSound(isFolder := False)
                 preGenBrowsingSounds.Push(soundFilePath)
             }
         }
-        clipboard := clipboardSave
         WinClose, ahk_id %propertiesWinId%
     }
     startMsgRefreshClock()
@@ -136,9 +134,7 @@ copySoundDir(isFolder)
         moveMouse(349, y, "Client", 2)
         Sleep, 2
         Send {LButton Up}
-        Send {Ctrl Down}c{Ctrl Up}
-        Sleep, 1
-        soundDir := clipboard 
+        soundDir := copyTextWithClipboard()
         if  (FileExist(soundDir) == "D")
             break
 
@@ -147,9 +143,7 @@ copySoundDir(isFolder)
         Send {LButton Down}
         moveMouse(54, y, "Client", 2)
         Send {LButton Up}
-        Send {Ctrl Down}c{Ctrl Up}
-        Sleep, 1
-        soundDir := clipboard 
+        soundDir := copyTextWithClipboard()
         i++
     }
     if (!InStr(FileExist(soundDir), "D"))
@@ -170,9 +164,7 @@ copyFileName(soundDir)
         Click
         Send {Ctrl Down}a{Ctrl Up}
         Sleep, 10
-        Send {Ctrl Down}c{Ctrl Up}
-        Sleep, 10
-        soundFileName := soundDir "\" clipboard
+        soundFileName := soundDir "\" copyTextWithClipboard()
         i++
     }
     if (!FileExist(soundFileName))

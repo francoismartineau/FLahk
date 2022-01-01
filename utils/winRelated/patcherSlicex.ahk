@@ -1,3 +1,4 @@
+global patcherSlicexSlicexPos := [269, 156]
 
 createPatcherSlicex(dragX, dragY, dragWin, inPatcher := False)
 {
@@ -20,7 +21,7 @@ createPatcherSlicex(dragX, dragY, dragWin, inPatcher := False)
         if (!WinActive("ahk_id " patcherId))
             WinActivate, ahk_id %patcherId%             
         samplerId := patcherLoadPatcherSlicex()
-        dragDropPatcherSampler(samplerId, dragX, dragY, dragWin)
+        dragDropPatcherSlicex(samplerId, dragX, dragY, dragWin)
         movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
     }
     else
@@ -35,8 +36,16 @@ createPatcherSlicex(dragX, dragY, dragWin, inPatcher := False)
         WinMove, ahk_id %samplerId%,, 700, 200    
 }
 
-global slicexMapX := 269
-global slicexMapY := 156
+dragDropPatcherSlicex(patcherId, oriX, oriY, oriWin)
+{
+
+    makeSureWinInMonitor(patcherId)
+    slicexId := revealInternalSlicex(samplerID)
+    if (!slicexId)
+        return
+    dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
+    hideInternalSampler(slicexId, samplerID)
+}
 
 revealInternalSlicex(samplerID)
 {
@@ -45,9 +54,12 @@ revealInternalSlicex(samplerID)
     moveMouse(mapX, mapSurfaceY)
     Click
 
-    localSlicexMapY := slicexMapY - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
-    moveMouse(slicexMapX, localSlicexMapY)
+    slicexX := patcherSlicexSlicexPos[1]
+    slicexY := patcherSlicexSlicexPos[2]
+    slicexY -= isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+    moveMouse(slicexX, slicexY)
     SendInput !{LButton}
+
     slicexId := waitNewWindowTitled("slicex", samplerID)
     alwaysOnTop(slicexId)
     WinMove, ahk_id %slicexId%,, 700, 200

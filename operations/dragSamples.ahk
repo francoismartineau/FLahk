@@ -1,15 +1,23 @@
-dragSample(proposeEdison = True)
+dragSample(proposeEdison := True)
 {
-    newSamplerChoices := ["Ps", "slcx", "gran"]
+    patcherSamplerLabel := "Ps"
+    patcherSlicexLabel := "Slcx"
+    patcherGrnlLabel := "Grnl"
+    edisonLabel := "Edison"
+    existingSamplerLabel := "existing sampler"
+    audacityLabel := "Audacity"
+    melodyneLabel := "Melodyne"
+
+    newSamplerChoices := [patcherSamplerLabel, patcherSlicexLabel, patcherGrnlLabel]
     choices := deepCopy(newSamplerChoices)
     if (proposeEdison)
-        choices.Push("Edison")    
+        choices.Push(edisonLabel)    
     if (findInPluginWinHistory("isOneOfTheSamplers"))
-        choices.Push("existing sampler")
+        choices.Push(existingSamplerLabel)
     if (isMasterEdison())
     {
-        choices.Push("Audacity")
-        choices.Push("Melodyne")
+        choices.Push(audacityLabel)
+        choices.Push(melodyneLabel)
     }
 
     CoordMode, Mouse, Screen
@@ -21,7 +29,6 @@ dragSample(proposeEdison = True)
     readyToDrag := False
     if (choice == "")
         return
-    mute()
 
     choiceIsNewSampler := hasVal(newSamplerChoices, choice)
     if (choiceIsNewSampler)
@@ -29,22 +36,21 @@ dragSample(proposeEdison = True)
 
     Switch choice
     {
-    Case "Ps":
+    Case patcherSamplerLabel:
         createPatcherSampler(mX, mY, winId, loadInPatcher)   
-    Case "slcx":
+    Case patcherSlicexLabel:
         createPatcherSlicex(mX, mY, winId, loadInPatcher)  
-    Case "gran":
-        createPatcherGranular(mX, mY, winId, loadInPatcher)  
-    Case "Edison":
+    Case patcherGrnlLabel:
+        createPatcherGrnl(mX, mY, winId, loadInPatcher)  
+    Case edisonLabel:
         dragSampleToEdison(mX, mY)           
-    Case "existing sampler":
+    Case existingSamplerLabel:
         dragDropAnyPatcherSampler(mX, mY, winId)               
-    Case "Audacity":
+    Case audacityLabel:
         fromEdisonToAudacity()
-    Case "Melodyne":
+    Case melodyneLabel:
         fromEdisonToMelodyne()
     }
-    unmute()
 }
 
 
@@ -53,7 +59,8 @@ askToLoadInPatcher()
     title := "Load in:"
     initIndex := randInt(1, 2)
     choices := ["step seq", "patcher"]
-    res := toolTipChoice(choices, title, initIndex, "Win")
+    res := 
+    (choices, title, initIndex, "Win")
     inPatcher := res == "patcher"
     return inPatcher
 }

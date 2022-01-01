@@ -1,20 +1,19 @@
+global whileRecOnPlay := False
 recOnPlay()
 {
-    WinGet, winId, ID, A
-    if (isEdison(winId))
-    {
-        if (edisonArmed())
-            setOnInput(winId)
-        else
-            setMasterEdisonOnPlay(winId)
-        toggleArmEdison()        
-    }
-    else
-        recOnPlayCreatePlugin(winId)
+    masterEdisonId := bringMasterEdison(False)
+    setMasterEdisonMode("onPlay", masterEdisonId)
+    armEdison()
+    whileRecOnPlay := True
+}
+
+stopRecOnPlay()
+{
+
 }
 
 
-
+/*
 
 recOnPlayCreatePlugin(currWinId)
 {
@@ -22,7 +21,7 @@ recOnPlayCreatePlugin(currWinId)
     placePlayHead()
     edisonID := loadFx(7)       ; Edison
     registerWinToHistory(edisonID, "mainWin")
-    setMasterEdisonOnPlay(edisonID)
+    setMasterEdisonMode(edisonID)
     toggleArmEdison()
     pasteName("recOnPlay", True)
     WinActivate, ahk_id %currWinId%
@@ -38,4 +37,5 @@ placePlayHead()
     freezeMouse()
     bringHistoryWins()
 }
+*/
 

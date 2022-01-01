@@ -6,7 +6,7 @@ insertPattern(copyCurrName := False)
 
     if (copyCurrName)
     {
-        copyName("")
+        copyName()
         moveMouse(mX, mY, "Screen")
     }
     Send {ShiftDown}{F4}{ShiftUp}
@@ -27,6 +27,13 @@ insertPattern(copyCurrName := False)
     unfreezeMouse()
     waitAcceptAbort(True)
     toolTip()
+}
+
+movePattern(dir)
+{
+    StringUpper, key, dir, T
+    if (key == "Up" or key == "Down")
+        SendInput +^{key}
 }
 
 clonePattern()

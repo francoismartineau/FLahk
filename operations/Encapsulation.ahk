@@ -12,14 +12,12 @@ unwrapProject()
         WinGet, winId, ID, A
         projectName := getParentProjectName(winId)
         ;msgTip("project name:" projectName, 2000)
-        clipboardSave := clipboard
         projectFolder := getParentProjectFolder(winId)
         ;msgTip("project folder:" projectFolder,2000)
 
-        WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm 
+        bringMainFLWindow()
         save()
         openParentProject(winId, projectFolder, projectName)
-        clipboard := clipboardSave
     }
 }
 
@@ -39,8 +37,9 @@ getParentProjectFolder(winId)
     MouseMove, 310, 17      ;msgtip("over path", 2000)
     Sleep, 100
     Click
-    Send {Ctrl Down}c{Ctrl Up}
-    projectFolder := clipboard
+
+    projectFolder := copyTextWithClipboard()
+    
     WinClose, ahk_id %browseWindowId%
     WinActivate, ahk_id %winId%
     return projectFolder
@@ -95,7 +94,7 @@ openParentProject(winId, projectFolder, projectName)
 ; create new project
 wrapInNewProject()
 {
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm  
+    bringMainFLWindow()
     save()
     projectName := exportMp3()
     projectName := getNextProjectName(projectName)
@@ -135,19 +134,15 @@ exportMp3()
     Sleep, 200
     WinActivate, ahk_exe FL64.exe                   ; activate FL, keep explorer window
     Sleep, 100
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm  
+    WinActivate, ahk_class TFruityLoopsMainForm  
     Sleep, 500
     return projectName
 }
 
 getProjectName()
 {
-    global clipboardSave
-    clipboardSave := clipboard
-    Sleep, 200
-    Send {Ctrl Down}c{Ctrl Up}              ; copy name in save as window
-    Sleep, 500
-    projectName := SubStr(clipboard, 1 , StrLen(clipboard) - 4)
+    clip := copyTextWithClipboard()         ; copy name in save as window
+    projectName := SubStr(clip, 1 , StrLen(clip) - 4)
     return projectName
 }
 
@@ -176,7 +171,7 @@ getProjectNameNumber(projectName)
 
 newProject(projectName)
 {
-    global clipboardSave
+    ;global clipboardSave
     MouseClick, Left, 14, 15                ; open menu
     Sleep, 200
     Send {Down}
@@ -185,21 +180,22 @@ newProject(projectName)
     Sleep, 4000
     Send {Ctrl Down}s{Ctrl Up}
     WinWaitActive, Save As,, 3
-    clipboard := projectName
-    Sleep, 1000
-    Send {Ctrl Down}v{Ctrl Up}
-    Sleep, 200
+    ;clipboard := projectName
+    ;Sleep, 1000
+    ;Send {Ctrl Down}v{Ctrl Up}
+    ;Sleep, 200
+    typeText(projectName)
     Send {Enter}
-    clipboard := clipboardSave
+    ;clipboard := clipboardSave
     Sleep, 200
-    WinWaitActive, FL Studio 20 ahk_class TFruityLoopsMainForm,, 3
+    WinWaitActive, ahk_class TFruityLoopsMainForm,, 3
 }
 
 ; ------------------------------------------
 openNextProject()
 {
-    global clipboardSave
-    WinActivate, FL Studio 20 ahk_class TFruityLoopsMainForm  
+    ;global clipboardSave
+    WinActivate, ahk_class TFruityLoopsMainForm  
     MouseClick, Left, 14, 15                        ; open menu
     Sleep, 1000
     Loop, 3
@@ -222,10 +218,11 @@ openNextProject()
     }
     projectName := getProjectName()
     nextProjectName := getNextProjectName(projectName)
-    clipboardSave := clipboard
-    clipboard := nextProjectName
-    Sleep, 1000
-    Send {Ctrl Down}v{Ctrl Up} 
-    Sleep, 1000
+    typeText(nextProjectName)
+    ;clipboardSave := clipboard
+    ;clipboard := nextProjectName
+    ;Sleep, 1000
+    ;Send {Ctrl Down}v{Ctrl Up} 
+    ;Sleep, 1000
     Send {Enter}
 }

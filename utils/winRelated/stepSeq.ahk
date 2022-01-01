@@ -17,7 +17,7 @@ getFirstSelChannelY(firstChannY = 50)
     WinGetPos,,,, ssH, A
     x := 283
     h := ssH - firstChannY
-    return scanColorDown(x, firstChannY, h, selectedChanColors, 30, channelHeight, "")
+    return scanColorsDown(x, firstChannY, h, selectedChanColors, 30, channelHeight, "")
 }
 
 channelAtYIsSelected(y)
@@ -170,7 +170,7 @@ locateStepSeqSep(y)
         startX := 178
         w := 200
         incr := 1
-        x := scanColorRight(startX, y, w, cols, colVar, incr, "searching separator")
+        x := scanColorsRight(startX, y, w, cols, colVar, incr, "searching separator")
         if (!x)
             msgTip("fail")
     }
@@ -202,7 +202,7 @@ pasteMouseChannelNotes()
 
 
 ; -- Channels ----------------
-openChannelUnderMouse(centerM = True)
+openChannelUnderMouse(centerM := True)
 {
     toolTip("open instr")
     WinGet, id, ID, A
@@ -210,13 +210,13 @@ openChannelUnderMouse(centerM = True)
     if (closeFirst)
         Send {LButton}
     SendInput {AltDown}{LButton}{AltUp}
-    pluginId := waitNewWindowOfClass("TPluginForm", id)
+    pluginId := waitNewWindowOfClass("TPluginForm", id, 500)
     if (centerM)
         centerMouse(pluginId)
     return pluginId
 }
 
-openChannelUnderMouseInPianoRoll(centerM = True)
+openChannelUnderMouseInPianoRoll(centerM := True)
 {
     WinClose, Piano roll - ahk_class TEventEditForm
     WinGet, id, ID, A
@@ -246,12 +246,6 @@ channelUnderMouseAlreadyOpen()
     CoordMode, Pixel, Relative
     CoordMode, Mouse, Relative
     return col1 < col2
-}
-
-lockWithTypingKeyboard()
-{
-    Click, Right
-    Send {Up}{Up}{Up}{Right}{Down}{Enter}
 }
 
 scrollChannels(dir)

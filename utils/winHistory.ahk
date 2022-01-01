@@ -3,15 +3,15 @@ global mainWinHistory := []
 global pluginWinHistoryIndex := 1
 global mainWinHistoryIndex := 1
 
-global duringWinHistoryTic := False
+global duringWinHistoryTick := False
 global debugWindowHistory := False
 global masterEdisonId
 
-winHistoryTic()
+winHistoryTick()
 {
-    if (!duringWinHistoryTic)
+    if (!duringWinHistoryTick)
     {
-        duringWinHistoryTic := True
+        duringWinHistoryTick := True
         WinGet, id, ID, A
     
         if (isFLWindow(id) and justChangedWindow(id) and !isWindowHistoryExclude(id))
@@ -30,7 +30,7 @@ winHistoryTic()
         }
         if (debugWindowHistory)
             displayHistoryContent(mode "   foundIndex: " index)   
-        duringWinHistoryTic := False
+        duringWinHistoryTick := False
     }
 }
 
@@ -163,7 +163,7 @@ displayHistoryContent(moreInfo = "")
             msg := msg " "
         msg = %msg%%A_Index% : %title%
     }
-    toolTipAtPos(1422, 82, msg, debugToolTip)
+    toolTip(msg, toolTipIndex["debug"], 1422, 82, "Screen")
 }
 
 ; -- Tab Caps -------------------------------------
@@ -213,6 +213,7 @@ activatePrevNextWin(mode, dir)
         incr := 1
     else if (dir == "next")
         incr := -1
+
     while (%history%.MaxIndex() > 1 and !found)
     {
         index := index + incr
@@ -225,7 +226,7 @@ activatePrevNextWin(mode, dir)
             found := True
         else
             removeWinFromHistory(index, mode)
-    }
+    }   
     
     if (found)
     {
@@ -249,6 +250,89 @@ activateAhkFoundPlugin()
         centerMouse(id)
     }
     return id
+}
+
+toolTipChoiceActivatePlugin()
+{
+    toolTipChoiceActivateWin("plugin")
+}
+
+toolTipChoiceActivateMainWin()
+{
+    toolTipChoiceActivateWin("mainWin")
+}
+
+global whileToolTipChoiceActivateWin := False
+toolTipChoiceActivateWin(mode)
+{
+    whileToolTipChoiceActivateWin := True
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+        notFoundFunc := "activateAhkFoundPlugin"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+        notFoundFunc := "bringStepSeq"
+    }
+    cleanHistory(mode)
+
+    winTitleList := historyToWinTitleList(mode)
+    toolTipChoice(winTitleList)
+    %historyIndex% := toolTipChoiceIndex
+    id := %history%[%historyIndex%]
+    WinActivate, ahk_id %id%
+    centerMouse(id)
+    whileToolTipChoiceActivateWin := False
+}
+
+cleanHistory(mode)
+{
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+        historyIndex := "pluginWinHistoryIndex"
+    Case "mainWin":
+        history := "mainWinHistory"
+        historyIndex := "mainWinHistoryIndex"
+    }
+    index := %historyIndex%
+    count := 1
+    while (count <= %history%.MaxIndex())
+    {   
+        id := %history%[index]
+        if (!WinExist("ahk_id " id) or !isVisible(id))
+        {
+            removeWinFromHistory(index, mode)
+            continue
+        }
+        index += 1
+        if (index > %history%.MaxIndex())
+            index := 1        
+        count += 1
+    }
+}
+
+historyToWinTitleList(mode)
+{
+    Switch mode
+    {
+    Case "plugin":
+        history := "pluginWinHistory"
+    Case "mainWin":
+        history := "mainWinHistory"
+    }
+    titleList := []
+    for _, id in %history%
+    {
+        WinGetTitle, title, ahk_id %id%
+        title := StrSplit(title, " ")[1]
+        titleList.Push(title)
+    }
+    return titleList
 }
 ; ----
 
@@ -391,7 +475,8 @@ winHistoryClosePluginsExceptLast(n = 3)
             else
             {
                 pluginId := pluginWinHistory[index]
-                WinClose, ahk_id %pluginId%
+                if (WinExist("ahk_id " pluginId))
+                    WinClose, ahk_id %pluginId%
                 if (index < pluginWinHistory.MaxIndex())
                     incrIndex := False
                 pluginWinHistory.RemoveAt(index)

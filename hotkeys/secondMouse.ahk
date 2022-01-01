@@ -98,7 +98,7 @@ secondMouseKnobSetMouseCtl()
     knobY := secondMouseY - winY
     WinGet, secondMouseKnobWinId, ID, A
     WinGetTitle, secondMouseKnobWinTitle, ahk_id %secondMouseKnobWinId%
-    movedWin := moveKnobWinIfNecessary(knobX, knobY, winX, winY, secondMouseKnobWinId)
+    movedWin := moveKnobWinIfNecessary(knobX, knobY, secondMouseKnobWinId)
     if (movedWin)
     {
         WinGetPos, winX, winY,,, ahk_id %secondMouseKnobWinId%

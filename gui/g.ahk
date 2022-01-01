@@ -2,7 +2,7 @@
 global mainMenusColor := 0x596267
 
 FL_IS_MAXIMIZED := true
-WinMaximize, FL Studio 20 ahk_class TFruityLoopsMainForm 
+WinMaximize, ahk_class TFruityLoopsMainForm 
 
 global FLahkGuiId1
 global FLahkGuiId2
@@ -16,18 +16,21 @@ global gui2W := 985
 
 global GuiMouseCtlL, GuiMouseCtlR, GuiMouseCtlActive, GuiMouseCtlIncrMode, GuiMouseCtlIncrActive
 
+global PYnoteToggleGui
 global winHistoryDebugGui
 global knobSavesDebugToggleGui
 global ProjPathGui
 
 makeWindow()
 {
+    makeFLahkIsRunningWindow()
     ;makeBackgroundWindow()
     makePianoRollMenus()
     makeEventEditorMenu()
     makePatcherMapMenu()
     makeStepSeqMenus()
     makeMixerMenu()
+    makeMasterEdisonMenu()
     makeAudacityMenu()
     makeMelodyneMenu()
 
@@ -35,10 +38,20 @@ makeWindow()
     makeWindowRow2()
     makeConcatAudioButtons()
     makeNumpadG()
+    makeMmenu()
+    makeRecordEnabledGui()
     
     Menu, Tray, Icon, fl.ico,,1
     
 
+}
+
+makeFLahkIsRunningWindow()
+{
+    Gui, FLahkIsRunningWindow:New
+    Gui, FLahkIsRunningWindow:-Caption +E0x08000000 +E0x20 +AlwaysOnTop +LastFound +ToolWindow
+    Gui, FLahkIsRunningWindow:Color, %mainMenusColor%
+    Gui, FLahkIsRunningWindow:Show, x0 y0 w1 h1 NoActivate, FLahkIsRunningWindow
 }
 
 makeWindowRow1()
@@ -48,7 +61,7 @@ makeWindowRow1()
     Gui, Main1:-Caption +E0x08000000 +AlwaysOnTop +LastFound +ToolWindow +HwndFLahkGuiId1
     Gui, Main1:Color, %mainMenusColor%
     Gui, Main1:Font, s9 cCCCCCC, %mainFont%
-    Gui, Main1:Show, x935 y1 w918 h39 NoActivate, FLahk window1
+    Gui, Main1:Show, x935 y1 w918 h39, FLahk window1
 
     Gui, Main1:Add, Text, x0 y5, 
     Gui, Main1:Add, Button, x+10 gBPM, 💓 
@@ -58,7 +71,7 @@ makeWindowRow1()
 
     Gui, Main1:Add, Button, x+52 h20 gUNWRAP_PROJECT, unwrap
     Gui, Main1:Add, Button, x+10 h20 gPREV_PROJECT, prev proj
-
+    Gui, Main1:Add, CheckBox, x+10 vPYnoteToggleGui gPY_NOTE_TOGGLE checked, PY
 
     Gui, Main1:Add, Text, x+50 h50 w260 vProjPathGui gOPEN_PROJECT_FOLDERS,
     Gui, Main1:Add, Text, x+10, !F3: win@mouse
@@ -82,7 +95,7 @@ makeWindowRow2()
     Gui, Main2:+AlwaysOnTop +LastFound +ToolWindow +HwndFLahkGuiId2 -Caption +E0x08000000
     Gui, Main2:Color, %mainMenusColor%
     Gui, Main2:Font, s9 cCCCCCC, %mainFont%
-    Gui, Main2:Show, x935 y45 w%gui2W% h%gui2H% NoActivate, FLahk window2
+    Gui, Main2:Show, x935 y45 w%gui2W% h%gui2H%, FLahk window2
 
     Gui, Main2:Add, Text, x0 y5 h+5,
     Gui, Main2:Add, Button, x+10 h20 gTOGGLE_LEFT_SCREEN,🢤 screen

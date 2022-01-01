@@ -1,6 +1,6 @@
 ﻿; -- clocks ---------------
 WINDOW_HISTORY_CLOCK:
-    winHistoryTic()
+    winHistoryTick()
     return
 
 MAIN_CLOCK:
@@ -11,11 +11,21 @@ MAIN_CLOCK:
     return
 
 WINDOW_MENUS_CLOCK:
-    windowMenusTic()
+    windowMenusTick()
     return
 
 SAVE_REMINDER_CLOCK:
     saveReminder()
+    return
+
+RECORD_ENABLED_CLOCK:
+    mouseGetPos(mX, mY, "Screen")
+    showRecordEnabledGui(mX-recordGuiW/3, mY+50)
+    return
+
+PY_CHECK:
+    if (!checkIfPYrunning())
+        restartPY()
     return
 
 ; -- concat audio -----------------------
@@ -94,21 +104,38 @@ CONCAT_AUDIO_RUN:
 
 ; -- gui buttons ------------------------
 OPEN_PROJECT_FOLDERS:
-    browseFolder(savesFilePath)
-    browseFolder(currProjPath)
+    if (savesFilePath and currProjPath)
+    {
+        browseFolder(savesFilePath)
+        browseFolder(currProjPath)
+    }
+    else
+        freezeExecute("loadSaveFileIfExists")
     return
+
+PY_NOTE_TOGGLE:
+    GuiControlGet, checked,, PYnoteToggleGui
+    if (checked)
+        startPYbootClock()
+    else
+    {
+        stopPYbootClock()
+        stopPY()
+    }
+    return
+
 WIN_HISTORY_DEBUG_TOGGLE:
     GuiControlGet, checked,, winHistoryDebugGui
     debugWindowHistory := checked
     if (!debugWindowHistory)
-        toolTip("", debugToolTip)
+        toolTip("", toolTipIndex["debug"])
     return
 
 KNOB_SAVES_DEBUG_TOGGLE:
     GuiControlGet, checked,, knobSavesDebugToggleGui
     knobSavesDebug := checked
     if (!knobSavesDebug)
-        toolTip("", debugToolTip)
+        toolTip("", toolTipIndex["debug"])
     return
 
 MOVE_WIN_AT_MOUSE:
@@ -173,7 +200,7 @@ PREV_PROJECT:
 
  BPM:
     bringFL()
-    freezeExecute("bpm")
+    freezeExecute("randomizeBpm")
     return
 
 RANDOM_TYPING_KEYBOARD:
@@ -249,6 +276,10 @@ EVENT_EDITOR_SCALE:
 
 EVENT_EDITOR_INSERT_CURR_CTL_VAL:
     freezeExecute("insertCurrentControllerValue")
+    return
+
+EVENT_EDITOR_MAKE_AUTOMATION:
+    freezeExecute("turnEventsIntoAutomation")
     return
 
 SPLIT_PATTERN:

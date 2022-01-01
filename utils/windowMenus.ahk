@@ -2,13 +2,15 @@ global EventEditorMenuShown := False
 global PatcherMapMenuShown := False
 global PianoRollMenusShown := False
 global MixerMenuShown := False
+global MasterEdisonMenuShown := False
 global StepSeqMenusShown := False
 global audacityMenuShown := False
 global melodyneMenuShown := False
+global mMenuShown := False
 
 global freezeWindowMenuClock := False
 
-windowMenusTic()
+windowMenusTick()
 {
     if (freezeWindowMenuClock)
         return
@@ -23,8 +25,8 @@ windowMenusTic()
     else if (isPatcherMap(id))
     {
         dontHide.Push("PatcherMapMenu")
-        ;if (!PatcherMapMenuShown)
-        showPatcherMapMenu()
+        if (!PatcherMapMenuShown)
+            showPatcherMapMenu()
     }
     else if (isPianoRoll(id))
     {
@@ -32,16 +34,22 @@ windowMenusTic()
         if (!PianoRollMenusShown)
             showPianoRollMenus()
     }
-    else if (isMixer(id) or isMasterEdison(id))
+    else if (isMixer(id))
     {
         dontHide.Push("MixerMenu")
         if (!MixerMenuShown)
             showMixerMenu()
     }
+    else if (isMasterEdison(id))
+    {
+        dontHide.Push("MasterEdisonMenu")
+        if (!MasterEdisonMenuShown)
+            showMasterEdisonMenu()        
+    }
     else if (isStepSeq(id))
     {
         dontHide.Push("StepSeqMenus")
-        showStepSeqMenus()
+        showStepSeqMenus(id)
     }  
     else if (isAudacity(id))
     {
@@ -53,6 +61,11 @@ windowMenusTic()
         dontHide.Push("MelodyneMenu")
         showMelodyneMenu(id)
     }   
+    else if (isM1(id))
+    {
+        dontHide.Push("Mmenu")
+        showMmenu(id)
+    }
 
     hideAllMenus(dontHide)
 }
@@ -69,10 +82,14 @@ hideAllMenus(except)
         hideStepSeqMenus()
     else if (MixerMenuShown and !hasVal(except, "MixerMenu")) ; except != "MixerMenu")
         hideMixerMenu()                        
+    else if (MasterEdisonMenuShown and !hasVal(except, "MasterEdisonMenu"))
+        hideMasterEdisonMenu()
     else if (audacityMenuShown and !hasVal(except, "AudacityMenu"))
         hideAudacityMenu()
     else if (melodyneMenuShown and !hasVal(except, "MelodyneMenu"))
         hideMelodyneMenu()
+    else if (mMenuShown and !hasVal(except, "Mmenu"))
+        hideMmenu()
 }
 
 ; --------------------
@@ -139,6 +156,19 @@ mouseOnMixerMenu()
 }
 
 ; --------------------
+showMasterEdisonMenu()        
+{
+    MasterEdisonMenuShown := True 
+    Gui, MasterEdisonMenu:Show, NoActivate
+}
+
+hideMasterEdisonMenu()
+{
+    MasterEdisonMenuShown := False 
+    Gui, MasterEdisonMenu:Hide
+}     
+
+; --------------------
 showPianoRollMenus()
 {
     PianoRollMenusShown := True
@@ -154,10 +184,10 @@ hidePianoRollMenus()
 }
 
 ; --------------------
-showStepSeqMenus()
+showStepSeqMenus(ssId)
 {
     StepSeqMenusShown := True
-    WinGetPos, ssX, ssY, ssW, ssH, A
+    WinGetPos, ssX, ssY, ssW, ssH, ahk_id %ssId%
     menu1H := 53    
     ;coords := winCoordsToScreenCoords(0, -menu1H)      ; forgotten dead code?
     menu1X := ssX
@@ -186,7 +216,24 @@ mouseOnStepSeqMenu()
     MouseGetPos,,, winId
     return winId == StepSeqMenuId
 }
+; --------------------
+showMmenu(mId)
+{
+    mMenuShown := True
+    WinGetPos, m1X, m1Y, m1W, m1H, ahk_id %mId%
+    menuH := 25   
+    menuX := m1X
+    menuY := m1Y - menuH
+    Gui, Mmenu:Show, x%menuX% y%menuY% w%m1W% h%menuH% NoActivate    
+    startWinMenusClock(50)
+}
 
+hideMmenu()
+{
+    Gui, Mmenu:Hide
+    mMenuShown := True
+    startWinMenusClock()
+}
 ; --------------------
 showAudacityMenu(audacityId)
 {
@@ -222,3 +269,4 @@ hideMelodyneMenu()
     Gui, melodyneMenu:Hide
     melodyneMenuShown := False
 }
+

@@ -1,9 +1,7 @@
-﻿;p01_SamplerPatcher_compakt
-global patcherSamplerDirectWavePos := [[786, 168], [780, 310]]
-global patcherSamplerLfoOffset1Pos := [396, 430]
-global patcherSamplerLfoOffset2Pos := [410, 506]
-global patcherSamplerLfoLpPos := [465, 158]
-global patcherSamplerLfoPitchPos := [467, 251]
+﻿global patcherSamplerDirectWavePos := [[1021, 169], [1018, 275], [1022, 389], [1024, 489], [1023, 581]]
+global patcherSamplerLfoOffsetPos := [[234, 419], [231, 512]]
+global patcherSamplerLfoLpPos := [416, 144]
+global patcherSamplerLfoPitchPos := [419, 238]
 
 createPatcherSampler(dragX, dragY, dragWin, inPatcher := False)
 {
@@ -42,6 +40,95 @@ createPatcherSampler(dragX, dragY, dragWin, inPatcher := False)
         WinMove, ahk_id %samplerID%,, 700, 200
 }
 
+global draggedDropPatcherSamplerWorkedOnce := False
+dragDropPatcherSampler(patcherId, oriX, oriY, oriWin, _ := "")
+{
+    n := patcherSamplerAskDirectWaveNum()
+    if (n == "")
+        return
+
+    makeSureWinInMonitor(patcherId)
+    mapSurfaceY := patcherActivateMap(patcherId)
+
+    if (n > 1)
+    {
+        WinActivate, ahk_id %oriWin%
+        masterEdisonId := dragSampleToEdison(oriX, oriY)
+    }
+
+    
+    i := 1
+    while (i <= n)
+    {
+        dwPos := patcherSamplerDirectWavePos[i]
+        x := dwPos[1]
+        y := dwPos[2] - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+        directwaveId := revealPatcherDirectWave(patcherId, samplerID, x, y)
+        alwaysOnTop(directwaveId)
+        
+        if (n > 1)
+        {
+            WinActivate, ahk_id %masterEdisonId%
+            leftEdisonSelect := masterEdisonSoundLeftX + Floor((masterEdisonSoundWidth/n) * (i-1))
+            rightEdisonSelect := leftEdisonSelect + Floor(masterEdisonSoundWidth/n)
+            moveMouse(leftEdisonSelect, 270)
+            msg("left")
+            Send {Ctrl Down}{LButton Down}
+            moveMouse(rightEdisonSelect, 270)
+            msg("right")
+            Send {LButton Up}{Ctrl Up}
+            moveToMasterEdisonDrag(False)
+        }
+        else if (n == 1)
+        {
+            WinActivate, ahk_id %oriWin%
+            moveMouse(oriX, oriY, "Screen")
+        }
+        toolTip("Click down")
+        Click, down   
+        Sleep, 300 
+
+
+
+        WinActivate, ahk_id %directwaveId%
+        moveMouse(118, 464) 
+
+        if (!draggedDropPatcherSamplerWorkedOnce)
+        {
+            Sleep, 500
+            Send {MButton}
+            Sleep, 500
+        }
+        Click, up 
+        toolTip("Click up")
+        if (!draggedDropPatcherSamplerWorkedOnce)
+        {
+            res := waitToolTip("Loaded new sample?")
+            if (!res)
+                continue
+            else
+                draggedDropPatcherSamplerWorkedOnce := True
+        }
+
+        midiRequest("toggle_play_pause_twice")
+           
+        WinClose, ahk_id %directwaveId%
+        WinActivate, ahk_id %patcherId%
+        i += 1
+    }
+    surfaceX := 129
+    moveMouse(surfaceX, mapSurfaceY)
+    Click
+    patcherSamplerSetKnobN(n, patcherId)
+}
+
+patcherSamplerAskDirectWaveNum()
+{
+    choices := range(patcherSamplerDirectWavePos.MaxIndex())
+    n := toolTipChoice(choices, "DW Split:", 1)
+    return n
+}
+
 revealPatcherDirectWave(patcherId, samplerID, x, y)
 {
     WinActivate, ahk_id %patcherId%
@@ -56,51 +143,6 @@ revealPatcherDirectWave(patcherId, samplerID, x, y)
     return directwaveId
 }
 
-dragDropPatcherDirectWaveSample(oriX, oriY, oriWin, patcherId, activateLoop = False)
-{
-    WinActivate, ahk_id %patcherId%
-
-    mapSurfaceY := 88 - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
-    mapX := 71
-    moveMouse(mapX, mapSurfaceY)
-    Click
-
-    for i, pos in patcherSamplerDirectWavePos {
-        x := pos[1]
-        y := pos[2] - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
-        directwaveId := revealPatcherDirectWave(patcherId, samplerID, x, y)
-        alwaysOnTop(directwaveId)
-        WinActivate, ahk_id %oriWin%
-        CoordMode, Mouse, Screen
-        MouseMove, %oriX%, %oriY%
-        
-        toolTip("Click down")
-        Click, down                     ;msgTip("click down", 1000)
-        CoordMode, Mouse, Client
-
-        WinActivate, ahk_id %directwaveId%
-        moveMouse(118, 464)             ;;msgTip("over internal sample", 1000)
-        Sleep, 50 
-        toolTip("Click up")
-        Click, up                       ; msgTip("click up", 1000)
-        Sleep, 50 
-
-        midiRequest("toggle_play_pause_twice")
-        
-        if (activateLoop)
-        {
-            moveMouse(456, 634)
-            Click
-            Send f
-        }       
-        WinClose, ahk_id %directwaveId%
-        WinActivate, ahk_id %patcherId%
-    }
-    surfaceX := 129
-    moveMouse(surfaceX, mapSurfaceY)
-    Click
-}
-
 hideInternalSampler(internalPluginId, samplerID)
 {
     WinClose, ahk_id %internalPluginId%
@@ -109,6 +151,13 @@ hideInternalSampler(internalPluginId, samplerID)
     moveMouse(110, surfaceY)
     Click
     Sleep, 50
+}
+
+patcherSamplerSetKnobN(n, patcherId := "")
+{
+    y := 158 - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+    moveMouse(430, y)
+    pasteKnob(True, n/10, "patcherSurface")
 }
 
 ; --- Mouse Pos -----------------------------------
@@ -131,7 +180,7 @@ mouseOverSamplerLfoSpeedSet()
     return res
 }
 
-samplerLfoSetTime(whichLfo)
+samplerLfoSetTime(whichLfo, whichSampler)
 {
     WinGet, samplerId, ID, A
     MouseGetPos, oriX, oriY
@@ -145,21 +194,34 @@ samplerLfoSetTime(whichLfo)
     Switch whichLfo
     {
     Case "offset1":
-        x := patcherSamplerLfoOffset1Pos[1]
-        y := patcherSamplerLfoOffset1Pos[2]
+        x := patcherSamplerLfoOffsetPos[1][1]
+        y := patcherSamplerLfoOffsetPos[1][2]
     Case "offset2":
-        x := patcherSamplerLfoOffset2Pos[1]
-        y := patcherSamplerLfoOffset2Pos[2]
+        x := patcherSamplerLfoOffsetPos[2][1]
+        y := patcherSamplerLfoOffsetPos[2][2]
     Case "lp":
-        x := patcherSamplerLfoLpPos[1]
-        y := patcherSamplerLfoLpPos[2]
+        Switch whichSampler
+        {
+        Case "patcherSampler":
+            x := patcherSamplerLfoLpPos[1]
+            y := patcherSamplerLfoLpPos[2]
+        Case "patcherGrnl":
+            x := patcherGrnlLfoLpPos[1]
+            y := patcherGrnlLfoLpPos[2]
+        }
     Case "pitch":
-        x := patcherSamplerLfoPitchPos[1]
-        y := patcherSamplerLfoPitchPos[2]
+        Switch whichSampler
+        {
+        Case "patcherSampler":
+            x := patcherSamplerLfoPitchPos[1]
+            y := patcherSamplerLfoPitchPos[2]
+        Case "patcherGrnl":
+            x := patcherGrnlLfoPitchPos[1]
+            y := patcherGrnlLfoPitchPos[2]
+        }
     }
     y := y - yOffsetWrapperPlugin*isWrapperPlugin(patcherId)
     moveMouse(x, y)
-    msg("over?")
     Click, 2
 
     lfoId := waitNewWindowOfClass("TWrapperPluginForm", samplerId)
@@ -171,44 +233,8 @@ samplerLfoSetTime(whichLfo)
     surfaceX := 128
     moveMouse(surfaceX, mapSurfaceY)
     Click    
-    setKnobValue(oriX, oriY-30, newVal, "patcher") 
+    setKnobValue(oriX, oriY-30, newVal, "patcherSurface") 
 }
-
-/*
-openSamplerLFOs()
-{
-    WinGet, samplerId, ID, A
-    MouseMove, 72, 92, 0            ; Map
-    Click               
-
-    Send {AltDown}
-
-    MouseMove, 395, 704, 0
-    Click               
-    offsetId := waitNewWindowOfClass("TWrapperPluginForm", samplerId)
-    WinMove, ahk_id %offsetId%,, 188, 222
-    WinActivate, ahk_id %samplerId%
-
-    MouseMove, 377, 465, 0
-    Click               
-    lpId := waitNewWindowOfClass("TWrapperPluginForm", samplerId)
-    WinMove, ahk_id %lpId%,, 188, 470
-    WinActivate, ahk_id %samplerId%
-
-    MouseMove, 390, 570, 0
-    Click               
-    pitchId := waitNewWindowOfClass("TWrapperPluginForm", samplerId)
-    WinMove, ahk_id %pitchId%,, 188, 714
-    WinActivate, ahk_id %samplerId%
-
-    Send {AltUp}
-
-    MouseMove, 128, 89              ; Surface
-    Click            
-    WinActivate, ahk_id %offsetId%
-    centerMouse(offsetId)
-}
-*/
 
 mouseOverSamplerPatcherArp()
 {
@@ -232,5 +258,35 @@ mouseOverSamplerPatcherDel()
     MouseGetPos, mX, mY
     res := colorsMatch(mX, mY, [0xCEC2BB])
     return res
+}
+
+mouseOverNsetter()
+{
+    res := False
+    
+    MouseGetPos,,, winId    
+    WinGet, activeWinId, ID, A
+    if (winId != activeWinId)
+        WinActivate, ahk_id %winId%
+    
+    MouseGetPos, mX, mY
+    if (mX > 392 and mX <415)
+    {
+        cols := [0x60204E, 0x7F2D66]
+        if (colorsMatch(mX, mY, cols))
+        {
+            if (mY < 159)
+                res := 1
+            else if (mY < 176)
+                res := 2
+            else if (mY < 193)
+                res := 3
+            else if (mY < 211)
+                res := 4
+            else
+                res := 5
+        }
+    }
+    return res    
 }
 ; --- 
