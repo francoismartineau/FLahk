@@ -1,6 +1,6 @@
 global preGenBrowsing := False
 global preGenBrowsingSounds := []
-global preGenBrowsingDir := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_gen\_preGenBrowsing"
+global preGenBrowsingDir := packsPath "\_gen\_preGenBrowsing"
 
 startPreGenBrowsing()
 {

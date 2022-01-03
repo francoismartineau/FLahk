@@ -1,39 +1,38 @@
-global concatAudioScriptPath := "C:\Util2\concat_audio\"
 
 pickConcatAudioPaths(n)
 {
     Switch n
     {
     Case 1:
-        FileSelectFolder path, C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs,,`t
+        FileSelectFolder path, %packsPath%,,`t
         if (path)
         {
             ConcatAudioPaths[1] := path
             SplitPath, path, ConcatAudioFolder1
         }
     Case 2:
-        FileSelectFolder path, C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs,,`t
+        FileSelectFolder path, packsPath,,`t
         if (path)
         {
             ConcatAudioPaths[2] := path
             SplitPath, path, ConcatAudioFolder2
         }
     Case 3:
-        FileSelectFolder path, C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs,,`t
+        FileSelectFolder path, %packsPath%,,`t
         if (path)
         {
             ConcatAudioPaths[3] := path
             SplitPath, path, ConcatAudioFolder3
         }
     Case 4:
-        FileSelectFolder path, C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs,,`t
+        FileSelectFolder path, %packsPath%,,`t
         if (path)
         {
             ConcatAudioPaths[4] := path
             SplitPath, path, ConcatAudioFolder4
         }
     Case 5:
-        FileSelectFolder path, C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs,,`t
+        FileSelectFolder path, %packsPath%,,`t
         if (path)
         {
             ConcatAudioPaths[5] := path
@@ -64,7 +63,7 @@ disableConcatAudioPath(n)
 
 getRandomSoundDir()
 {
-    dir := SysCommand("python " concatAudioScriptPath "getRandomSoundDir.py")
+    dir := SysCommand(pythonPath " " ConcatAudioPath "\getRandomSoundDir.py")
     return dir
 }
 
@@ -107,8 +106,8 @@ concatAudioRun()
         gate := ConcatAudioGateSliderVal
         len := 0
     }
-    cmd = cmd.exe /q /c python
-    cmd = %cmd% %concatAudioScriptPath%concat_audio.py
+    cmd = cmd.exe /q /c %pythonPath%
+    cmd = %cmd% %ConcatAudioPath%\concat_audio.py
     cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
     if (preGenBrowsing)
         cmd = %cmd% --browse 1

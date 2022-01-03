@@ -246,16 +246,16 @@ retrieveWinPos(winX, winY, winId)
 ; -- Wallpaper ---
 setFlahkWallpaper()
 {
-    wallPaperFolder := "C:\Util2\FLahk\wallpapers\"
+    wallPaperFolder := FLahkPath "\wallpapers\"
     wallpapers := ["hotkeys"] ;, "mixer"]
     w := wallPaperFolder . randomChoice(wallpapers) ".bgi"
-    cmd = C:\Util3\Bginfo.exe %w% /silent /timer 0
+    cmd = %BginfoPath% %w% /silent /timer 0
     Run, %cmd%
 }
 
 setBlackWallpaper()
 {
-    cmd = C:\Util3\Bginfo.exe C:\Util2\FLahk\wallpapers\wallpaperBlack.bgi /silent /timer 0
+    cmd = %BginfoPath% %FLahkPath%\wallpapers\black.bgi /silent /timer 0
     Run, %cmd%
 
 }

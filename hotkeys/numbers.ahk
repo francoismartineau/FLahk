@@ -111,6 +111,12 @@
     freezeExecute("toogleNoteSlide")
     return
 
++3::
+    return
++3 Up::
+    freezeExecute("createBlankNote")
+    return
+
 !3::
     freezeExecute("pianoRollDismissPitches")
     return

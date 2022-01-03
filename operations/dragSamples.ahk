@@ -3,12 +3,13 @@ dragSample(proposeEdison := True)
     patcherSamplerLabel := "Ps"
     patcherSlicexLabel := "Slcx"
     patcherGrnlLabel := "Grnl"
+    percEnvLabel := "PercEnv"
     edisonLabel := "Edison"
     existingSamplerLabel := "existing sampler"
     audacityLabel := "Audacity"
     melodyneLabel := "Melodyne"
 
-    newSamplerChoices := [patcherSamplerLabel, patcherSlicexLabel, patcherGrnlLabel]
+    newSamplerChoices := [patcherSamplerLabel, patcherSlicexLabel, patcherGrnlLabel, percEnvLabel]
     choices := deepCopy(newSamplerChoices)
     if (proposeEdison)
         choices.Push(edisonLabel)    
@@ -50,6 +51,8 @@ dragSample(proposeEdison := True)
         fromEdisonToAudacity()
     Case melodyneLabel:
         fromEdisonToMelodyne()
+    Case percEnvLabel:
+        dragDropPercEnv(mX, mY, winId)
     }
 }
 

@@ -71,7 +71,7 @@ movePianoRoll(pianoRollId = "")
     if (pianoRollId)
     {
         WinActivate, ahk_id %pianoRollId%
-        WinMove, ahk_id %pianoRollId%,, -1920, 568, 1920, 1080
+        WinMove, ahk_id %pianoRollId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, %Mon1Height%
         WinMaximize, ahk_id %pianoRollId%
     }
 }
@@ -109,7 +109,7 @@ moveRootPatcher()
 {
     WinGet, rootPatcherId, ID, Root Patcher ahk_class TPluginForm
     WinRestore, ahk_id %rootPatcherId%
-    WinMove, ahk_id %rootPatcherId%,, -1920, 568, 1920, 1080   
+    WinMove, ahk_id %rootPatcherId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, %Mon1Height%   
 }
 
 moveMasterEdison()
@@ -119,7 +119,7 @@ moveMasterEdison()
     {
         WinGet, edisonId, ID, Master Edison
         WinRestore, ahk_id %edisonId%
-        WinMove, ahk_id %edisonId%,, -1920, 568, 1920, 459
+        WinMove, ahk_id %edisonId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, 459
     }
 }
 
@@ -143,7 +143,7 @@ moveWinRightScreen(id = "")
     WinGetPos, x, y,,, ahk_id %id%
     if (x < 0)
     {
-        x := x + 1920
+        x := x + %Mon1Width%
         y := y - 560
         WinMove, ahk_id %id%,, %x%, %y%
         centerMouse(id)
@@ -157,7 +157,7 @@ moveWinLeftScreen(id = "")
     WinGetPos, x, y,,, ahk_id %id%
     if (x > 0)
     {
-        x := x - 1920
+        x := x - %Mon2Width%
         y := y + 560	
         WinMove, ahk_id %id%,, %x%, %y%
         centerMouse(id)

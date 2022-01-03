@@ -1,6 +1,11 @@
 
 ; -- Main Keyboard ----------------------------------------
 #If !numpad1Context.IsActive and WinActive("ahk_exe FL64.exe")
+Volume_Mute::
+    return
+Volume_Mute Up::
+    freezeExecute("bringM1")
+    return
 NumLock Up::                                    ; edison
     freezeExecute("bringMasterEdison", False)
     return

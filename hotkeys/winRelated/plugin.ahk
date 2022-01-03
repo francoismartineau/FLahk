@@ -47,6 +47,8 @@
         freezeExecute("reveal3xGross", True, True)
     else if (isPatcher4())
         freezeExecute("patcher4ShowPlugin", False, False)
+    else if (mouseOverPercEnvShowPlugin())
+        freezeExecute("percEnvShowPlugin")
     return
 #If
 

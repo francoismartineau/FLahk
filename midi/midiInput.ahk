@@ -9,7 +9,6 @@ receiveCc(cc)
     ; -- FL toAHK ----
     else if (cc.channel == 2)
     {
-        ;ça vient de FL.... pourquoi reçu ici?
         Switch cc.controller
         {
         Case 50:
@@ -40,9 +39,13 @@ receiveCc(cc)
         Case 32:
             displayTonic(cc.value)
         Case 33:
+            displayChanMapTo(cc.value)
+        Case 34:
+            displayChanMapEnable(cc.value)
+        Case 35:
+            displayChordLen(cc.value)
         }        
     }
-
 }
 
 ; -- FL MidiOut ---------------------------------------------
@@ -81,12 +84,12 @@ midiModValToSpeed(val)
 displayMode(val)
 {
     modes := ["Major", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Minor", "Locrian"]
-    pianoRollTempMsg(modes[val])
+    pianoRollTempMsg(modes[val], toolTipIndex["pianoRollModeMsg"], 22)
 }
 
 displayChord(val)
 {
-    pianoRollTempMsg("Chord " val)
+    pianoRollTempMsg("Chord " val, toolTipIndex["pianoRollChordMsg"])
 }
 
 displayTonic(val)
@@ -96,4 +99,24 @@ displayTonic(val)
     pianoRollTempMsg("Tonic: " note "" oct)
 }
 
+displayChanMapTo(val)
+{
+    chan := val>>1
+    mapToChord := val&1
+    mapping := {1: "chords", 0: "scale"}[mapToChord]
+    pianoRollTempMsg("Map chan " chan " to: " mapping, "", 40)
+}
+
+displayChanMapEnable(val)
+{
+    chan := val>>1
+    enable := val&1
+    toggle := {1: "enable", 0: "disable"}[enable]
+    pianoRollTempMsg("Chan " chan " " toggle " mapping", "", 40)    
+}
+
+displayChordLen(len)
+{
+    pianoRollTempMsg("Chord len: " len, "", 40)    
+}
 ; ----

@@ -63,7 +63,7 @@ dragDropPatcherSampler(patcherId, oriX, oriY, oriWin, _ := "")
         dwPos := patcherSamplerDirectWavePos[i]
         x := dwPos[1]
         y := dwPos[2] - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
-        directwaveId := revealPatcherDirectWave(patcherId, samplerID, x, y)
+        directwaveId := revealPatcherDirectWave(patcherId, x, y)
         alwaysOnTop(directwaveId)
         
         if (n > 1)
@@ -88,30 +88,16 @@ dragDropPatcherSampler(patcherId, oriX, oriY, oriWin, _ := "")
         Click, down   
         Sleep, 300 
 
-
-
         WinActivate, ahk_id %directwaveId%
         moveMouse(118, 464) 
-
         if (!draggedDropPatcherSamplerWorkedOnce)
-        {
-            Sleep, 500
-            Send {MButton}
-            Sleep, 500
-        }
+            draggedDropPatcherSamplerWorkedOnceLoadAttempt()
         Click, up 
         toolTip("Click up")
         if (!draggedDropPatcherSamplerWorkedOnce)
-        {
-            res := waitToolTip("Loaded new sample?")
-            if (!res)
+            if (!draggedDropPatcherSamplerWorkedOncePromptUser())
                 continue
-            else
-                draggedDropPatcherSamplerWorkedOnce := True
-        }
-
         midiRequest("toggle_play_pause_twice")
-           
         WinClose, ahk_id %directwaveId%
         WinActivate, ahk_id %patcherId%
         i += 1
@@ -129,12 +115,12 @@ patcherSamplerAskDirectWaveNum()
     return n
 }
 
-revealPatcherDirectWave(patcherId, samplerID, x, y)
+revealPatcherDirectWave(patcherId, x, y)
 {
     WinActivate, ahk_id %patcherId%
     moveMouse(x, y)                 ;; msgTip("over dw", 1000)
     Click, 2
-    directwaveId := waitNewWindowTitled("PatcherDirectWave", samplerID)
+    directwaveId := waitNewWindowTitled("PatcherDirectWave", patcherId)
     alwaysOnTop(directwaveId)
     ;WinMove, ahk_id %directwaveId%,, %x%, %y%
     Sleep, 50

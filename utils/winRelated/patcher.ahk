@@ -26,3 +26,4 @@ patcherActivatePlugin(x, y)
     pluginId := waitNewWindowOfClass("TWrapperPluginForm", currWinId, 0)
     return pluginId
 }
+

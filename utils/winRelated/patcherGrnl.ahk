@@ -47,7 +47,7 @@ dragDropPatcherGrnl(patcherId, oriX, oriY, oriWin)
     {
         x := pos[1]
         y := pos[2] - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
-        directwaveId := revealPatcherDirectWave(patcherId, samplerID, x, y)
+        directwaveId := revealPatcherDirectWave(patcherId, x, y)
         alwaysOnTop(directwaveId)
         WinActivate, ahk_id %oriWin%
 
@@ -66,7 +66,7 @@ dragDropPatcherGrnl(patcherId, oriX, oriY, oriWin)
 
         midiRequest("toggle_play_pause_twice")
         
-        patcherGranDirectWaveActivateLoop()
+        directWaveActivateLoop()
 
         WinClose, ahk_id %directwaveId%
         WinActivate, ahk_id %patcherId%
@@ -76,9 +76,16 @@ dragDropPatcherGrnl(patcherId, oriX, oriY, oriWin)
     Click
 }
 
-patcherGranDirectWaveActivateLoop()
+directWaveActivateLoop(maximizeLoopEnd := False)
 {
     moveMouse(456, 634)
     Click
     Send f
+    if (maximizeLoopEnd)
+    {
+        moveMouse(383, 627)
+        Click, down
+        MouseMove, 0, -2200 , 10, R
+        Click, up
+    }
 }

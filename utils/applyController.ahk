@@ -180,38 +180,7 @@ chooseLink(autoChooseLink := False, nRowsUnderWord := 0)
         moveMouse(mX, mY)
         Loop, %nRowsUnderWord%
             Send {Down}
-        Send {Enter}
-
-
-        /*
-        OCR
-        WinGetPos, winX, winY,,, ahk_class TMIDIInputForm
-        Sleep, 500
-
-        zoneX := 15
-        zoneY := 159
-        zoneW := 238
-        zoneH := 600
-        word := "AUTOLINK"
-
-        toolTip("Reading the screen...")
-        cmd := Format("python screen_reader.py {} {} {} {} {}", zoneX + winX, zoneY + winY, zoneW, zoneH, word)
-        coords := SysCommand(cmd)
-        toolTip()
-        if (coords)
-        {
-            coords := StrSplit(coords, " ")
-            x := coords[1]
-            y := coords[2]
-    
-            newX := zoneX + x
-            dropMenuRowH := 20
-            newY := zoneY + y + dropMenuRowH * nRowsUnderWord
-            MouseMove, %newX%, %newY%
-            ;msgTip("word: " word, 5000)
-            Click
-        } 
-        */     
+        Send {Enter}   
     }
     return res
 }

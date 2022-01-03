@@ -125,7 +125,7 @@ MidiControlChange124:
 MidiControlChange125:
 MidiControlChange126:
 MidiControlChange127:
-    /*  This python script prints the previous lines:
+    /*  The following python script prints the previous lines:
     msg = ""
     for i in range(127):
         msg += "MidiControlChange{0}:\n   knobCCIn({0})\n    return\n".format(i)

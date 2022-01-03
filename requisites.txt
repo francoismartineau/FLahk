@@ -15,12 +15,3 @@ AutoHotInterception
     
 Screen resolution
 Relative position
-
-Browser organization
-.Devices pid / vid
- (numpad model suggestion)
-
-
-.OscVst
-https://github.com/hatcatpat/Oscvst
-put file in C:\Program Files\Common Files\VST3

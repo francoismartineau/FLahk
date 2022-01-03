@@ -358,7 +358,7 @@ createNewWinData(panelId, mX, mY, saveSlot, val)
 
 
 ; -- File -------------------------------------------------
-global savesFolderPath := "C:\Util2\FLahk\saves"
+global savesFolderPath := FLahkPath "\saves"
 global savesFilePath := ""
 global knobSavesLoaded := False
 global currProjPath := ""

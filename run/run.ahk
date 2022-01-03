@@ -32,11 +32,13 @@ toolTipIndex["toolTipChoice"] := 10
 toolTipIndex["pianoRollTempMsg"] := 11
 toolTipIndex["acceptAbort"] := 12
 toolTipIndex["debug"] := 13
+toolTipIndex["pianoRollChordMsg"] := 14
+toolTipIndex["pianoRollModeMsg"] := 15
+
 
 ; ---- Run functions -------------------------------------------
-freezeExecute(f, retrPos = True, retrWin = False, params*)  ; Change the signature: f, [params], pos, win)
+freezeExecute(f, retrPos := True, retrWin := False, params*)  ; Change the signature: f, [params], pos, win)
 {
-    global retrieveMouse, freezeExecuting
     res := 
     if (!freezeExecuting)
     {

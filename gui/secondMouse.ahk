@@ -1,6 +1,4 @@
-;;;; DOEST WORK
-
-global mouseCursorPath := "C:\Util2\FLahk\mouse_cursror.png"
+global mouseCursorPath := FLahkPath "\mouse_cursror.png"
 global MouseCursorGuiId :=
 global MouseCursorImageId :=
 

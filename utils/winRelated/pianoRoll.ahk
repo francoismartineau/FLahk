@@ -911,15 +911,73 @@ pianoRollLfoSetTime()
     Sleep, 20
     Click
 }
+
+createBlankNote()
+{
+    if (mouseOverPianoRollNotesArea())
+    {
+        pianoRollId := mouseGetPos(mX, mY)
+        activatePencilTool()
+        moveMouse(mX, mY)
+        Click, 2
+        notePropWinId := waitNewWindowOfClass("TPRNotePropForm", pianoRollId, 50)
+        while (!notePropWinId)
+        {
+            res := waitToolTip("Move mouse on note and accept")
+            if (!res)
+                return
+            Click, 2
+            toolTip("waiting Note Properties Win")
+            notePropWinId := waitNewWindowOfClass("TPRNotePropForm", pianoRollId, 0)                
+            toolTip()
+        }
+
+        mouseGetPos(screenMx, screenMy, "Screen")
+        WinMove, ahk_id %notePropWinId%,, %screenMx%, %screenMy%
+
+        y := 70
+        knobs := {}
+        knobs["pan"] := {"x": 70, "nWheel": 11}
+        knobs["vel"] := {"x": 100, "nWheel": 16}
+        knobs["modX"] := {"x": 175, "nWheel": 11}
+        knobs["modY"] := {"x": 212, "nWheel": 11}
+        knobs["pitch"] := {"x": 250, "nWheel": 20}
+        speed := 3
+        for _, info in knobs
+        {
+            moveMouse(info["x"], y)
+            Loop, 22
+            {
+                Send {WheelDown}
+                Sleep, %speed%
+            }
+            nWheel := info["nWheel"]
+            Loop, %nWheel%
+            {
+                Send {WheelUp}
+                Sleep, %speed%
+            }
+        }
+        Send {Enter}        
+    }
+}
+
+mouseOverPianoRollNotesArea()
+{
+    winId := mouseGetPos(mX, mY)
+    return isPianoRoll(winId) and mX > 73 and mX < 1897 and mY > 82 and mY < 811
+}
 ; ----
 
 ; -- util ------------------------
-pianoRollTempMsg(txt := "")
+pianoRollTempMsg(txt := "", ttIndex := "", yOffs := 0)
 {
+    if (ttIndex == "")
+        ttIndex := toolTipIndex["pianoRollTempMsg"]
     if (isPianoRoll())
     {
         prevMode := setToolTipCoordMode("Client")
-        tempMsg(txt, 1000, 74, 47, toolTipIndex["pianoRollTempMsg"])
+        tempMsg(txt, 1000, 74, 47+yOffs, ttIndex)
         setToolTipCoordMode(prevMode)
     }
 }

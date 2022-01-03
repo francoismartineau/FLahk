@@ -214,7 +214,7 @@ TOGGLE_LEFT_SCREEN:
     return
 
 WINDOW_SPY:
-    run, C:\ProgramData\Microsoft\Windows\Start Menu\Programs\AutoHotkey\Window Spy.lnk
+    run, %windowSpyPath%
     return
 
 

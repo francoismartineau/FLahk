@@ -400,9 +400,14 @@ instrHasNoMixerChannel()
 ; -- patcher synth --------
 mouseOnSynthUseShapesButtons()
 {
+    
     res := False
     winId := mouseGetPos(mX, mY)
-    if (mX > 253 and mx < 283 and mY < 183 and mY > 167 and isPlugin(winId, True))
+    if (isWrapperPlugin(winId))
+        offs := yOffsetWrapperPlugin
+    else
+        offs := 0
+    if (mX > 253 and mx < 283 and mY < 228-offs and mY > 213-offs and isPlugin(winId))
         res := colorsMatch(mX, mY, [0x29632F])
     return res
 }
@@ -410,7 +415,9 @@ mouseOnSynthUseShapesButtons()
 synthUseShapes()
 {
     buttonX := [173, 219, 270, 324, 381]
-    buttonY := 210
+    buttonY := 253
+    if (isWrapperPlugin("", True))
+        buttonY -= yOffsetWrapperPlugin
     for _, x in buttonX
     {
         moveMouse(x, buttonY)

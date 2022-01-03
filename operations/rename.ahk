@@ -52,6 +52,8 @@ rename(name := "", randomizeColor := False, pasteCol := False, forceKeepPos := F
     {
         if (!forceKeepPos)
             centerMouse(nameEditorId)
+        
+        res := waitToolTip("Accept / Abort")
         unfreezeMouse()
         acceptAbort := waitAcceptAbort(True, True)
         freezeMouse()
@@ -169,20 +171,7 @@ bringNameEditor(winId := "")
     else
         Send {F2}
     nameEditorId := waitNewWindowOfClass("TNameEditForm", winId)
-    ;WinGetPos, currWinX,,,, ahk_id %nameEditorId%
     WinGetPos, winX, winY,,, ahk_id %winId%
-    ;winX := winX + 20
-    ;winY := winY + 30
-    ;winX := 639
-    ;winY := 421
-    ;CoordMode, Mouse, Screen
-    ;MouseGetPos, mx
-    ;CoordMode, Mouse, Client
-    ;if (mx < 0)
-    ;{
-    ;   winX := winX - 1920 
-    ;   winY := winY + 568
-    ;}
     WinMove, ahk_id %nameEditorId%,, %winX%, %winY%
     return nameEditorId
 }

@@ -1,4 +1,4 @@
-global transferFolder := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs\_transfert"
+global transferFolder := packsPath "\_transfert"
 global transferFileName := "latestTransferFile"
 clearTransferFolder()
 {
@@ -83,14 +83,14 @@ fromEdisonToAudacity()
 
 openAudacity()
 {
-    Run, "C:\Program Files (x86)\Audacity\audacity.exe"
+    Run, %audacityPath%
     WinGet, id, ID, A
     waitNewWindowOfClass(id, "wxWindowNR")
     audacityId := WinExist("Audacity ahk_exe audacity.exe ahk_class wxWindowNR")
     WinClose, Master Edison
     WinRestore, ahk_id %audacityId%
     WinActivate, ahk_id %audacityId%
-    WinMove, ahk_id %audacityId%,, -1928, 565, 1936, 639
+    WinMove, ahk_id %audacityId%,, %Mon1Left%, %Mon1Top%, 1936, 639
     centerMouse(audacityId)  
     return audacityId 
 }
@@ -100,7 +100,7 @@ openTransferSoundInAudacity(audacityId)
     SendInput ^o
     openWinId := waitNewWindowOfClass("#32770", audacityId)
     Sleep, 300
-    WinMove, ahk_id %openWinId%,, -1920, 568, 300, 300
+    WinMove, ahk_id %openWinId%,, %Mon1Left%, %Mon1Top%, 300, 300
 
     MouseMove, 51, 65       ; quick access
     Sleep, 100
@@ -145,7 +145,7 @@ dragSoundFromAudacity()
     Click
     saveWinId := waitNewWindowOfClass("#32770", audacityId)
     Sleep, 300
-    WinMove, ahk_id %saveWinId%,, -1920, 568, 300, 300
+    WinMove, ahk_id %saveWinId%,, %Mon1Left%, %Mon1Top%, 300, 300
 
     MouseMove, 51, 65       ; quick access
     Sleep, 100
@@ -215,7 +215,6 @@ fromEdisonToMelodyne()
 openMelodyne()
 {
     WinGet, currWinId, id, A
-    melodynePath := "C:\Program Files\Celemony\Melodyne editor\Melodyne singletrack.exe"
     Run, %melodynePath%
     melodyneId := waitNewWindowOfProcess("Melodyne singletrack.exe", currWinId)
     WinActivate, ahk_id %melodyneId%

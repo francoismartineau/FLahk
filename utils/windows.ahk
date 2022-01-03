@@ -82,11 +82,11 @@ restoreWin(winId := "")
         return
 
     WinGet, WinState, MinMax, ahk_id %winId%
-    if (isMainFlWindow(winId) or isPianoRoll(winId) and WinState != 1)
-    {
-        WinMaximize, ahk_id %winId%
-        return
-    }
+    ;if (isMainFlWindow(winId) or isPianoRoll(winId) and WinState != 1)
+    ;{
+    ;    WinMaximize, ahk_id %winId%
+    ;    return
+    ;}
 
     WinGetPos,,, winW, winH, ahk_id %winId%
     if (WinState == 1)  ; maximized

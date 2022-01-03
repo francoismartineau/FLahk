@@ -164,3 +164,46 @@ bringFL()
     if (exe != "FL64.exe")
         WinActivate, ahk_exe FL64.exe
 }
+
+bringM1()
+{
+    stepSeqId := bringStepSeq(False)
+    x := 180
+    quickClick(x, 13)           ; Group
+    quickClick(x, 37)           ; All
+    moveMouse(x, 60)            ; 1st Chan
+    m1Id := openChannelUnderMouse(False)
+    restoreWin(m1Id)
+    if (isM1(m1Id))
+        centerMouse(m1Id)
+    else
+    {
+        WinClose, ahk_id %m1Id%
+        m1Id := ""        
+    }
+    return m1Id
+}
+
+global percEnvId
+bringPercEnv()
+{
+    if (WinExist(percEnvId))
+    {
+        WinActivate, ahk_id %percEnvId%
+        if (makeSureWinIsPercEnv(percEnvId))
+        {
+            centerMouse(percEnvId)
+            return
+        }
+    }
+
+    stepSeqId := bringStepSeq(False)
+    x := 180
+    quickClick(x, 13)           ; Group
+    quickClick(x, 37)           ; All
+    moveMouse(x, 122)           ; 3rd Chan
+    percEnvId := openChannelUnderMouse(False)
+    if (makeSureWinIsPercEnv(percEnvId))
+        centerMouse(percEnvId)
+    return percEnvId
+}

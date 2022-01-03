@@ -309,7 +309,7 @@ isEdison(winId := "", underMouse = False)
     return res
 }
 
-isPlugin(id := "", underMouse = False)
+isPlugin(id := "", underMouse := False)
 {
     if (id == "")
     {
@@ -319,7 +319,7 @@ isPlugin(id := "", underMouse = False)
             WinGet, id, ID, A
     }
     WinGetClass, class, ahk_id %id%
-    return class == "TPluginForm" or isWrapperPlugin(id)
+    return class == "TPluginForm" or isWrapperPlugin(id, underMouse)
 }
 
 
@@ -343,10 +343,15 @@ isPatcherMap(id := "")
 }
 
 global yOffsetWrapperPlugin := 46
-isWrapperPlugin(id := "")
+isWrapperPlugin(id := "", underMouse := False)
 {
     if (id == "")
-        WinGet, id, ID, A
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
     WinGetClass, class, ahk_id %id%
     return class == "TWrapperPluginForm"    
 }
@@ -592,6 +597,16 @@ isM1(id := "")
         WinGetTitle, winTitle, ahk_id %id%
         res := InStr(winTitle, "m1")
     }
+    return res    
+}
+
+isPercEnv(id := "")
+{
+    res := False
+    if (id == "")
+        WinGet, id, ID, A
+    if (isInstr(id))
+        res := colorsMatch(18, 110, [0xD92628]) and colorsMatch(15, 127, [0xB449B6])
     return res    
 }
 

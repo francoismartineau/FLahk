@@ -70,3 +70,17 @@ altClickSampler()
         }
     }
 }
+
+draggedDropPatcherSamplerWorkedOnceLoadAttempt()
+{
+    Sleep, 200
+    Send {MButton}
+    Sleep, 100    
+}
+
+draggedDropPatcherSamplerWorkedOncePromptUser()
+{
+    res := waitToolTip("Loaded new sample?")
+    draggedDropPatcherSamplerWorkedOnce := True    
+    return draggedDropPatcherSamplerWorkedOnce
+}

@@ -1,5 +1,4 @@
 global readyToDrag := False
-global packsPath := "C:\Program Files\Image-Line\FL Studio 20\Data\Patches\Packs"
 
 
 ; --- Packs ----------------------------------------

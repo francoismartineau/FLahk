@@ -1,7 +1,39 @@
-#Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
+﻿#Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
+#SingleInstance Force
 debugOn := False
 
 
+Test()
+{
+    envcActivateArticulator(8)
+    ;freezeExecute("bringPercnv")
+    ;projectNameNoExtension := "Test"
+    ;setDataFolder()
+   
+} 
+
+
+
+Test2()
+{
+
+}
+
+if (A_ScriptName == "Test.ahk")
+{
+    Test()
+    Sleep, 4000
+    ExitApp
+}
+
+/*
+TEST:
+    msg("OK")
+    return
+;*/
+
+;;;;; WIN COVERED WIP ;;;;;;;;;;;;;;;;;
+/*
 Test()
 {
 
@@ -48,21 +80,10 @@ winIsCovered(winId, coverWinId)
 
     return False
 }
+*/
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Test2()
-{
-    currPatt := midiRequest("get_pattern")
-    msg("currPatt: " currPatt)
 
-}
-
-if (A_ScriptName == "Test.ahk")
-{
-    Test()
-    ;a := -3 - (-3)
-    ;msgTip(a)s
-    ;ExitApp
-}
 
 ;;;;  TESTS   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -98,7 +119,7 @@ testColorRightToMouse()
     incr := 10
     hint := "         "
     w := 500
-    foundX := scanColorRight(x, y, w, cols, colVar, incr, hint)    
+    foundX := scanColorsRight(x, y, w, cols, colVar, incr, hint)    
     relX := foundX - x
     msgBox("x: " foundX " relX: " relX)
 }

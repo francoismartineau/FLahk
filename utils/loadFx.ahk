@@ -688,7 +688,7 @@ adjustFxPosition(pluginId)
 
     if (winY> 571 + top)
     {
-        winY := top + 1080 / 2
+        winY := top + Mon1Height / 2
         WinMove, ahk_id %pluginId%,, %winX%, %winY%
     }
 }

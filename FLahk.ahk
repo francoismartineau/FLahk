@@ -5,6 +5,8 @@
 #KeyHistory
 #MaxHotkeysPerInterval 150
 
+#Include Paths.ahk
+
 ; -- utils
 #Include utils/utils.ahk
 #Include utils/loadFx.ahk
@@ -47,6 +49,7 @@
 #Include utils/winRelated/patcherMap.ahk
 #Include utils/winRelated/5lfo.ahk
 #Include utils/winRelated/patcher.ahk
+#Include utils/winRelated/percEnv.ahk
 
 ; -- operations
 #Include operations/EnvC.ahk
@@ -63,7 +66,6 @@
 #Include operations/knobs.ahk
 #Include operations/3xosc.ahk
 #Include operations/sampleToSlicex.ahk
-#Include operations/NewLib.ahk
 #Include operations/Automation.ahk
 #Include operations/rename.ahk
 #Include operations/vsCode.ahk
@@ -156,7 +158,7 @@ displayRandomOpeningMessage()
 #Include hotkeys/winRelated/samplers.ahk
 #Include hotkeys/winRelated/patcherSlicex.ahk
 #Include hotkeys/winRelated/transferSounds.ahk
-#Include hotkeys/winRelated/instr.ahk
+#Include hotkeys/winRelated/plugin.ahk
 
 ; -- goto
 #Include run/goto.ahk

@@ -17,14 +17,14 @@ setPyToFlMode()
 
 stopPY()
 {
-    FileDelete, C:\Util2\PYnotes\PY_is_running.pid
+    FileDelete, %PYnotesPath%\PY_is_running.pid
     tempMsg("Stopping PY")
 }
 
 checkIfPYrunning()
 {
     FileEncoding, UTF-8
-    FileRead, pid, C:\Util2\PYnotes\PY_is_running.pid
+    FileRead, pid, %PYnotesPath%\PY_is_running.pid
     Process, Exist, %pid%
     return ErrorLevel == pid
 }
@@ -32,5 +32,5 @@ checkIfPYrunning()
 restartPY()
 {
     tempMsg("Starting PY")
-    run, python main.py %FLahkPID%, C:\Util2\PYnotes\, Hide, PYnotesPID
+    run, %pythonPath% main.py %FLahkPID%, %PYnotesPath%\, Hide, PYnotesPID
 }
