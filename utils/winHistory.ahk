@@ -276,15 +276,30 @@ toolTipChoiceActivateWin(mode)
         history := "mainWinHistory"
         historyIndex := "mainWinHistoryIndex"
         notFoundFunc := "bringStepSeq"
+    }    
+    presentToolTip := True
+    while (presentToolTip)
+    {
+        cleanHistory(mode)
+        winTitleList := historyToWinTitleList(mode)
+        initIndex := Min(2, winTitleList.MaxIndex())
+        res := toolTipChoice(winTitleList, "-------- R: close", initIndex, "", True)
+        id := %history%[toolTipChoiceIndex]
+        if (res == "alternative")
+        {
+            presentToolTip := True
+            removeWinFromHistory(toolTipChoiceIndex, mode)
+            WinClose, ahk_id %id%
+        }
+        else if (res != "")
+        {
+            WinActivate, ahk_id %id%
+            centerMouse(id)
+            presentToolTip := False
+        }
+        else if (res == "")
+            presentToolTip := False
     }
-    cleanHistory(mode)
-
-    winTitleList := historyToWinTitleList(mode)
-    toolTipChoice(winTitleList)
-    %historyIndex% := toolTipChoiceIndex
-    id := %history%[%historyIndex%]
-    WinActivate, ahk_id %id%
-    centerMouse(id)
     whileToolTipChoiceActivateWin := False
 }
 
@@ -298,6 +313,9 @@ cleanHistory(mode)
     Case "mainWin":
         history := "mainWinHistory"
         historyIndex := "mainWinHistoryIndex"
+    Default:
+        waitToolTip("cleanHistory(mode): mode is == to """". Error")
+        return
     }
     index := %historyIndex%
     count := 1
@@ -309,10 +327,13 @@ cleanHistory(mode)
             removeWinFromHistory(index, mode)
             continue
         }
-        index += 1
-        if (index > %history%.MaxIndex())
-            index := 1        
-        count += 1
+        else
+        {
+            index += 1
+            if (index > %history%.MaxIndex())
+                index := 1        
+            count += 1
+        }
     }
 }
 
@@ -448,6 +469,8 @@ windowsIdToTitle(windowIds)
 
 saveWinHistoriesToFile()
 {
+    cleanHistory("plugin")
+    cleanHistory("mainWin")
     pluginWinTitles := windowsIdToTitle(pluginWinHistory)
     dumpToFile(pluginWinTitles, savesFilePath, currProjPath, "pluginWinTitles")
     mainWinTitles := windowsIdToTitle(mainWinHistory)

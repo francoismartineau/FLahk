@@ -8,7 +8,7 @@
     if (!res)
         return
     
-    loadInstr(3, False, False)             ; load 3_Layer
+    loadInstrInStepSeq(3, False, "", False)             ; load 3_Layer
     Sleep, 100
     layerId := bringLayer()
     if (layerId)

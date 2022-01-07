@@ -1,6 +1,6 @@
 loadSpeech()
 {
-    winId := loadInstr("s")
+    winId := loadInstrInStepSeq("s")
     ;;; attendre le prompt du texte pour renommer? au pire pas
     ;rename("Spee " randString(randInt(1, 4)), True)
     centerMouse(winId)
@@ -8,14 +8,15 @@ loadSpeech()
 
 loadSynth()
 {
-    winId := loadInstr(1, 9)
-    rename("Synth " randString(randInt(1, 4)), True)
+    name := "Synth " randString(randInt(1, 4))
+    winId := loadInstr(1, 9, name)
     centerMouse(winId)
 }
 
 load3xosc()
 {
-    winId := loadInstr(6)
+    name :=
+    winId := loadInstrInStepSeq(6)
     while(!is3xosc(winID))
         sleep, 10
     randomize3xosc()
@@ -25,133 +26,110 @@ load3xosc()
 
 loadHarmless()
 {
-    winId := loadInstr(4)
+    name := "Har " randString(randInt(3, 4))
+    winId := loadInstr(4, "", name)
     randomizeHarmless(winId)
-    rename("Har " randString(randInt(3, 4)), True)
     centerMouse(winId)
 }
 
 loadSlicex()
 {
-    winId := loadInstr(5)
-    rename("Slicx " randString(randInt(3, 4)), True)
+    name := "Slicx " randString(randInt(3, 4))
+    winId := loadInstr(5, "", name)
     centerMouse(winId)
 }
 
 loadFlex()
 {
-    winId := loadInstr(7)
+    name := "Flx " randString(randInt(3, 4))
+    winId := loadInstr(7, "", name)
     randomizeFlex(winId)
-    rename("Flx " randString(randInt(3, 4)), True)
     centerMouse(winId)
 }
 
 loadBd()
 {   ;;; changer le preset ça coupe toute le son?
-    winId := loadInstr(8)
-    centerMouse(winId)
-}
-
-loadSampler()
-{
-    winId := loadInstr(1, 1)
+    name := "BD " randString(randInt(1, 4))
+    winId := loadInstr(8, "", name)
     centerMouse(winId)
 }
 
 loadChords()
 {
-    winId := loadInstr(1, 2)
-    rename("Chords " randString(randInt(1, 4)), True)
+    name := "Chords " randString(randInt(1, 4))
+    winId := loadInstr(1, 2, name)
     centerMouse(winId)
 }
 
 loadGrnl(centerM = True)
 {
-    winId := loadInstr(1, 3)
-    rename("Gra " randString(randInt(1, 4)), True)
+    name := "Gra " randString(randInt(1, 4))
+    winId := loadInstr(1, 3, name)
     if (centerM)
         centerMouse(winId)
     return winId
 }
 
-loadK()
-{
-    winId := loadInstr(1, 4)
-    centerMouse(winId)
-}
-
-loadH()
-{
-    winId := loadInstr(1, 5)
-    centerMouse(winId)
-}
-
-loadS()
-{
-    winId := loadInstr(1, 6)
-    centerMouse(winId)
-}
-
 loadRaveGen()
 {
-    winId := loadInstr(10)
+    name := "Rave " randString(randInt(1, 4))
+    winId := loadInstr(10, "", name)
     randomizeRaveGen()
-    Sleep, 100
-    rename("Rave " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
 loadSytrus()
 {
-    winId := loadInstr(11)
+    name := "Sy " randString(randInt(1, 4))
+    winId := loadInstr(11, "", name)
     randomizeSytrus(winId)
-    rename("Sy " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
 loadPlucked()
 {
-    winId := loadInstr(13)
+    name := "Plu " randString(randInt(1, 4))
+    winId := loadInstr(13, "", name)
     randomizePlucked()
-    rename("Plu " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
 loadPiano()
 {
-    winId := loadInstr(14)
+    name := "Pia " randString(randInt(1, 4))
+    winId := loadInstr(14, "", name)
     randomizePiano()
-    rename("Pia " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
 loadBooBass()
 {
-    winId := loadInstr(15)
-    rename("Booba " randString(randInt(1, 4)), True)
+    name := "Booba " randString(randInt(1, 4))
+    winId := loadInstr(15, "", name)
     centerMouse(winId)
 }
 
 loadBeepMap()
 {
-    winId := loadInstr(16)
+    name := "BM " randString(randInt(1, 4))
+    winId := loadInstrInStepSeq(16, "", name)
+    rename(name, True)
     randomizeBeepMap()
-    rename("BM " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
 loadAutogun()
 {
-    winId := loadInstr(18)
+    name := "AG " randString(randInt(1, 4))
+    winId := loadInstr(18, "", name)
     randomizeAutogun()
-    rename("AG " randString(randInt(1, 4)), True)
     centerMouse(winId)
 }
 
-loadPatcherSlicex(placeMouse = True)
+loadPatcherSlicex(placeMouse := True)
 {
-    winId := loadInstr(1, 8)
-    rename("slicex " randString(randInt(1, 4)), True)
+    name := "slicex " randString(randInt(1, 4))
+    winId := loadInstr(1, 8, name)
     if (placeMouse)
         centerMouse(winId)
     return winId
@@ -159,15 +137,17 @@ loadPatcherSlicex(placeMouse = True)
 
 loadLongSynth()
 {
-    winId := loadInstr(22)
-    rename("long s " randString(randInt(1, 4)), True)
+    name := "long s " randString(randInt(1, 4))
+    winId := loadInstrInStepSeq(21, "", name)
+    centerMouse(winId)
     return winId
 }
 
 loadVox()
 {
-    winId := loadInstr(23)
-    rename("vox " randString(randInt(1, 4)), True)
+    name := "vox " randString(randInt(1, 4))
+    winId := loadInstr(22, "", name)
+    centerMouse(winId)
     return winId
 }
 
@@ -186,12 +166,83 @@ loadRandomFlSynth()
 }
 
 ; -----------------------------------------
-loadInstr(n, preset := "", waitInstr := True)
+loadInstr(n, preset := "", name := "")
+{
+    choices := ["step seq", "new patcher", "existing patcher"]
+    location := askLoadLocation(choices)
+    winId := reachLoadLocation(choices, location)
+
+    if (InStr(location, "patcher") and isPatcherMap(winId) and placeMouseOnMidiKnot())
+        pluginId := patcherLoadPlugin("instr", name, n, preset)
+    else if (InStr(location, "step"))
+    {
+        pluginId := loadInstrInStepSeq(n, preset)
+    }
+    return pluginId
+}
+
+askLoadLocation(choices)
+{
+    title := "Load in:"
+    initIndex := randInt(1, 2)
+    res := toolTipChoice(choices, title, initIndex, "Win")
+    return res
+}
+
+reachLoadLocation(choices, location)
+{
+    Switch location
+    {
+    Case choices[1]:
+        winId := bringStepSeq(False)
+    Case choices[2]:
+        winId := createRootPatcher()
+    Case choices[3]:
+        winId := activateExistingRootPatcher()
+    }
+    return winId
+}
+
+createRootPatcher()
+{
+    winId := loadInstrInStepSeq(1, 10)
+    rename("RP " randString(randInt(1, 4)))
+}
+
+activateExistingRootPatcher()
+{
+    while (!isPatcherMap(winId))
+    {
+        res := waitToolTip("Activate RootPatcher")
+        if (!res)
+            return
+        WinGet, winId, ID, A
+    }
+    return winId
+}
+
+placeMouseOnMidiKnot()
+{
+    mouseOverKnot := False
+    while (!mouseOverKnot)
+    {
+        res := waitToolTip("PatcherMap: place mouse on knot")       
+        if (!res)
+            return
+        mouseOverKnot := mouseOverMidiKnot()
+    }
+    MouseGetPos,,, patcherId
+    if (!WinActive("ahk_id " patcherId))
+        WinActivate, ahk_id %patcherId%  
+    return mouseOverKnot
+}
+
+loadInstrInStepSeq(n, preset := "", name := "", waitInstr := True)
 {
     stepSeqId := bringStepSeq(False)
     if (WinActive("ahk_class TStepSeqForm"))
     {
-        clickPlusButton(stepSeqId)
+        clickStepSeqPlusButton(stepSeqId)
         if (n == "s")
         {
             Send sssss
@@ -219,11 +270,24 @@ loadInstr(n, preset := "", waitInstr := True)
         
         if (preset)
             openPresetPlugin(preset, pluginId)
+        if (name != "")
+            rename(name, True)
+            
+        isPatcher := n == 1
+        if (isPatcher)
+        {
+            bringStepSeq(False)
+            selChanToggleMidiChannelThrough()
+            WinActivate, ahk_id %pluginId%
+        }
     }
-    return pluginId    
+    moveInstRightScreen(pluginId)
+    return pluginId  
 }
 
-clickPlusButton(stepSeqId)
+
+
+clickStepSeqPlusButton(stepSeqId)
 {
     WinGetPos, winX, winY, winW, winH, ahk_id %stepSeqId%
     adjustedWinPos := False

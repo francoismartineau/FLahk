@@ -184,7 +184,6 @@ LWin::
     {
         if (mouseOverBrowser())
         {
-            tempMsg("start drag")
             readyToDrag := True
             startHighlight("browser")
         }
@@ -197,25 +196,18 @@ LWin::
     return
 
 LWin Up::
-    if (preGenBrowsing and mouseOverBrowser())
+    if (readyToDrag)
+        if (mouseOverEdisonDrag() or mouseOverSampleClipSound())
+            freezeExecute("dragSample", False)
+        else if (mouseOverBrowser() and !mouseOverFolder())
+            freezeExecute("dragSample", False)
+        else
+            dontDragSample()
+    else if (preGenBrowsing and mouseOverBrowser())
         if (mouseOverFolder())
             freezeExecute("addPreGenFolder", True, True)        
         else
             freezeExecute("addPreGenSound", True, True)        
-    else if (readyToDrag)
-    {
-        if (mouseOverEdisonDrag() or mouseOverSampleClipSound())
-            freezeExecute("dragSample", False)
-        else if (mouseOverBrowser())
-        {
-            if (mouseOverFolder())
-                dontDragSample()
-            else                
-                freezeExecute("dragSample", False)
-        }
-        else
-            dontDragSample()
-    }
     else if (scrollingTab and (isPlaylist() or isPianoRoll()))
         scrollTabStop()
     return

@@ -1,4 +1,4 @@
-Autom()
+﻿Autom()
 {
     MouseGetPos, knobX, knobY, pluginId
     if (pluginId != WinExist("A"))
@@ -64,7 +64,7 @@ adjustAutomation(autwinId, minMax)
 
 makeControllerName(prefix, oriPluginName, suffix = "", autoAutomationName = "")
 {
-    pluginName := StrSplit(oriPluginName, " ")[1]
+    pluginName := StrSplit(oriPluginName, " ")[1]
     if (autoAutomationName)
     {
         autoAutomationName := StrSplit(autoAutomationName, " ")

@@ -28,6 +28,10 @@ PY_CHECK:
         restartPY()
     return
 
+LOOP_MIDI:
+    bringLoopMidi()
+    return
+
 ; -- concat audio -----------------------
 CONCAT_AUDIO:
     if (ConcatAudioShown)

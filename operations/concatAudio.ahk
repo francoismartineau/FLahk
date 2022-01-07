@@ -111,8 +111,8 @@ concatAudioRun()
     cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
     if (preGenBrowsing)
         cmd = %cmd% --browse 1
-    ;clipboard := cmd
-    ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
+    clipboard := cmd
+    ;ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
     if (preGenBrowsing)
         stoppreGenBrowsing()
 }

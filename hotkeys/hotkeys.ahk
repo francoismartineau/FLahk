@@ -115,7 +115,7 @@ Esc Up::
         freezeExecute("activatePrevPlugin")
     else if (isInstr())
     {
-        Send {Esc}
+        WinClose, A
         freezeExecute("bringStepSeq")
     }
     else if (isWrapperPlugin())
@@ -133,6 +133,8 @@ Esc Up::
     return
 
 +Esc::
+    return
++Esc Up::
     if (!acceptPressed)
         abortPressed := True
     else

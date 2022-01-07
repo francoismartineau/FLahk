@@ -53,7 +53,9 @@ moveToPatternRow()
     moveMouse(mX, mY, "Screen")
     toolTip("Patterns")
     WinGet, playlistId, ID, ahk_class TEventEditForm, Playlist
-    clearWayToMouse(playlistId, mX, mY)
+    res := clearWayToMouse(playlistId, mX, mY)
+    if (!res)
+        return
     retrieveMouse := False
     Sleep, 300
     toolTip()

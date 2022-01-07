@@ -20,7 +20,7 @@ decrToolTipChoiceIndex()
     displayToolTipChoice()
 }
 
-toolTipChoice(choices, title := "", initIndex := 1, specialKey := "")
+toolTipChoice(choices, title := "", initIndex := 1, specialKey := "", alternativeChoice := False)
 {
     toolTipChoiceIndex := initIndex
     tooTipChoices := choices
@@ -29,11 +29,13 @@ toolTipChoice(choices, title := "", initIndex := 1, specialKey := "")
     toolTipTitle := title
     displayToolTipChoice()
 
-    res := waitAcceptAbort(False, False, specialKey)
+    res := waitAcceptAbort(False, False, specialKey, alternativeChoice)
     if (res == "accept")
         choice := choices[toolTipChoiceIndex]
     else if (res == "abort")
         choice := ""
+    else if (res == "alternative")
+        choice := res
     toolTip("", toolTipIndex["toolTipChoice"])
     tooTipChoices := []
     toolTipTitle := ""
@@ -58,11 +60,20 @@ displayToolTipChoice()
 }
 
 
-; vals must be from high to low
-indexOfClosestValue(val, vals)
+indexOfClosestValue(val, vals, valsOrder := "desc") ; or asc
 {
-    for i, newVal in vals
+    Switch valsOrder
     {
+    Case "desc":
+        i := 1
+        incr := 1
+    Case "asc":
+        i := vals.MaxIndex()
+        incr := -1
+    }
+    while (i >= 1 and i <= vals.MaxIndex())
+    {
+        newVal := vals[i]
         if (val == newVal)
         {
             index := i
@@ -81,6 +92,8 @@ indexOfClosestValue(val, vals)
         }
         else if (i == vals.Count())
             index := i
+
+        i += incr
     } 
     return index   
 }

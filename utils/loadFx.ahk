@@ -3,7 +3,7 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
     Switch choice
     {
     Case "mod":
-        choices := ["Chorus+3F", "ringmod", "chorus", "phaser", "ModMidi"]
+        choices := ["Chorus+3F", "ringmod", "chorus", "phaser", "11-16 MOD"]
     Case "filter":
         choices := ["EQ", "Equo", "3xFilter", "bass"]
     Case "pitch":
@@ -17,7 +17,7 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
     Case "room":
         choices := ["rev", "delay", "conv", "delB"]
     Case "seq":
-        choices := ["3xGross", "EnvFx", "3xGrossKnobs"]
+        choices := ["21-26 3xGross", "31-36 EnvFx", "3xGrossKnobs"]
     }
     Switch toolTipChoice(choices, "", randInt(1, choices.MaxIndex()), A_ThisHotkey)
     {
@@ -75,11 +75,11 @@ loadFxFromChoice(choice, mode := "mixer")        ; Drop menu for fx within a CAT
         loadDelB(mode)
     Case "3xGrossKnobs":
         load3xGross(mode, "classic")
-    Case "3xGross":
+    Case "21-26 3xGross":
         load3xGross(mode, "midi")
-    Case "ModMidi":
+    Case "11-16 MOD":
         loadModMidi(mode)
-    Case "EnvFx":
+    Case "31-36 EnvFx":
         loadEnvFx(mode)
     }        
 }
@@ -626,10 +626,7 @@ loadFx(n, preset = False, prompt = "")
             Click
         }
         pluginId := waitNewWindowOfClass("TPluginForm", mixerID)
-        adjustFxPosition(pluginId)
-        if (!leftScreenWindowsShown) 
-            WinClose, ahk_id TFXForm
-        moveWinLeftScreen(pluginId)
+        moveFxLeftScreen(pluginId)            
         if (preset)
             openPresetPlugin(preset, pluginId)
     }

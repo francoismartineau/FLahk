@@ -17,71 +17,27 @@ XButton2::
     return     
 
 1::
-    freezeExecute("loadSynth")
-    return
-
 2::
-    freezeExecute("loadLongSynth")
-    return
-
 3::
-    freezeExecute("loadChords")
-    return
-
 4::
-    freezeExecute("loadVox")
-    return
-
 5::
-    freezeExecute("loadRaveGen")
-    return
-
 6::
-    freezeExecute("loadSpeech")
-    return
-
 7::
-    freezeExecute("loadGrnl")
-    return
-
 8::
-    freezeExecute("load3xosc")
-    return
-
-9::
-    return
-
-0::
-    return
-
 !1::
-    freezeExecute("loadRandomFlSynth")
-    return
-
 !2::
-    freezeExecute("loadPlucked")
-    return
-
 !3::
-    freezeExecute("loadBeepMap")
-    return
-
 !4::
-    freezeExecute("loadAutogun")
-    return
-
 !5::
-    freezeExecute("loadBooBass")
-    return
-
 !6::
-    freezeExecute("loadPiano")
-    return
-
 !7::
-    freezeExecute("loadPatcherSlicex")
+!8::
+    if (hasVal(A_ThisHotkey, "!"))
+        num := SubStr(A_ThisHotkey, 2, 1) "_2"
+    else
+        num := SubStr(A_ThisHotkey, 1, 1) "_1"
+    freezeExecute("loadStepSeq" num)
     return
-
 #If
 
 
@@ -124,41 +80,7 @@ l::
 #If WinActive("ahk_exe FL64.exe") and isStepSeq() and mouseOnStepSeqMenu()
 LButton Up::
     pos := mouseOnStepSeqMenuSection()
-    Switch pos
-    {
-    Case "1_1":
-        freezeExecute("loadSynth")
-    Case "2_1":
-        freezeExecute("loadLongSynth")
-    Case "3_1":
-        freezeExecute("loadChords")
-    Case "4_1":
-        freezeExecute("loadVox")
-    Case "5_1":
-        freezeExecute("loadRaveGen")
-    Case "6_1":
-        freezeExecute("loadSpeech")
-    Case "7_1":
-        freezeExecute("loadGrnl")
-    Case "8_1":
-        freezeExecute("load3xosc")
-    Case "9_1":
-    Case "0_1":
-    Case "1_2":
-        freezeExecute("loadRandomFlSynth")
-    Case "2_2":
-        freezeExecute("loadPlucked")
-    Case "3_2":
-        freezeExecute("loadBeepMap")
-    Case "4_2":
-        freezeExecute("loadAutogun")
-    Case "5_2":
-        freezeExecute("loadBooBass")
-    Case "6_2":
-        freezeExecute("loadPiano")
-    Case "7_2":
-        freezeExecute("loadPatcherSlicex")
-    }
+    freezeExecute("loadStepSeq" pos)
     return 
 #If
 

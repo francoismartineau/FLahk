@@ -328,15 +328,12 @@ isPatcherMap(id := "")
     res := False
     if (!id)
         WinGet, id, ID, A
-    ; look at colors around Map / Surface menu
     if (isPlugin(id))
     {
-        colorListX := 55    ; in the V of Map's M, lowest background pixel (slightly diff from actual background)
-        if (isWrapperPlugin(id))
-            colorListY := 41
-        else
-            colorListY := 87
-        colorList := [0x32383d, 0x303c53, 0x6faed6]
+        ; look at top left colors of Map button while pressed
+        colorListX := 32
+        colorListY := 77 - isWrapperPlugin(id)*yOffsetWrapperPlugin
+        colorList := [0x23292c, 0x252c31, 0x273035]
         res := scanColorsLine(colorListX, colorListY, colorList)
     }
     return res
@@ -637,7 +634,7 @@ is3xGross(id := "")
 {
     if (id == "")
         WinGet, id, ID, A
-    return isPlugin(id) and colorsMatch(208, 89, [0xBACFBF]) and colorsMatch(269, 89, [0x624456])
+    return isPlugin(id) and colorsMatch(14, 82, [0xBACFBF]) and colorsMatch(14, 100, [0x624456])
 }
 
 

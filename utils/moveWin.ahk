@@ -12,7 +12,6 @@ moveWindows()
         movePianoRoll()
         moveMixer()
         moveMasterEdison()
-        moveRootPatcher()
 
         moveScreenKeyboard()
         moveKnobsWin()
@@ -105,13 +104,6 @@ hidePianoRoll()
     WinClose, ahk_id %pianoRollId%
 }
 
-moveRootPatcher()
-{
-    WinGet, rootPatcherId, ID, Root Patcher ahk_class TPluginForm
-    WinRestore, ahk_id %rootPatcherId%
-    WinMove, ahk_id %rootPatcherId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, %Mon1Height%   
-}
-
 moveMasterEdison()
 {
     global leftScreenWindowsShown
@@ -136,28 +128,28 @@ moveScriptOutput()
 
 ; ------------------------------
 
-moveWinRightScreen(id = "")
+moveWinRightScreen(id := "")
 {
     if (!id)
     WinGet, id, ID, A
     WinGetPos, x, y,,, ahk_id %id%
     if (x < 0)
     {
-        x := x + %Mon1Width%
+        x := x + Mon1Width
         y := y - 560
         WinMove, ahk_id %id%,, %x%, %y%
         centerMouse(id)
     }
 }
 
-moveWinLeftScreen(id = "")
+moveWinLeftScreen(id := "")
 {
     if (!id)
         WinGet, id, ID, A
     WinGetPos, x, y,,, ahk_id %id%
     if (x > 0)
     {
-        x := x - %Mon2Width%
+        x := x - Mon2Width
         y := y + 560	
         WinMove, ahk_id %id%,, %x%, %y%
         centerMouse(id)
@@ -265,6 +257,27 @@ moveWinLeft(key)
     }
 }
 
+moveFxLeftScreen(pluginId)
+{
+    WinGetPos,,, winW, winH, ahk_id %pluginId%
+    Mon1HorizontalCenter := Mon1Width/2 + Mon1Left
+    Mon1VerticalCenter := Mon1Height/2 + Mon1Top
+    winX := Mon1HorizontalCenter - winW/2
+    winY := Mon1VerticalCenter - winH/2
+    WinMove, ahk_id %pluginId%,, %winX%, %winY%
+}
+
+moveInstRightScreen(pluginId)
+{
+    WinGetPos,,, winW, winH, ahk_id %pluginId%
+    Mon2HorizontalCenter := Mon2Width/2 + Mon2Left
+    Mon1VerticalCenter := Mon1Height/2 + Mon1Top
+    winX := Mon2HorizontalCenter - winW/2
+    winY := Mon2VerticalCenter - winH/2
+    WinMove, ahk_id %pluginId%,, %winX%, %winY%
+}
+
+
 ; ------------------------------
 upperMenuMoveWindowIfNecessary()
 {
@@ -275,18 +288,31 @@ upperMenuMoveWindowIfNecessary()
 
 clearWayToMouse(desiredWinId, newWinX, newWinY)
 {
+    res := False
+    if (!WinExist("ahk_id " desiredWinId) or !isVisible(desiredWinId))
+    {
+        msg("clearWayToMouse(): win doesn't exist")
+        return res
+    }
     CoordMode, Mouse, Screen
+    toolTip("clearing way to mouse")
     while (True)
     {
         MouseGetPos,,, mWinId
         if (mWinId == desiredWinId)
+        {
+            res := True
             break
+        }
         else
         {
             WinMove, ahk_id %mWinId%,, %newWinX%, %newWinY%
             newWinX := newWinX + 10 + randInt(1, 10)
             newWinY := newWinY + 10 + randInt(1, 10)
         }
+        Sleep, 10
     }
+    toolTip()
     CoordMode, Mouse, Client
+    return res
 }

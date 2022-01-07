@@ -213,6 +213,7 @@ openChannelUnderMouse(centerM := True)
     pluginId := waitNewWindowOfClass("TPluginForm", id, 500)
     if (centerM)
         centerMouse(pluginId)
+    toolTip()
     return pluginId
 }
 
@@ -307,6 +308,19 @@ openMixerInsert()
     centerMouse(mixerId)
 }
 
+selChanToggleMidiChannelThrough()
+{
+    moveMouseToSelY()
+    Click, R
+    Loop, 4
+    {
+        Send, {WheelUp}
+        Sleep, 5
+    }
+    Sleep, 100      ; to let user see
+    Click
+}
+
 ; -- Split Pattern -------
 splitPattern()
 {
@@ -386,3 +400,85 @@ maximizeStepSeq(ssId = "")
         Send {LButton up}
     }        
 }
+; ----
+
+; -- LoadStepSeq -----
+loadStepSeq1_1()
+{
+    loadSynth()
+}
+loadStepSeq1_2()
+{
+    loadRandomFlSynth()
+}
+
+loadStepSeq2_1()
+{
+    loadLongSynth()
+}
+loadStepSeq2_2()
+{
+    loadPlucked()
+}
+
+loadStepSeq3_1()
+{
+    loadChords()
+}
+loadStepSeq3_2()
+{
+    loadBeepMap()
+}
+
+loadStepSeq4_1()
+{
+    loadVox()
+}
+loadStepSeq4_2()
+{
+    loadAutogun()
+}
+
+loadStepSeq5_1()
+{
+    loadRaveGen()
+}
+loadStepSeq5_2()
+{
+    loadBooBass()
+}
+
+loadStepSeq6_1()
+{
+    loadSpeech()
+}
+loadStepSeq6_2()
+{
+    loadPiano()
+}
+
+loadStepSeq7_1()
+{
+    loadGrnl()
+}
+loadStepSeq7_2()
+{
+    loadPatcherSlicex()
+}
+
+loadStepSeq8_1()
+{
+    load3xosc()
+}
+loadStepSeq8_2()
+{
+}
+
+loadStepSeq9_1()
+{
+}
+loadStepSeq9_2()
+{
+}
+
+; ----

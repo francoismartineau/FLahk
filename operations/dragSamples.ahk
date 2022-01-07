@@ -1,71 +1,61 @@
+
+
+
 dragSample(proposeEdison := True)
 {
-    patcherSamplerLabel := "Ps"
-    patcherSlicexLabel := "Slcx"
-    patcherGrnlLabel := "Grnl"
-    percEnvLabel := "PercEnv"
-    edisonLabel := "Edison"
-    existingSamplerLabel := "existing sampler"
-    audacityLabel := "Audacity"
-    melodyneLabel := "Melodyne"
-
-    newSamplerChoices := [patcherSamplerLabel, patcherSlicexLabel, patcherGrnlLabel, percEnvLabel]
-    choices := deepCopy(newSamplerChoices)
-    if (proposeEdison)
-        choices.Push(edisonLabel)    
-    if (findInPluginWinHistory("isOneOfTheSamplers"))
-        choices.Push(existingSamplerLabel)
-    if (isMasterEdison())
-    {
-        choices.Push(audacityLabel)
-        choices.Push(melodyneLabel)
-    }
-
-    CoordMode, Mouse, Screen
-    MouseGetPos, mX, mY, winId
-    CoordMode, Mouse, Client
-    initIndex := randInt(1, choices.MaxIndex())
-    choice := toolTipChoice(choices, "", initIndex, "Win")
+    winId := mouseGetPos(mX, mY, "Screen")
+    dragLabels := {}
+    choice := proposeDragLocations(dragLabels, proposeEdison)
     stopHighlight()
     readyToDrag := False
     if (choice == "")
         return
 
-    choiceIsNewSampler := hasVal(newSamplerChoices, choice)
-    if (choiceIsNewSampler)
-        loadInPatcher := askToLoadInPatcher()
-
     Switch choice
     {
-    Case patcherSamplerLabel:
+    Case dragLabels["patcherSamplerLabel"]:
         createPatcherSampler(mX, mY, winId, loadInPatcher)   
-    Case patcherSlicexLabel:
+    Case dragLabels["patcherSlicexLabel"]:
         createPatcherSlicex(mX, mY, winId, loadInPatcher)  
-    Case patcherGrnlLabel:
+    Case dragLabels["patcherGrnlLabel"]:
         createPatcherGrnl(mX, mY, winId, loadInPatcher)  
-    Case edisonLabel:
+    Case dragLabels["edisonLabel"]:
         dragSampleToEdison(mX, mY)           
-    Case existingSamplerLabel:
+    Case dragLabels["existingSamplerLabel"]:
         dragDropAnyPatcherSampler(mX, mY, winId)               
-    Case audacityLabel:
+    Case dragLabels["audacityLabel"]:
         fromEdisonToAudacity()
-    Case melodyneLabel:
+    Case dragLabels["melodyneLabel"]:
         fromEdisonToMelodyne()
-    Case percEnvLabel:
+    Case dragLabels["percEnvLabel"]:
         dragDropPercEnv(mX, mY, winId)
     }
 }
 
-
-askToLoadInPatcher()
+proposeDragLocations(dragLabels, proposeEdison)
 {
-    title := "Load in:"
-    initIndex := randInt(1, 2)
-    choices := ["step seq", "patcher"]
-    res := 
-    (choices, title, initIndex, "Win")
-    inPatcher := res == "patcher"
-    return inPatcher
+    dragLabels["patcherSamplerLabel"] := "Ps"
+    dragLabels["patcherSlicexLabel"] := "Slcx"
+    dragLabels["patcherGrnlLabel"] := "Grnl"
+    dragLabels["percEnvLabel"] := "PercEnv"
+    dragLabels["edisonLabel"] := "Edison"
+    dragLabels["existingSamplerLabel"] := "existing sampler"
+    dragLabels["audacityLabel"] := "Audacity"
+    dragLabels["melodyneLabel"] := "Melodyne"
+
+    choices := [dragLabels["patcherSamplerLabel"], dragLabels["patcherSlicexLabel"], dragLabels["patcherGrnlLabel"], dragLabels["percEnvLabel"]]
+    if (proposeEdison)
+        choices.Push(dragLabels["edisonLabel"])    
+    if (findInPluginWinHistory("isOneOfTheSamplers"))
+        choices.Push(dragLabels["existingSamplerLabel"])
+    if (isMasterEdison())
+    {
+        choices.Push(dragLabels["audacityLabel"])
+        choices.Push(dragLabels["melodyneLabel"])
+    }
+    initIndex := randInt(1, choices.MaxIndex())
+    choice := toolTipChoice(choices, "", initIndex, "Win")
+    return choice
 }
 
 dontDragSample()

@@ -4,29 +4,10 @@ global patcherGrnlLfoPitchPos := [457, 226]
 
 createPatcherGrnl(dragX, dragY, dragWin, inPatcher := False)
 {
-    if (inPatcher)
-    {
-        WinActivate, ahk_class TPluginForm
-        mouseOverKnot := False
-        unfreezeMouse()
-        while (!mouseOverKnot)
-        {
-            toolTip("PatcherMap: place mouse on knot")        
-            res := waitAcceptAbort()
-            toolTip()
-            if (res == "abort")
-                return
-            mouseOverKnot := mouseOverMidiKnot()
-        }
-        MouseGetPos,,, patcherId
-        if (!WinActive("ahk_id " patcherId))
-            WinActivate, ahk_id %patcherId%
-        freezeMouse()
-        samplerId := patcherLoadPatcherGrnl()
-    }
-    else
-        samplerId := loadGrnl(False)
-
+    name := "Grnl " randString(randInt(1, 4))
+    samplerId := loadInstr(1, 3, name)
+    if (!samplerId)
+        return
     movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
     dragDropAnyPatcherSampler(dragX, dragY, dragWin, samplerId)
     if (movedSampler)
@@ -53,6 +34,7 @@ dragDropPatcherGrnl(patcherId, oriX, oriY, oriWin)
 
         CoordMode, Mouse, Screen
         MouseMove, %oriX%, %oriY%
+        clearWayToMouse(oriWin, 400, 200)
         toolTip("Click down")
         Click, down                     
         CoordMode, Mouse, Client

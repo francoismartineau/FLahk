@@ -44,7 +44,7 @@
     else if (mouseOverDelBSetTime())
         freezeExecute("delBSetTime")
     else if (mouseOn3xGrossReveal())
-        freezeExecute("reveal3xGross", True, True)
+        freezeExecute("reveal3xGross")
     else if (isPatcher4())
         freezeExecute("patcher4ShowPlugin", False, False)
     else if (mouseOverPercEnvShowPlugin())

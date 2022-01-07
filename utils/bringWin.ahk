@@ -207,3 +207,20 @@ bringPercEnv()
         centerMouse(percEnvId)
     return percEnvId
 }
+
+bringLoopMidi()
+{
+    loopMidiId := WinExist("loopMIDI ahk_exe loopMIDI.exe")
+    isOpen := isVisible(loopMidiId)
+    if (!isOpen)
+    {
+        WinGet, currWinId, ID, A
+        run, %loopMidiPath%
+        loopMidiId := waitNewWindowOfProcess("loopMIDI.exe", currWinId)
+    }
+    winX := 956
+    winY := 87
+    WinMove, ahk_id %loopMidiId%,, %winX%, %winY%
+    WinActivate, ahk_id %loopMidiId%    
+    return loopMidiId
+}

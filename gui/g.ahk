@@ -72,6 +72,7 @@ makeWindowRow1()
     Gui, Main1:Add, Button, x+52 h20 gUNWRAP_PROJECT, unwrap
     Gui, Main1:Add, Button, x+10 h20 gPREV_PROJECT, prev proj
     Gui, Main1:Add, CheckBox, x+10 vPYnoteToggleGui gPY_NOTE_TOGGLE checked, PY
+    Gui, Main1:Add, Button, x+2 h13 w35 gLOOP_MIDI, midi
 
     Gui, Main1:Add, Text, x+50 h50 w260 vProjPathGui gOPEN_PROJECT_FOLDERS,
     Gui, Main1:Add, Text, x+10, !F3: win@mouse

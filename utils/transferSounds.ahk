@@ -106,7 +106,7 @@ openTransferSoundInAudacity(audacityId)
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor(119, 72, [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
     toolTip()
 
     MouseMove, 162, 89      ; first icon
@@ -151,7 +151,7 @@ dragSoundFromAudacity()
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor(119, 72, [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
     toolTip()
 
     MouseMove, 162, 89      ; first icon
@@ -235,7 +235,7 @@ melodyneLoadTransferSound(melodyneId)
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor(119, 72, [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
     toolTip()    
  
     MouseMove, 162, 89      ; first icon

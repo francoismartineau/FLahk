@@ -2,43 +2,18 @@ global patcherSlicexSlicexPos := [269, 156]
 
 createPatcherSlicex(dragX, dragY, dragWin, inPatcher := False)
 {
-    if (inPatcher)
-    {
-        WinActivate, ahk_class TPluginForm
-        mouseOverKnot := False
-        unfreezeMouse()
-        while (!mouseOverKnot)
-        {
-            toolTip("PatcherMap: place mouse on knot")        
-            res := waitAcceptAbort()
-            toolTip()
-            if (res == "abort")
-                return
-            mouseOverKnot := mouseOverMidiKnot()
-        }
-        freezeMouse()  
-        MouseGetPos,,, patcherId
-        if (!WinActive("ahk_id " patcherId))
-            WinActivate, ahk_id %patcherId%             
-        samplerId := patcherLoadPatcherSlicex()
-        dragDropPatcherSlicex(samplerId, dragX, dragY, dragWin)
-        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
-    }
-    else
-    {
-        samplerId := loadPatcherSlicex(False)
-        WinMove, ahk_id %samplerId%,, 700, 200
-        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
-        dragDropPatcherSlicex(samplerId, dragX, dragY, dragWin)
-        randomizeName(True, False, False, "Slcx")
-    }
+    name := "Slcx " randString(randInt(1, 4))
+    samplerId := loadInstr(1, 8, name)
+    if (!samplerId)
+        return
+    movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
+    dragDropPatcherSlicex(samplerId, dragX, dragY, dragWin)
     if (movedSampler)
         WinMove, ahk_id %samplerId%,, 700, 200    
 }
 
 dragDropPatcherSlicex(patcherId, oriX, oriY, oriWin)
 {
-
     makeSureWinInMonitor(patcherId)
     slicexId := revealInternalSlicex(samplerID)
     if (!slicexId)
@@ -71,6 +46,7 @@ dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
     WinActivate, ahk_id %oriWin%
     CoordMode, Mouse, Screen
     MouseMove, %oriX%, %oriY%
+    clearWayToMouse(oriWin, 400, 200)
     toolTip("drag & drop")
     Click, down
     CoordMode, Mouse, Client    

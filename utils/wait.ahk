@@ -18,11 +18,14 @@ waitForUserToMakeTimeSelection(ByRef automX, ByRef automY)
 }
 
 global acceptPressed := True
+global alternativeChoicePressed := True
 global abortPressed := True
 global clickAlsoAccepts := False
 global acceptAbortSpecialKey := ""
-waitAcceptAbort(pressEnterOrEsc := False, hint := False, specialKey := "")
+waitAcceptAbort(pressEnterOrEsc := False, hint := False, specialKey := "", alternativeChoice := False)
 {
+    if (alternativeChoice)
+        alternativeChoicePressed := False
     if (!acceptPressed or !abortPressed)
         return
         
@@ -36,7 +39,7 @@ waitAcceptAbort(pressEnterOrEsc := False, hint := False, specialKey := "")
     acceptPressed := False
     abortPressed := False
 
-    while (!(acceptPressed or abortPressed))
+    while (!(acceptPressed or abortPressed or (alternativeChoice and alternativeChoicePressed)))
     {
         if (hint)
             toolTip(hint, toolTipIndex["acceptAbort"])
@@ -61,9 +64,12 @@ waitAcceptAbort(pressEnterOrEsc := False, hint := False, specialKey := "")
         if (pressEnterOrEsc)
             Send {Enter}
     }
+    else if (alternativeChoicePressed)
+        res := "alternative"
 
     acceptPressed := True
     abortPressed := True
+    alternativeChoicePressed := True
     clickAlsoAccepts := False
     acceptAbortSpecialKey := ""
     if (hint)
@@ -78,7 +84,7 @@ waitCtxMenuUnderMouse()
     MouseGetPos, x, y
     y := y + 5
     x := x + 10
-    result := waitForColor(x, y, ctxMenuColors, 10, 1000, "")
+    result := waitForColor([x], [y], ctxMenuColors, 10, 1000, "")
     return result
 }
 
@@ -88,7 +94,7 @@ waitClipCtxMenu()
     MouseGetPos, x, y
     y := y + 140
     cols := [0xBDC2C6]
-    result := waitForColor(x, y, cols, 0, 2, " ", False, True)
+    result := waitForColor([x], [y], cols, 0, 2, " ", False, True)
     return result    
 }
 */
@@ -103,18 +109,26 @@ waitToolTip(msg := "")
     return res
 }
 
-waitForColor(x, y, cols, colVar := 0, timeout := 2000, hint := "", debug := False, reverse := False)
+waitForColor(xList, yList, cols, colVar := 0, timeout := 2000, hint := "", debug := False, reverse := False)
 {
     t1 := A_TickCount
     if (debug)
         timeout = 10
-    while (!matches and (t2 - t1 < timeout))
+    while (t2 - t1 < timeout)
     {
-        matches := colorsMatch(x, y, cols, colVar, hint, debug, reverse)
+        for _, x in xList
+        {
+            for _, y in yList
+            {
+                matches := colorsMatch(x, y, cols, colVar, hint, debug, reverse)
+                if (matches)
+                    return True
+            }
+        }
         t2 := A_TickCount
         Sleep, 20
     }
-    return matches
+    return False
 }
 
 waitforBrowserCtxMenu(isFolder)
@@ -127,6 +141,18 @@ waitforBrowserCtxMenu(isFolder)
     else
         xIncr := 249
     x := mX + xIncr
-    res := waitForColor(x, mY, ctxMenuCol, 100, 500)
+    yList := [mY+1, mY-1]
+    res := waitForColor([x], yList, ctxMenuCol, 30, 500)
+    return res
+}
+
+waitForWindowsCtxMenu()
+{
+    ctxMenuCol := [0Xf0f0f0]
+    Sleep, 10
+    mouseGetPos(mX, mY)
+    x := mX + 5
+    yList := [mY+2, mY-2]
+    res := waitForColor([x], yList, ctxMenuCol, 30, 500)
     return res
 }

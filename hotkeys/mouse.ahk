@@ -64,7 +64,7 @@ MButton Up::
 LButton::
     return
 LButton Up::
-    msg("Use upper razer buttons  [_][N][A][NA]")
+    msg("Use upper razer buttons  [_][R][ ][ ]")
     return
 #If
 #If WinActive("ahk_exe FL64.exe") and mouseOverMainFileMenu("new")
@@ -113,7 +113,15 @@ LButton Up::
     return
 #If
 ;------------------------------------------------
-
+; -- RButton ------------------------------------
+#If WinActive("ahk_exe FL64.exe") and !alternativeChoicePressed
++^RButton::
+    return
++^RButton Up::
+    alternativeChoicePressed := True
+    return
+#If
+; -----------------------------------------------
 
 
 

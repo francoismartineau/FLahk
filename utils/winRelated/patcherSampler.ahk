@@ -2,40 +2,16 @@
 global patcherSamplerLfoOffsetPos := [[234, 419], [231, 512]]
 global patcherSamplerLfoLpPos := [416, 144]
 global patcherSamplerLfoPitchPos := [419, 238]
+global patcherSamplerLfoVolPos := [1166, 430]
 
 createPatcherSampler(dragX, dragY, dragWin, inPatcher := False)
 {
-    if (inPatcher)
-    {
-        WinActivate, ahk_class TPluginForm
-        mouseOverKnot := False
-        unfreezeMouse()
-        while (!mouseOverKnot)
-        {
-            toolTip("PatcherMap: place mouse on knot")        
-            res := waitAcceptAbort()
-            toolTip()
-            if (res == "abort")
-                return
-            mouseOverKnot := mouseOverMidiKnot()
-        }
-        freezeMouse()
-        MouseGetPos,,, patcherId
-        if (!WinActive("ahk_id " patcherId))
-            WinActivate, ahk_id %patcherId%        
-        samplerId := patcherLoadPatcherSampler()
-        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
-        dragDropPatcherSampler(samplerId, dragX, dragY, dragWin)
-    }
-    else
-    {
-        samplerId := loadInstr(1)
-        WinMove, ahk_id %samplerId%,, 700, 200
-        openPresetPlugin(1, samplerId)
-        movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
-        dragDropPatcherSampler(samplerId, dragX, dragY, dragWin)
-        randomizeName(True, False, False, "Ps")
-    }
+    name := "PS " randString(randInt(1, 4))
+    samplerId := loadInstr(1, 1, name)
+    if (!samplerId)
+        return
+    movedSampler := moveWinIfOverPos(dragX, dragY, samplerId)
+    dragDropPatcherSampler(samplerId, dragX, dragY, dragWin)
     if (movedSampler)
         WinMove, ahk_id %samplerID%,, 700, 200
 }
@@ -53,6 +29,8 @@ dragDropPatcherSampler(patcherId, oriX, oriY, oriWin, _ := "")
     if (n > 1)
     {
         WinActivate, ahk_id %oriWin%
+        moveMouse(oriX, oriY, "Screen")
+        clearWayToMouse(oriWin, 400, 200)
         masterEdisonId := dragSampleToEdison(oriX, oriY)
     }
 
@@ -83,6 +61,7 @@ dragDropPatcherSampler(patcherId, oriX, oriY, oriWin, _ := "")
         {
             WinActivate, ahk_id %oriWin%
             moveMouse(oriX, oriY, "Screen")
+            clearWayToMouse(oriWin, 700, 200)
         }
         toolTip("Click down")
         Click, down   
@@ -163,6 +142,8 @@ mouseOverSamplerLfoSpeedSet()
         res := "lp"
     else if (colorsMatch(mX, mY, [0xA67F96]))
         res := "pitch"
+    else if (colorsMatch(473, 459, [0x3F4B35]))
+        res := "vol"
     return res
 }
 
@@ -205,6 +186,9 @@ samplerLfoSetTime(whichLfo, whichSampler)
             x := patcherGrnlLfoPitchPos[1]
             y := patcherGrnlLfoPitchPos[2]
         }
+    Case "vol":
+        x := patcherSamplerLfoVolPos[1]
+        y := patcherSamplerLfoVolPos[2]
     }
     y := y - yOffsetWrapperPlugin*isWrapperPlugin(patcherId)
     moveMouse(x, y)

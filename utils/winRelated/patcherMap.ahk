@@ -82,8 +82,10 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
     {
     Case "instr":
         key := "i"
+        moveWinFunc := "moveInstRightScreen"
     Case "fx":
         key := "f"
+        moveWinFunc := "moveFxLeftScreen"
     }
     Loop, %n%
         Send %key%
@@ -137,6 +139,8 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
             openPresetPlugin(preset, pluginId)
         centerMouse(pluginId)
     }
+    %moveWinFunc%(pluginId)
+    msg("^c: Activate knobs")
     retrieveMouse := False
     return pluginId
 }
