@@ -85,7 +85,7 @@
 #Include operations/browser.ahk
 #Include operations/dragSamples.ahk
 #Include operations/lockChan.ahk
-#Include operations/browsePreGen.ahk
+#Include operations/PreGenBrowser.ahk
 #Include operations/browsePostGen.ahk
 
 ; -- lib
@@ -131,7 +131,7 @@ hideSplashScreen()
 if (isSaved)
     bringStepSeq(True)
 toolTip()
-displayRandomOpeningMessage()
+;displayRandomOpeningMessage()
 
 
 

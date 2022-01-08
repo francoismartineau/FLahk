@@ -40,7 +40,7 @@ CONCAT_AUDIO:
         showConcatAudio()
     return
 CONCAT_AUDIO_BROWSE:
-    freezeExecute("browseRandomSingleSound", False)
+    freezeExecute("browseRandomSingleSound", [], False)
     return
 PICK_CONCAT_AUDIO_PATH1:
     if (ConcatAudioShown)
@@ -157,7 +157,7 @@ AUTO_CLEAN_AUDIO:
     if (class == "TPluginForm")
     {
         WinGet, id, ID, A
-        freezeExecute("denoise", False)
+        freezeExecute("denoise", [], False)
     }
     return
 
@@ -168,27 +168,27 @@ RESET_AUDIO_DEVICE:
 
 ASSIGN_TRACK_M1:
     bringFL()
-    freezeExecute("assignMixerTrackRoute", True, True, "m1")
+    freezeExecute("assignMixerTrackRoute", ["m1"], True, True)
     return
 
 ASSIGN_TRACK_M2:
     bringFL()
-    freezeExecute("assignMixerTrackRoute", True, True, "m2")
+    freezeExecute("assignMixerTrackRoute", ["m2"], True, True)
     return
 
 ASSIGN_TRACK_M3:
     bringFL()
-    freezeExecute("assignMixerTrackRoute", True, True, "m3")
+    freezeExecute("assignMixerTrackRoute", ["m3"], True, True)
     return
 
 ASSIGN_TRACK_BASS:
     bringFL()
-    freezeExecute("assignMixerTrackRoute", True, True, "bass")
+    freezeExecute("assignMixerTrackRoute", ["bass"], True, True)
     return
 
 ASSIGN_TRACK_NO_BASS:
     bringFL()
-    freezeExecute("assignMixerTrackRoute", True, True, "no bass")
+    freezeExecute("assignMixerTrackRoute", ["no bass"], True, True)
     return
 
 UNWRAP_PROJECT:
@@ -337,7 +337,7 @@ NUMPAD_G_3:                                 ; Main Events
     return
 NUMPAD_G_4:                                 ; note
     hideNumpadG()
-    freezeExecute("loadScore", True, True, 2)
+    freezeExecute("loadScore", [2], True, True)
     return
 
 NUMPAD_G_5:                                 ; Autom
@@ -391,7 +391,7 @@ NUMPAD_G_16:                                ; Layer
 
 NUMPAD_G_17:                                ; Note length
     hideNumpadG()
-    freezeExecute("toggleHoveredNoteLenght", True, True)       
+    freezeExecute("toggleHoveredNoteLenght", [], True, True)       
     return    
 
 NUMPAD_G_18:                                ; Lock channel

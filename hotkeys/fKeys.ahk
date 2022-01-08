@@ -20,12 +20,8 @@ F5 UP::
 #If
 
 #If WinActive("ahk_exe FL64.exe") or WinActive("ahk_exe Melodyne singletrack.exe")
-;F1::
-;    freezeExecute("newPatt")
-;    return
-
 F3::
-    freezeExecute("moveWindows") ;, True, True, False)
+    freezeExecute("moveWindows") 
     return
 
 +F3::
@@ -42,7 +38,7 @@ v & F2::
     return
 
 b & F2::
-    freezeExecute("pasteName", True, True, "", True)
+    freezeExecute("pasteName", ["", True], True, True)
     return
 
 ~v::
@@ -55,7 +51,7 @@ F2::
     return
 
 +F2::
-    freezeExecute("startRandomizeNameLoop", True)
+    freezeExecute("startRandomizeNameLoop")
     return
 
 +F2 Up::
@@ -78,7 +74,7 @@ F4::
     if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
         deletePattern()
     else if ((isPlugin() or isStepSeq()))
-        freezeExecute("deletePlugin", False)
+        freezeExecute("deletePlugin", [], False)
     else if (isMixer())
         freezeExecute("resetMixerTrack")
     else if (isWrapperPlugin())

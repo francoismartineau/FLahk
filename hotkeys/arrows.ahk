@@ -1,7 +1,22 @@
-#If WinActive("ahk_class TStepSeqForm") or (WinActive("ahk_class TPluginForm") and !isMasterEdison())
-; Switch screen windows
+#If WinActive("ahk_exe FL64.exe") and PreGenBrowser.running
+Left::
+    return
+Left Up::
+    PreGenBrowser.useBackup("prev")
+    return
 
+Right::
+    return
+Right Up::
+    PreGenBrowser.useBackup("next")
+    return
 
+Up::
+    return
+Up Up::
+    PreGenBrowser.useBackup("last")
+    return
+#If
 
 #If WinActive("ahk_exe FL64.exe") and isPatcher4()
 Left::
@@ -38,10 +53,10 @@ Right::
 
 #If WinActive("ahk_exe FL64.exe") and isEventEditor()
 Up::
-    freezeExecute("eventEditorCycleParam", True, False, "up")
+    freezeExecute("eventEditorCycleParam", ["up"])
     return
 
 Down::
-    freezeExecute("eventEditorCycleParam", True, False, "down")
+    freezeExecute("eventEditorCycleParam", ["down"])
     return    
 #If

@@ -175,13 +175,13 @@ LButton Up::
     return    
 
 +1:: 
-    freezeExecute("mouseOnM123", True, False, "m1")
+    freezeExecute("mouseOnM123", ["m1"])
     return
 +2:: 
-    freezeExecute("mouseOnM123", True, False, "m2")
+    freezeExecute("mouseOnM123", ["m2"])
     return
 +3:: 
-    freezeExecute("mouseOnM123", True, False, "m3")
+    freezeExecute("mouseOnM123", ["m3"])
     return
 #If
 ; -------

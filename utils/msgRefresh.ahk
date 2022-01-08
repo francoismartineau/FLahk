@@ -6,30 +6,30 @@ msgRefreshTick()
     txt := ""
     for _, line in msgRefreshLines
         txt .= line "`r`n"
-    if (msgRefreshCondition != "" and !%msgRefreshCondition%())
-    {
-        toolTip()
-    }
+    if (execFunc(msgRefreshCondition))
+        toolTip(txt, toolTipIndex["msgRefresh"])
     else
-        toolTip(txt)
+        toolTip("", toolTipIndex["msgRefresh"])
 }
 
-startMsgRefresh(initLinesList)
+startMsgRefresh(initLines, condition)
 {
-    msgRefreshLines := initLinesList
+    msgRefreshLines := initLines
+    msgRefreshCondition := condition
     startMsgRefreshClock()
 }
 
-resetMsgRefresh()
+stopMsgRefresh()
 {
-    msgRefreshText := []
+    msgRefreshLines := []
     msgRefreshCondition := ""
+    hideMsgRefresh()
 }
 
 hideMsgRefresh()
 {
-    hideMsgRefreshClock()
-    toolTip()
+    stopMsgRefreshClock()
+    toolTip("", toolTipIndex["msgRefresh"])
 }
 
 unhideMsgRefresh()
@@ -45,4 +45,11 @@ msgRefreshAddLine(line := "")
 msgRefreshRemoveLine()
 {
     msgRefreshLines.Pop()
+}
+
+msgRefreshMsg(txt, t := 1000, n := 1)
+{
+    hideMsgRefresh()
+    msg(txt, t, n)
+    unhideMsgRefresh()
 }

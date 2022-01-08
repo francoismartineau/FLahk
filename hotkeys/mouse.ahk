@@ -71,7 +71,7 @@ LButton Up::
 LButton::
     return
 LButton Up::
-    freezeExecute("createNewProject", False, False, True)
+    freezeExecute("createNewProject", [True], False)
     return
 #If
 #If WinActive("ahk_exe FL64.exe") and mouseOverPlayPauseButton()
@@ -135,9 +135,9 @@ LButton Up::
 #If
 
 ; ---------
-#If preGenBrowsing
+#If PreGenBrowser.running
 RButton::
-    removePreGenSound()
+    PreGenBrowser.removeSound()
     return
 #If
 

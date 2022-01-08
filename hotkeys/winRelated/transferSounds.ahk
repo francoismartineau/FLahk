@@ -12,12 +12,12 @@ F4::                                ; close
 
 LWin & WheelUp::                    ; load TransferSound
     waitForModifierKeys()
-    freezeExecute("openTransferSoundInAudacity", False, False)
+    freezeExecute("openTransferSoundInAudacity", [], False, False)
     return
 
 LWin & WheelDown::                  ; save to TransferSound
     waitForModifierKeys()
-    freezeExecute("dragSoundFromAudacity", False, False)
+    freezeExecute("dragSoundFromAudacity", [], False, False)
     return
 #If
 
@@ -30,12 +30,12 @@ F4::                                ; close
 LWin & WheelUp::                    ; load TransferSound
     waitForModifierKeys()
     WinGet, melodyneId, ID, A
-    freezeExecute("melodyneLoadSound", False, False, melodyneId)
+    freezeExecute("melodyneLoadSound", [melodyneId], False, False)
     return
 
 LWin & WheelDown::                  ; save to TransferMidi
     waitForModifierKeys()
     WinGet, melodyneId, ID, A
-    freezeExecute("melodyneExportMidi", False, False, melodyneId)
+    freezeExecute("melodyneExportMidi", [melodyneId], False, False)
     return
 #If

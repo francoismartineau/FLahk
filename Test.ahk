@@ -3,40 +3,14 @@
 debugOn := False
 
 
-class Base
-{
-    i := 10                 ; instance var      this.i
-    static b := 11          ; class var         Base.i      if call this.i, create an instance copy of Base.i
-    __New()                 ; Contructor
-    {
-        Base.i++
-        this.b++
-    }
-    a()                     ; Determines the current class
-    {
-        msg("from a")
-        a := this.__Class
-        ;%a%.f()             ; Calls a class function of this class
-
-        ;this.f()            ; Pretty much the equivalent since it doesn't modify the function
-
-    }
-    f()
-    {
-        msg("ok")
-    }
-    __Delete()              ; Destructor
-    {
-
-    }
-}
-
 
 Test()
 {
-    a := "Base.a"
-    %a%(1)
-} 
+    f := FileOpen("C:\Util2\FLahk\saves\preGenBrowserBackups\0004.backup", "w")
+    f.Close()
+
+}
+
 
 
 

@@ -34,10 +34,10 @@ stopMouseCtlClock()
 
 startMsgRefreshClock()
 {
-}
     SetTimer, MSG_REFRESH_TICK, 100
+}
 
-hideMsgRefreshClock()
+stopMsgRefreshClock()
 {
     SetTimer, MSG_REFRESH_TICK, Off
 }

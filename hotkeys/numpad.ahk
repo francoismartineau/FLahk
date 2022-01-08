@@ -7,15 +7,15 @@ Volume_Mute Up::
     freezeExecute("bringM1")
     return
 NumLock Up::                                    ; edison
-    freezeExecute("bringMasterEdison", False)
+    freezeExecute("bringMasterEdison", [], False)
     return
 
 +NumLock Up::                                   ; audacity 
-    freezeExecute("openAudacity", False)
+    freezeExecute("openAudacity", [], False)
     return
 
 !NumLock Up::                                   ; melodyne
-    freezeExecute("openMelodyne", False)
+    freezeExecute("openMelodyne", [], False)
     return
 
 NumpadDiv Up::                                  ; render in place
@@ -24,16 +24,16 @@ NumpadDiv Up::                                  ; render in place
 
 NumpadMult::                                    ; activate loop (playlist: start)
     if (isPlaylist())
-        freezeExecute("setPlaylistLoop", True, False, "start")
+        freezeExecute("setPlaylistLoop", ["start"])
     else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", True, False, True)
+        freezeExecute("activatePianoRollLoop", [True])
     return
 
 NumpadSub::                                     ; activate loop (playlist: end)
     if (isPlaylist())
-        freezeExecute("setPlaylistLoop", True, False, "end")
+        freezeExecute("setPlaylistLoop", ["end"])
     else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", True, False, True)
+        freezeExecute("activatePianoRollLoop", [True])
     return
 
 LWin & NumpadMult::                             ; deactivate loop / playlist tab
@@ -41,39 +41,39 @@ LWiN & NumpadSub::
     if (isPlaylist())
         freezeExecute("deleteNextPlaylist")
     else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", True, False, False)
+        freezeExecute("activatePianoRollLoop", [False])
     return
 
 Numpad7::                                       ; mixer
-    freezeExecute("bringMixer", False)
+    freezeExecute("bringMixer", [], False)
     return
 
 Numpad8::                                       ; mixer <---
-    freezeExecute("assignMixerTrack", False)
+    freezeExecute("assignMixerTrack", [], False)
     return
 
 Numpad9::                                       ; event editor
-    freezeExecute("bringEventEditor", False, False, True)
+    freezeExecute("bringEventEditor", [True], False)
     return
 
 ^Numpad9::                                      ; knob edit events
     waitForModifierKeys()
-    freezeExecute("knobEditEvents", False, False, True)
+    freezeExecute("knobEditEvents", [True], False)
     return    
 
 !Numpad9::                                      ; knob place edit events value
     waitForModifierKeys()
-    freezeExecute("insertEditEventsValue", True, True)
+    freezeExecute("insertEditEventsValue", [], True, True)
     return 
 
 
 Numpad4::                                       ; piano roll
-    freezeExecute("bringPianoRoll", False, False, False, True)
+    freezeExecute("bringPianoRoll", [False, True], False)
     return  
 
 Numpad5::                                       ; playlist
     bringFL()
-    freezeExecute("bringPlaylist", False)
+    freezeExecute("bringPlaylist", [], False)
     return
 
 Numpad6::                                       ; rec
@@ -86,21 +86,21 @@ Numpad6::                                       ; rec
     return    
 
 ^Numpad6::                                      ; rec on play
-    freezeExecute("recOnPlay", True, True)              
+    freezeExecute("recOnPlay", [], True, True)              
     return
 
 !Numpad6::                                      ; Edison rec
 LWin & Numpad6::
-    freezeExecute("masterEdisonTransport", True, True, "rec")
+    freezeExecute("masterEdisonTransport", ["rec"], True, True)
     return
 
 ^!Numpad6::                                     ; Move to Master Edison drag
-    freezeExecute("moveToMasterEdisonDrag", False, False)
+    freezeExecute("moveToMasterEdisonDrag", [], False)
     return
 
 Numpad2::                                       ; step seq
     bringFL()
-    freezeExecute("bringStepSeq", False)
+    freezeExecute("bringStepSeq", [], False)
     return
 
 Numpad1::                                       ; play pause
@@ -114,7 +114,7 @@ Numpad1::                                       ; play pause
 
 !Numpad1::                                      ; Edison play pause
 LWin & Numpad1::
-    freezeExecute("masterEdisonTransport", True, True, "playPause")
+    freezeExecute("masterEdisonTransport", ["playPause"], True, True)
     return
 
 Numpad3::                                       ; stop
@@ -128,7 +128,7 @@ Numpad3::                                       ; stop
 
 !Numpad3::                                      ; Edison stop
 LWin & Numpad3:: 
-    freezeExecute("masterEdisonTransport", True, True, "stop")
+    freezeExecute("masterEdisonTransport", ["stop"], True, True)
     return
 
 NumpadDot::                                     ; patt song
@@ -136,7 +136,7 @@ NumpadDot::                                     ; patt song
     return
 
 Numpad0::
-    freezeExecute("openLinkKnobWindow", False)
+    freezeExecute("openLinkKnobWindow", [], False)
     return
 #If
 ; --

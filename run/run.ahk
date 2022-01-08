@@ -28,6 +28,7 @@ global freezeExecuting := False
 global stopExec := False     ; Esc while freezeExecute will turn True. Long functions should check this bool from time to time and quit if True.
 
 global toolTipIndex := {}
+toolTipIndex["msgRefresh"] := 9
 toolTipIndex["toolTipChoice"] := 10
 toolTipIndex["pianoRollTempMsg"] := 11
 toolTipIndex["acceptAbort"] := 12
@@ -37,7 +38,7 @@ toolTipIndex["pianoRollModeMsg"] := 15
 
 
 ; ---- Run functions -------------------------------------------
-freezeExecute(f, retrPos := True, retrWin := False, params*)  ; Change the signature: f, [params], pos, win)
+freezeExecute(f, params := "", retrPos := True, retrWin := False)
 {
     res := 
     if (!freezeExecuting)
@@ -62,7 +63,7 @@ freezeExecute(f, retrPos := True, retrWin := False, params*)  ; Change the signa
             WinGet, id, ID, A
 
         CoordMode, Mouse, Client    
-        res := execFunc(f, params*)
+        res := execFunc(f, params)
         
         if (retrieveMouse)  ; can be switched off by f
             retrieveMousePos() 
@@ -88,10 +89,10 @@ unfreezeWhileExec(msg)
     return res
 }
 
-freezeUnfreezeMouse(f, params*)
+freezeUnfreezeMouse(f, params := "")
 {
     freezeMouse()
-    res := execFunc(f, params*) 
+    res := execFunc(f, params) 
     unfreezeMouse()
     return res
 }

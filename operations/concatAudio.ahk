@@ -69,10 +69,10 @@ getRandomSoundDir()
 
 concatAudioRun()
 {
-    if (preGenBrowsing)
+    if (PreGenBrowser.running)
     {
         hideMsgRefresh()
-        dir := createPreGenBrowsingDir()
+        dir := PreGenBrowser.genLnkDir()
         pathsArg = "%dir%"
     }
     else
@@ -109,12 +109,13 @@ concatAudioRun()
     cmd = cmd.exe /q /c %pythonPath%
     cmd = %cmd% %ConcatAudioPath%\concat_audio.py
     cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
-    if (preGenBrowsing)
+    if (PreGenBrowser.running)
         cmd = %cmd% --browse 1
-    clipboard := cmd
-    ;ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
-    if (preGenBrowsing)
-        stoppreGenBrowsing()
+    ;clipboard := cmd
+    ; replace with SysCommand() ?
+    ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
+    if (PreGenBrowser.running)
+        PreGenBrowser.stop()
 }
 
 moveMouseToConcatAudio()

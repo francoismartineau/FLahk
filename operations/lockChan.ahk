@@ -25,6 +25,8 @@ lockChan(device := "")
         lockChanUnlockDevice(isLocked)
     else if (device == "keyboard")
     {
+        if (!typingKeyboardEnabled())
+            SendInput ^t
         if (isLocked)
             Send {Down}            
         Send {Down}{Enter}
@@ -81,6 +83,7 @@ toggleLockKeyboardUnlock()
 {
     Click, Right
     Send {Up}{Up}{Up}{Right}{Down}{Enter}
+    
 }
 
 maximizePattLen()

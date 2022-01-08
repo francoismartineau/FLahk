@@ -1,6 +1,6 @@
 #If WinActive("ahk_exe FL64.exe") and isPianoRoll()  
 /::
-    freezeExecute("hoveredNoteLength", True, True, "long")
+    freezeExecute("hoveredNoteLength", ["long"], True, True)
     return
 
 m::
@@ -31,20 +31,12 @@ r::
     return
 
 LWin & XButton1::
-    freezeExecute("activatePianoRollLoop", True, False, False)
+    freezeExecute("activatePianoRollLoop", [False])
     return
 #If
 
 
 #If WinActive("ahk_exe FL64.exe") and isPianoRoll() and mouseOnLoopButton()
-;LButton::
-;    freezeExecute("activatePianoRollLoop", False, False, True)
-;    return
-
-;RButton::
-;    freezeExecute("activatePianoRollLoop", False, False, False)
-;    return
-
 !LButton::
     freezeExecute("burnLoopButton")
     return

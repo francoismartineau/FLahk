@@ -87,14 +87,14 @@ LButton Up::
 ; -- Clipboard -----------------------------
 #If WinActive("ahk_exe FL64.exe") and mouseOverStepSeqInstrOrScore()
 ^c::
-    freezeExecute("copyMouseChannelNotes", True, True)
+    freezeExecute("copyMouseChannelNotes", [], True, True)
     return
 
 ^x::
-    freezeExecute("cutMouseChannelNotes", True, True)
+    freezeExecute("cutMouseChannelNotes", [], True, True)
     return
 
 ^v::
-    freezeExecute("pasteMouseChannelNotes", True, True)
+    freezeExecute("pasteMouseChannelNotes", [], True, True)
     return
 #If

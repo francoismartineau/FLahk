@@ -96,8 +96,8 @@ Esc Up::
         stopWaitFunction()
     else if (numpadGShown)
         hideNumpadG()
-    else if (preGenBrowsing)
-        stoppreGenBrowsing()
+    else if (PreGenBrowser.running)
+        PreGenBrowser.stop()
     else if (ConcatAudioShown)
         hideConcatAudio()
     else if (freezeExecuting)  
@@ -176,11 +176,11 @@ Space::
 
 #If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm")
 !Space::
-    freezeExecute("masterEdisonTransport", True, True, "playPause")
+    freezeExecute("masterEdisonTransport", ["playPause"], True, True)
     return
 
 ^!Space::
-    freezeExecute("masterEdisonTransport", True, True, "stop")
+    freezeExecute("masterEdisonTransport", ["stop"], True, True)
     return
 #If
 ; ----
@@ -278,7 +278,7 @@ CapsLock::
 
 +Tab::
     incrLoadKnobPosIndex()
-    freezeExecute("loadKnobPos", False)
+    freezeExecute("loadKnobPos", [], False)
     return
 #If
 ; ----

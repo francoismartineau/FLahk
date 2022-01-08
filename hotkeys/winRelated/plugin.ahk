@@ -46,7 +46,7 @@
     else if (mouseOn3xGrossReveal())
         freezeExecute("reveal3xGross")
     else if (isPatcher4())
-        freezeExecute("patcher4ShowPlugin", False, False)
+        freezeExecute("patcher4ShowPlugin", [], False)
     else if (mouseOverPercEnvShowPlugin())
         freezeExecute("percEnvShowPlugin")
     return
@@ -103,6 +103,6 @@
     return
 ^MButton Up::
     waitForModifierKeys()    
-    freezeExecute("knobSetMouseCtl", True, False, mCtlActive)
+    freezeExecute("knobSetMouseCtl", [mCtlActive])
     return
 #If

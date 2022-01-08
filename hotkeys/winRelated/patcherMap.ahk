@@ -3,70 +3,70 @@
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadPatcherSampler")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "room", "patcher")
+        freezeExecute("loadFxFromChoice", ["room", "patcher"], False)
     return
 
 2 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadPatcherSampler")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "mod", "patcher")
+        freezeExecute("loadFxFromChoice", ["mod", "patcher"], False)
     return
 
 3 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadSynth")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "filter", "patcher")
+        freezeExecute("loadFxFromChoice", ["filter", "patcher"], False)
     return
 
 4 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadPiano")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "patcher4", "patcher")
+        freezeExecute("loadFxFromChoice", ["patcher4", "patcher"], False)
     return
 
 5 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadEnvC")
     else ;if (mouseOverAudioKnot())
-        freezeExecute("loadLfo", False, False, "patcher")
+        freezeExecute("loadLfo", ["patcher"], False)
     return
 
 6 Up::
     if (mouseOverMidiKnot())
         msg(" ")
     else ;if (mouseOverAudioKnot())
-        freezeExecute("loadFormulaCtl", False, False, "patcher")
+        freezeExecute("loadFormulaCtl", ["patcher"], False)
     return
 
 7 Up::
     if (mouseOverMidiKnot())
         msg(" ")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "pitch", "patcher")
+        freezeExecute("loadFxFromChoice", ["pitch", "patcher"], False)
     return
 
 8 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadPlucked")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "dyn", "patcher")
+        freezeExecute("loadFxFromChoice", ["dyn", "patcher"], False)
     return
 
 9 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadVox")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadSpeaker", False, False, "patcher")
+        freezeExecute("loadSpeaker", ["patcher"], False)
     return
 
 0 Up::
     if (mouseOverMidiKnot())
         freezeExecute("patcherLoadChords")
     else if (mouseOverAudioKnot())
-        freezeExecute("loadFxFromChoice", False, False, "seq")
+        freezeExecute("loadFxFromChoice", ["seq"], False)
     return
 
 #If
