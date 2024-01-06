@@ -1,14 +1,14 @@
-#If WinActive("ahk_exe FL64.exe") and isPianoRoll()  
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.isWin()  
 /::
     freezeExecute("hoveredNoteLength", ["long"], True, True)
     return
 
 m::
-    freezeExecute("minMajStamp")
+    freezeExecute("PianoRoll.minMajStamp")
     return
 
 r::
-    freezeExecute("randomizeStamp")
+    freezeExecute("PianoRoll.randomizeStamp")
     return
 
 !x::
@@ -23,28 +23,41 @@ r::
     return
 
 !XButton1::
-    pianoRollSetColor()
+    PianoRoll.setSelectedNotesCol()
     return
 
 !XButton2::
-    pianoRollSelColor()
+    PianoRoll.selNotesOfCurrColor()
     return
 
 LWin & XButton1::
-    freezeExecute("activatePianoRollLoop", [False])
+    freezeExecute("PianoRoll.deactivateLoop")
     return
 #If
 
 
-#If WinActive("ahk_exe FL64.exe") and isPianoRoll() and mouseOnLoopButton()
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.isWin() and PianoRoll.mouseOnLoopButton()
 !LButton::
-    freezeExecute("burnLoopButton")
+    freezeExecute("PianoRoll.burnLoopButton")
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and isPianoRoll() and mouseOnPianoRollTimeline() and mouseOnPianoRollMarker()
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.mouseOnTimeline() and !PianoRoll.mouseOnMarker()
+^LButton::
+    waitForModifierKeys()
+    freezeExecute("PianoRoll.createEndMarker")
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.mouseOnMarker()
 !LButton::
-    freezeExecute("burnLoopMarker")
+    waitForModifierKeys()
+    freezeExecute("PianoRoll.burnLoopMarker")
+    return
+
+^LButton::
+    waitForModifierKeys()
+    freezeExecute("PianoRoll.activateLoopMarkerUnderMouse")
     return
 #If
 

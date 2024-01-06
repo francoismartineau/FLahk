@@ -21,7 +21,7 @@ deletePlugin()
         else
         {
             Send {Esc}
-            bringStepSeq(True)
+            StepSeq.bringWin(True)
             retrieveMouse := False
             msgTip("Press delete again", 500)
         }
@@ -42,5 +42,5 @@ deleteActiveChannel()
     unfreezeMouse()
     waitAcceptAbort(True)
     freezeMouse()
-    bringStepSeq(True)
+    StepSeq.bringWin(True)
 }

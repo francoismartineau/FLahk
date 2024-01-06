@@ -7,7 +7,11 @@
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") ;True
+#If WinActive("ahk_exe FL64.exe")
++^!F1::
+    getCursor()
+    return
+
 F5::
     return
 F5 UP::
@@ -63,7 +67,7 @@ F2::
 #If WinActive("ahk_exe FL64.exe") and isPlugin()
 +F2::
     WinGet, pluginId, ID, A
-    bringPlaylist(False)
+    Playlist.bringWin(False)
     freezeExecute("rename")
     WinActivate, ahk_id %pluginId%
     return
@@ -73,7 +77,7 @@ F2::
 F4::
     if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
         deletePattern()
-    else if ((isPlugin() or isStepSeq()))
+    else if ((isPlugin() or StepSeq.isWin()))
         freezeExecute("deletePlugin", [], False)
     else if (isMixer())
         freezeExecute("resetMixerTrack")
@@ -93,63 +97,3 @@ F12 Up::
     freezeExecute("randomizePlugin")
     return
 #If
-
-/*
-; toggle pat / song
-#If WinActive("ahk_exe FL64.exe")
-F3 UP::
-    freezeExecute("togglePatternSong")
-    return
-
-; toggle record
-#If WinActive("ahk_exe FL64.exe")
-F4 UP::
-    freezeExecute("toggleRecord")
-    return
-
-
-
-
-
-; playlist
-#If WinActive("ahk_exe FL64.exe")
-F5 UP::
-    startstopWinHistoryClock("bringPlaylist")
-    return
-
-; step seq
-#If WinActive("ahk_exe FL64.exe")
-F6 UP::
-    bringStepSeq(True)
-    return
-
-; piano roll
-#If WinActive("ahk_exe FL64.exe")
-F7 UP::
-    freezeExecute("bringPianoRoll")
-    return
-
-; mixer
-#If WinActive("ahk_exe FL64.exe")
-F8 UP::
-    startstopWinHistoryClock("bringMixer")
-    return
-
-
-
-
-
-; Assign free mixer track to channel
-#If WinActive("ahk_exe FL64.exe")
-F9 UP::
-    Send {Ctrl Down}
-    Send l
-    Send {Ctrl Up}
-    return
-
-; Edison
-#If WinActive("ahk_exe FL64.exe")
-F10 UP::
-    startstopWinHistoryClock("bringMasterEdison")
-    return
-*/

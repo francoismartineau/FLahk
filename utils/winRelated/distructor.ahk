@@ -9,7 +9,7 @@ distructorChangeFX(dir)
     i := 1
     while (!pos and i <= 4)
     {
-        if (!colorsMatch(x, y, col, 0, ""))
+        if (!colorsMatch(x, y, col))
             pos := i
         if (!pos)
             x := x + incr

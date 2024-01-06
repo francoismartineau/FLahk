@@ -82,7 +82,7 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
     {
     Case "instr":
         key := "i"
-        moveWinFunc := "moveInstRightScreen"
+        moveWinFunc := "moveInstrRightScreen"
     Case "fx":
         key := "f"
         moveWinFunc := "moveFxLeftScreen"
@@ -101,11 +101,6 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
 
     if (name != "")
     {
-        ;Sleep, 100
-        ;clipboardSave := clipboard
-        ;Sleep, 200
-        ;clipboard := name
-        ;Sleep, 200
         Click, R
         Send r
         toolTip("Waiting name editor")
@@ -114,9 +109,7 @@ patcherLoadPlugin(mode, name := "", n := 1, preset := "", func := "")
         if (nameEditorId)
         {
             typeText(name)
-            ;SendInput ^v
             Send {Enter}
-            ;clipboard := clipboardSave
         }
     }
     
@@ -152,7 +145,7 @@ patcherPluginInArea(areaX, areaY)
     colVar := 0
     incr := 5
     reverse := True
-    res := scanColorsDown(areaX, areaY, h, patcherCol, colVar, incr, "", False, reverse)
+    res := scanColorsDown(areaX, areaY, h, patcherCol, colVar, reverse)
     return res != ""
 }
 ; ----

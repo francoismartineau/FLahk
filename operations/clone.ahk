@@ -1,8 +1,8 @@
 cloneActiveInstr()
 {
     toolTip("clone channel")
-    bringStepSeq(False)
-    currChannY := moveMouseToSelY()
+    StepSeq.bringWin(False)
+    currChannY := StepSeq.moveMouseToSelChan()
     res := cloneChannelUnderMouse()
     clonedChannY := res[1]
     clonedPluginId := res[2]
@@ -80,26 +80,34 @@ copyChannelScore(sourceChannY, destChannY)
 {
     stepSeqGrey := [0x5F686D]
     scoreX := 296
-    sourceChannHasScore := !colorsMatch(scoreX, sourceChannY, stepSeqGrey, 0)
+    sourceChannHasScore := !colorsMatch(scoreX, sourceChannY, stepSeqGrey)
     if (sourceChannHasScore) 
     {
         moveMouse(186 , sourceChannY)
-        copyMouseChannelNotes()
+        StepSeq.copyMouseChannelNotes()
         moveMouse(186 , destChannY)
-        pasteMouseChannelNotes()
+        StepSeq.pasteMouseChannelNotes()
     }
 }
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 cloneChannelUnderMouse()
 {
-    selectChannelUnderMouse()
+    StepSeq.selOnlyChanUnderMouse()
     WinGet, ssId, ID, A
     Send {AltDown}c{AltUp}
-    clonedPluginId := waitNewWindowOfClass("TPluginForm", ssId)
-    cloneSetName()
-    WinActivate, ahk_id %ssId%
-    clonedChannY := getFirstSelChannelY()
+    clonedPluginId := waitNewWindowOfClass("TPluginForm", ssId, 100)
+    clonedChannY := StepSeq.getFirstSelChanY()
+    if (!clonedPluginId)
+    {
+        currChannY := StepSeq.moveMouseToSelChan()
+        clonedPluginId := StepSeq.bringChanUnderMouse(False)
+    }
+    if (clonedPluginId)
+    {
+        cloneSetName()
+        WinActivate, ahk_id %ssId%
+    }
     return [clonedChannY, clonedPluginId]
 }
 

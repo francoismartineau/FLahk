@@ -93,12 +93,11 @@ findExactCutX(x, y) {
     cols := [0x72A3FF, 0x3C77F2, 0x6D7770, 0x6C756E] ;, 0x4f80f3, 0x6e807f]
     colVar := 20
     incr := 1
-    hint := ""
     width := 15
     ;w := Floor(width / 2)
     y := y - 10
     x := Floor(x - width / 2)
-    x := scanColorsRight(x, y, width, cols, colVar, incr, hint)
+    x := scanColorsRight(x, y, width, cols, colVar, incr)
     ;x := scanColorLeftRight(x, y, w, cols, colVar, incr, hint)
     return x
 }

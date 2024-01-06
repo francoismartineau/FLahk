@@ -2,12 +2,12 @@ activateCutTool()
 {
     if (!cutToolActivated())
     {
-        if (isPianoRoll())
+        if (PianoRoll.isWin())
         {
             x := 239
             y := 7
         }
-        else ;if (isPlaylist())
+        else ;if (Playlist.isWin())
         {
             x := 178
             y := 10
@@ -20,12 +20,12 @@ activateMuteTool()
 {
     if (!muteToolActivated())
     {
-        if (isPianoRoll())
+        if (PianoRoll.isWin())
         {
             x := 211
             y := 12  
         }
-        else ;if (isPlaylist())
+        else ;if (Playlist.isWin())
         {
             x := 128
             y := 15
@@ -55,12 +55,12 @@ activateBrushTool()
 {
     if (!brushToolActivated())
     {
-        if (isPianoRoll())
+        if (PianoRoll.isWin())
         {
             x := 149
             y := 9
         }
-        else ;if (isPlaylist())
+        else ;if (Playlist.isWin())
         {
             x := 87
             y := 12
@@ -74,12 +74,12 @@ activatePencilTool()
 {
     if (!pencilToolActivated())
     {
-        if (isPianoRoll())
+        if (PianoRoll.isWin())
         {
             x := 128
             y := 10
         }
-        else if (isPlaylist())
+        else if (Playlist.isWin())
         {
             x := 67
             y := 13
@@ -106,63 +106,63 @@ whichToolActivated()
 
 cutToolActivated()
 {
-    if (isPianoRoll())
+    if (PianoRoll.isWin())
     {
         x := 239
         y := 7
     }
-    else ;if (isPlaylist())
+    else ;if (Playlist.isWin())
     {
         x := 178
         y := 10
     }
-    return colorsMatch(x, y, [0x85B3FF], 0, "")
+    return colorsMatch(x, y, [0x85B3FF])
 }
 
 
 muteToolActivated()
 {
-    if (isPianoRoll())
+    if (PianoRoll.isWin())
     {
         x := 211
         y := 12  
     }
-    else ;if (isPlaylist())
+    else ;if (Playlist.isWin())
     {
         x := 128
         y := 15
     }    
-    return colorsMatch(x, y, [0xFF54B0], 0, "")
+    return colorsMatch(x, y, [0xFF54B0])
 }
 
 
 brushToolActivated()
 {
-    if (isPianoRoll())
+    if (PianoRoll.isWin())
     {
         x := 149
         y := 9
     }
-    else ;if (isPlaylist())
+    else ;if (Playlist.isWin())
     {
         x := 87
         y := 12
     }    
-    return colorsMatch(x, y, [0x7BCEFD], 0, "")
+    return colorsMatch(x, y, [0x7BCEFD])
 }
 
 
 pencilToolActivated()
 {
-    if (isPianoRoll())
+    if (PianoRoll.isWin())
     {
         x := 128
         y := 10
     }
-    else if (isPlaylist())
+    else if (Playlist.isWin())
     {
         x := 67
         y := 13
     }    
-    return colorsMatch(x, y, [0xFFC43F], 0, "")
+    return colorsMatch(x, y, [0xFFC43F])
 }

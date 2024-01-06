@@ -1,16 +1,29 @@
 ﻿#Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/Osc/osc.ahk
 #SingleInstance Force
 debugOn := False
 
 
 
+
 Test()
 {
-    f := FileOpen("C:\Util2\FLahk\saves\preGenBrowserBackups\0004.backup", "w")
-    f.Close()
+    moveWindows()
+    ; msg(isCursor("doigt"))
+    ; return 
 
+
+    ; menuLen := "patcherSurface"
+    ; ;if (InStr(menuLen, "patcher"))
+    ; lastLetter := SubStr(menuLen, menuLen.MaxIndex())
+    ; msg(lastLetter is not integer)
+    ; if lastLetter is not integer
+    ;     msg("ok")
+        ;menuLen := menuLen "1"
+
+    ;msg(menuLen)
+    ;freezeExecute("Encapsulation.start")
 }
-
 
 
 
@@ -18,12 +31,41 @@ Test2()
 {
 }
 
+
 if (A_ScriptName == "Test.ahk")
 {
     Test()
-    Sleep, 4000
-    ExitApp
+    ;Sleep, 4000
+    ;ExitApp
 }
+
+
+
+/*
+
+a::
+    stop := False
+    msg("ready")
+    Sleep, 1000
+    Send {LButton Down}
+    num := 300
+    while (!stop)
+    {
+        num := -num
+        MouseMove, 0, %num%, 20, R
+        num := -num
+        MouseMove, 0, %num%, 20, R
+    }
+    toolTip("")
+    return
+^Esc::
+    return
+^Esc Up::
+    stop := True
+    Send {LButton Up} 
+    return
+
+*/
 
 /*
 TEST:
@@ -101,8 +143,7 @@ testColorUnderMouse()
     MouseGetPos, x, y
     cols := [0x313C45]
     colVar := 0
-    hint := " "
-    matches := colorsMatch( x, y, cols, colVar, hint)
+    matches := colorsMatch( x, y, cols, colVar)
     PixelGetColor, resCol, x, y, RGB
     col := cols[1]
     msgBox(col " == " resCol " -> " matches)
@@ -114,11 +155,10 @@ testColorRightToMouse()
     ;cols := [0x313C45] vrai couleur
     cols := [0x303C45] ; modifié de 1 
     colVar := 1         ; à 0 ça marcherait pas
-    hint := " "
     incr := 10
     hint := "         "
     w := 500
-    foundX := scanColorsRight(x, y, w, cols, colVar, incr, hint)    
+    foundX := scanColorsRight(x, y, w, cols, colVar, incr)    
     relX := foundX - x
     msgBox("x: " foundX " relX: " relX)
 }

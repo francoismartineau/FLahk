@@ -1,32 +1,24 @@
 insertPattern(copyCurrName := False)
 {
     toolTip("new pattern")
-    WinGet, winId, ID, A
-    mouseGetPos(mX, mY, "Screen")
 
+    SendInput +^{Insert}        ; insert patt above, brings name editor
+    if (copyCurrName)
+        name := copyName()
+    SendInput +^{Down}          ; move patt down
+    nameEditorId := bringNameEditor()
     if (copyCurrName)
     {
-        copyName()
-        moveMouse(mX, mY, "Screen")
-    }
-    Send {ShiftDown}{F4}{ShiftUp}
-
-    nameEditorId := waitNewWindowOfClass("TNameEditForm", winId)
-    if (copyName)
         pasteName("", False)
-    Send {F2}
-
-    WinGetPos,,, neW, neH, ahk_id %nameEditorId%
-    neX := mX - Floor(neW/2)
-    neY := mY - Floor(neH/2)
-    WinMove, ahk_id %nameEditorId%,, %neX%, %neY%
-    WinActivate, ahk_id %nameEditorId%
-    if (!copyCurrName)
+        pasteColor(nameEditorId, False)
+    }
+    else
+    {
+        SendInput ^a
         typeText("Pat " randString(2))
-    centerMouse(nameEditorId)
-    unfreezeMouse()
-    waitAcceptAbort(True)
-    toolTip()
+        randomizeColor(True)
+    }
+    moveWinAtMouse(nameEditorId)
 }
 
 movePattern(dir)
@@ -40,7 +32,7 @@ clonePattern()
 {
     toolTip("clone pattern")
     Send {ShiftDown}{CtrlDown}c{ShiftUp}{CtrlUp}
-    bringPlaylist(False)
+    Playlist.bringWin(False)
     cloneSetName()
     toolTip()
 }

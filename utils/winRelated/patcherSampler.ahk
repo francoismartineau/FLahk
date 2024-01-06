@@ -120,9 +120,10 @@ hideInternalSampler(internalPluginId, samplerID)
 
 patcherSamplerSetKnobN(n, patcherId := "")
 {
-    y := 158 - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
+    isWrapper := isWrapperPlugin(patcherId)
+    y := 158 - isWrapper * yOffsetWrapperPlugin
     moveMouse(430, y)
-    pasteKnob(True, n/10, "patcherSurface")
+    Knob.paste(True, n/10, "patcherSurface")
 }
 
 ; --- Mouse Pos -----------------------------------
@@ -142,17 +143,17 @@ mouseOverSamplerLfoSpeedSet()
         res := "lp"
     else if (colorsMatch(mX, mY, [0xA67F96]))
         res := "pitch"
-    else if (colorsMatch(473, 459, [0x3F4B35]))
+    else if (colorsMatch(mX, mY, [0x3F4B35]))
         res := "vol"
     return res
 }
 
-samplerLfoSetTime(whichLfo, whichSampler)
+samplerLfoSetSpeed(whichLfo, whichSampler)
 {
     WinGet, samplerId, ID, A
     MouseGetPos, oriX, oriY
     moveMouse(oriX, oriY-30)
-    currVal := copyKnob(False)
+    currVal := Knob.copy(False)
     mapX := 72
     mapSurfaceY := 92 - isWrapperPlugin(patcherId)*yOffsetWrapperPlugin
     moveMouse(mapX, mapSurfaceY)
@@ -203,7 +204,7 @@ samplerLfoSetTime(whichLfo, whichSampler)
     surfaceX := 128
     moveMouse(surfaceX, mapSurfaceY)
     Click    
-    setKnobValue(oriX, oriY-30, newVal, "patcherSurface") 
+    Knob.setVal(oriX, oriY-30, newVal, "patcherSurface") 
 }
 
 mouseOverSamplerPatcherArp()
@@ -214,7 +215,7 @@ mouseOverSamplerPatcherArp()
     if (winId != activeWinId)
         WinActivate, ahk_id %winId%
     MouseGetPos, mX, mY
-    res := colorsMatch(mX, mY, [0xE2BEA7], 0)
+    res := colorsMatch(mX, mY, [0xE2BEA7])
     return res
 }
 

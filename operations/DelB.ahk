@@ -6,11 +6,11 @@
 
 delBTurnOffWetVols()
 {
-    setKnobValue(268, 152, 0)
-    setKnobValue(279, 246, 0)
-    setKnobValue(278, 352, 0)
-    setKnobValue(278, 449, 0)
-    setKnobValue(277, 532, 0)
+    Knob.setVal(268, 152, 0)
+    Knob.setVal(279, 246, 0)
+    Knob.setVal(278, 352, 0)
+    Knob.setVal(278, 449, 0)
+    Knob.setVal(277, 532, 0)
 }
 
 ; ----------------------------
@@ -34,21 +34,21 @@ delBSetTime()
     else if (491 < mY)
         pos := "5"
 
-    QuickClick(68, 45)       ; Map
+    quickClick(68, 45)       ; Map
 
     Send {AltDown}
     Switch pos
     {
     Case "1":
-        QuickClick(312, 144)
+        quickClick(312, 144)
     Case "2":
-        QuickClick(309, 209)
+        quickClick(309, 209)
     Case "3":
-        QuickClick(309, 265)
+        quickClick(309, 265)
     Case "4":
-        QuickClick(318, 329)
+        quickClick(318, 329)
     Case "5":
-        QuickClick(314, 381)
+        quickClick(314, 381)
     }
     Send {AltUp}
 
@@ -56,7 +56,7 @@ delBSetTime()
     knobVal := delaySetTime()
     /*
     WinMove, ahk_id %delayId%,, -1781, 770
-    QuickClick(104, 87, "Right")
+    quickClick(104, 87, "Right")
     Send {Down}{Down}{Right}
     Random, n, 1, 13
     Loop, %n%
@@ -73,7 +73,7 @@ delBSetTime()
     ;freezeMouse()
 
     WinActivate, ahk_id %delbId%
-    QuickClick(130, 43)       ; Surface
+    quickClick(130, 43)       ; Surface
     MouseMove, %mX%, %mY%, 0
-    pasteKnob(False, knobVal)
+    Knob.paste(False, knobVal)
 }

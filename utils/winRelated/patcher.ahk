@@ -10,7 +10,7 @@ patcherActivateMap(patcherId)
 
 patcherGetSurfaceX(patcherId, panelsSectionClosed)
 {
-    x := 88 ; check line between Map Surface Button (location when Surface is called "Surface")
+    x := 88 ; check line between Map Surface Button (location when longest Surface name is "Surface")
     y := 33 + (!panelsSectionClosed)*yOffsetWrapperPlugin
     cols := [0x1c2124, 0x202628] ; when Map is selected, when Surface is selected
     if (colorsMatch(x, y, cols))
@@ -21,6 +21,7 @@ patcherGetSurfaceX(patcherId, panelsSectionClosed)
 patcherActivateSurface(patcherId)
 {
     WinActivate, ahk_id %patcherId%
+    Sleep, 200
     if (isWrapperPlugin(patcherId))
         panelsSectionClosed := True
     else

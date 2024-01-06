@@ -1,46 +1,45 @@
 LFO()
 {
-    WinGetClass, class, A
-    WinGetClass, class, A
-    if (isPlugin())
-    {
-        minMax := knobCopyMinMax()
-        if (minMax.MaxIndex() != 2)
-            return
-            
-        Sleep, 20
-        pluginName := copyName()
-        lfoID := applyController(4, False, True, 2)
-        lfoName := makeControllerName("LFO", pluginName, randString(1))
-        rename(lfoName)
-        adjustLfo(minMax)
-    }
-    else 
-    {
-        lfoID := loadFx(4)
-        adjustLfo()
-        rename("LFO " randString(1), True)
-    }
+    oriId := mouseGetPos(knobX, knobY)
+    oriName := copyName()
+    values := Knob.copyMinMax()
+    if (!values)
+        return
+    lfoID := loadFx(4)
+    if (!lfoID)
+        return
+
+    WinActivate, ahk_id %oriId%
+    moveMouse(knobX, knobY)
+    params := {"autoAccept": True, "visionPickCtl": 2}
+    res := Knob.link(params)
+    if (!res)
+        return
+
+    WinActivate, ahk_id %lfoID%
+    lfoName := makeControllerName("LFO", pluginName, randString(1))
+    rename(lfoName)
+    adjustLfo(values)
     centerMouse(lfoID)
 }
 
-adjustLfo(minMax = "")
+adjustLfo(values := "")
 {
     randomizeLfo(True)
 
-    if (IsObject(minMax))
+    if (IsObject(values))
     {
-        min := minMax[1]
-        max := minMax[2]
+        min := values[1]
+        max := values[2]
 
         lfoBaseX := 235 
         lfoBaseY := 81
         base := min
-        setKnobValue(lfoBaseX, lfoBaseY, base)  
+        Knob.setVal(lfoBaseX, lfoBaseY, base)  
 
         lfoVolX := 281
         lfoVolY := 79    
         vol := .5 + (max-min)*.5
-        setKnobValue(lfoVolX, lfoVolY, vol)  
+        Knob.setVal(lfoVolX, lfoVolY, vol)  
     }
 }

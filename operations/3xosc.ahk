@@ -2,11 +2,11 @@ set3xoscMainPanel()
 {
     MouseMove, 28, 51, 0    ; main panel
     Click
-    setKnobValue(344, 118, getRandomInPitch())
+    Knob.setVal(344, 118, getRandomInPitch())
     if (stopExec)
         return    
-    setKnobValue(344, 229, getRandomInPitch())
-    setKnobValue(344, 338, getRandomInPitch())
+    Knob.setVal(344, 229, getRandomInPitch())
+    Knob.setVal(344, 338, getRandomInPitch())
 }
 
 setEnvelopes(envPanelX = 117)
@@ -44,11 +44,11 @@ setVolEnvelope()
     if (stopExec)
         return
     switchEnvelope("on")
-    setKnobValue(71, 243, expRand(0, 1, 5))             ; a
-    setKnobValue(105, 243, 0)                           ; h
-    setKnobValue(136, 243, 0)                           ; d
-    setKnobValue(169, 243, 1)                           ; s
-    setKnobValue(201, 243, expRand(0, 1, 2))            ; r
+    Knob.setVal(71, 243, expRand(0, 1, 5))             ; a
+    Knob.setVal(105, 243, 0)                           ; h
+    Knob.setVal(136, 243, 0)                           ; d
+    Knob.setVal(169, 243, 1)                           ; s
+    Knob.setVal(201, 243, expRand(0, 1, 2))            ; r
 }
 
 setModXEnvelope()
@@ -57,12 +57,12 @@ setModXEnvelope()
     if (stopExec)
         return
     switchEnvelope("on")
-    setKnobValue(71, 243, expRand(0, 1, 4))             ; a
-    setKnobValue(105, 243, 0)                           ; h
-    setKnobValue(136, 243, expRand(0, 1, 2))            ; d
-    setKnobValue(169, 243, 0)                           ; s
-    setKnobValue(201, 243, expRand(0, 1, 2))            ; r
-    setKnobValue(280, 253, expRand(0, 1, 2))            ; amt
+    Knob.setVal(71, 243, expRand(0, 1, 4))             ; a
+    Knob.setVal(105, 243, 0)                           ; h
+    Knob.setVal(136, 243, expRand(0, 1, 2))            ; d
+    Knob.setVal(169, 243, 0)                           ; s
+    Knob.setVal(201, 243, expRand(0, 1, 2))            ; r
+    Knob.setVal(280, 253, expRand(0, 1, 2))            ; amt
 }
 
 disableModXEnvelope()
@@ -77,13 +77,13 @@ setPitchEnvelope()
     if (stopExec)
         return           
     switchEnvelope("on")
-    setKnobValue(71, 243, expRand(0, 1, 6))             ; a
-    setKnobValue(105, 243, 0)                           ; h
-    setKnobValue(136, 243, expRand(0, 1, 4))            ; d
-    setKnobValue(169, 243, 0)                           ; s
-    setKnobValue(201, 243, expRand(0, 1, 2))            ; r
-    setKnobValue(280, 253, expRand(0, 1, 2))            ; amt
-    setKnobValue(396, 249, .5)                          ; turn off lfo amt
+    Knob.setVal(71, 243, expRand(0, 1, 6))             ; a
+    Knob.setVal(105, 243, 0)                           ; h
+    Knob.setVal(136, 243, expRand(0, 1, 4))            ; d
+    Knob.setVal(169, 243, 0)                           ; s
+    Knob.setVal(201, 243, expRand(0, 1, 2))            ; r
+    Knob.setVal(280, 253, expRand(0, 1, 2))            ; amt
+    Knob.setVal(396, 249, .5)                          ; turn off lfo amt
 }
 
 disablePitchEnvelope()
@@ -98,16 +98,16 @@ setPitchLFO()
     if (stopExec)
         return         
     switchEnvelope("off")
-    setKnobValue(396, 249, expRand(.5, 0.04, 4))            ; amt
-    setKnobValue(429, 242, expRand(.16, 0.42, 2))           ; speed
+    Knob.setVal(396, 249, expRand(.5, 0.04, 4))            ; amt
+    Knob.setVal(429, 242, expRand(.16, 0.42, 2))           ; speed
 }
 
 setFilter()
 {
     if (stopExec)
         return     
-    setKnobValue(493, 173, expRand(0, 1, .6))  ; Filter X
-    setKnobValue(518, 234, expRand(0, 1, 3)) ; Filter Y
+    Knob.setVal(493, 173, expRand(0, 1, .6))  ; Filter X
+    Knob.setVal(518, 234, expRand(0, 1, 3)) ; Filter Y
     Click, 509, 292
     Random, filterType, 0, 7
     Loop, %filterType%
@@ -121,7 +121,7 @@ switchEnvelope(mode = "on")
     y := 122
     while (!(isOn or isOff))
     {
-        isOn := colorsMatch(x, y, [0xEE835D], 10, "")
+        isOn := colorsMatch(x, y, [0xEE835D], 10)
         isOff := colorsMatch(20, 122, [0x565D60])
     }
     switch mode

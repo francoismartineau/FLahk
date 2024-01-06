@@ -58,7 +58,7 @@ dragDropSlicexSample(oriX, oriY, oriWin, slicexId)
     Click, up
     Sleep, 50
     midiRequest("toggle_play_pause_twice")
-    QuickClick(618, 344)        ; auto slice
+    quickClick(618, 344)        ; auto slice
 }
 
 patcherSlicexRelDisable()
@@ -100,7 +100,7 @@ patcherSlicexRel(disable = False)
         Send {WheelDown}
         Sleep, 50
     }
-    QuickClick(421, 198)    ; run
+    quickClick(421, 198)    ; run
     hideInternalSampler(slicexId, samplerID)
 }
 

@@ -1,4 +1,4 @@
-#If WinActive("ahk_exe FL64.exe") and isPlaylist()
+#If WinActive("ahk_exe FL64.exe") and Playlist.isWin()
 ^b::
    Send {CtrlDown}b{CtrlUp}
    return   

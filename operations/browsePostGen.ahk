@@ -1,6 +1,6 @@
 browsePostGen()
 {
-    genPath := packsPath "\_gen"
+    genPath := Paths.packs "\_gen"
     weights := [fileNumInDir(genPath)]
     i := 2
     genFolderQty := 3

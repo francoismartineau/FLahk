@@ -5,7 +5,9 @@ class PreGenBrowser
     static backupFilePath := 
     static currBackupNum := 
     static latestBackupNum := 
-    static lnkDir := packsPath "\_gen\_preGenBrowser"
+    static lnkDir :=
+    static defautlMsgHeader :=
+    static debugConcatAudio := False
     start()
     {
         PreGenBrowser.running := True
@@ -18,15 +20,8 @@ class PreGenBrowser
     __initMsgRefresh(supLines := "")
     {
         if (supLines == "")
-            supLines := []
-        msgHeader =
-(
-Win:: pick sound              RClick::rm sound
-Esc:: abort                   <>^:: prev/next/last backup
-Alt scr down:: run        Alt scr up::browse
---------------
-)     
-        initLines := [msgHeader]
+            supLines := []   
+        initLines := [PreGenBrowser.defautlMsgHeader]
         initLines.Push(supLines*)
         condition := "PreGenBrowser.msgRefreshDisplayCondition"
         startMsgRefresh(initLines, condition)
@@ -55,7 +50,7 @@ Alt scr down:: run        Alt scr up::browse
         propertiesWinId := PreGenBrowser.openFileProperties(isFolder)
         if (propertiesWinId)
         {
-            Sleep, 1
+            Sleep, 50
             dirPath := PreGenBrowser.copyDirName(isFolder)
             if (dirPath)
             {
@@ -207,18 +202,22 @@ Alt scr down:: run        Alt scr up::browse
         PreGenBrowser.clearLnkDir()
         dir := PreGenBrowser.lnkDir
         FileCreateDir, %dir%
-        for i, sound in PreGenBrowser.sounds
+        for i, sound_path in PreGenBrowser.sounds
         {
-            path := dir "\" i ".lnk"
-            FileCreateShortcut, %sound%, %path%
+            lnk_path := dir "\" i ".lnk"
+            FileCreateShortcut, %sound_path%, %lnk_path%
         }
         return dir
     }
 
     clearLnkDir()
     {
-        dir := PreGenBrowser.lnkDir
-        FileRemoveDir, %dir%, 1
+        if (!PreGenBrowser.debugConcatAudio)
+        {
+            dir := PreGenBrowser.lnkDir
+            FileRemoveDir, %dir%, 1
+        }
+
     }
 
     __getSoundName(filePath)
@@ -280,11 +279,11 @@ Alt scr down:: run        Alt scr up::browse
         if (!foudBackupFile)
             return
         f := FileOpen(PreGenBrowser.backupFilePath, "r")
-        paths := readLines(f)
+        filePaths := readLines(f)
         f.close()
-        PreGenBrowser.__filterPaths(paths)
+        PreGenBrowser.__filterPaths(filePaths)
         f := FileOpen(PreGenBrowser.backupFilePath, "r")
-        PreGenBrowser.sounds := paths
+        PreGenBrowser.sounds := filePaths
         PreGenBrowser.__UseBackupUpdateMsgRefresh(direction)
     }
 
@@ -339,15 +338,14 @@ Alt scr down:: run        Alt scr up::browse
         return success
     }
 
-    __filterPaths(ByRef paths)
+    __filterPaths(ByRef filePaths)
     {
         i := 1
-        while (i <= paths.MaxIndex())
+        while (i <= filePaths.MaxIndex())
         {
-            path := paths[i]
-            clipboard := path
+            path := filePaths[i]
             if (!FileExist(path))
-                paths.RemoveAt(i)
+                filePaths.RemoveAt(i)
             else
                 i += 1
         }
@@ -392,3 +390,13 @@ Alt scr down:: run        Alt scr up::browse
         f.close()
     }
 }
+
+PreGenBrowser.lnkDir := Paths.packs "\_gen\_preGenBrowser"
+msgHeader =
+(
+Win:: pick sound              RClick::rm sound
+Esc:: abort                   <>^:: prev/next/last backup
+Alt scr down:: run        Alt scr up::browse
+--------------
+)
+PreGenBrowser.defautlMsgHeader := msgHeader

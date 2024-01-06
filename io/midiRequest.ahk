@@ -77,7 +77,7 @@ midiRequest(req, param := 0)
             cc := 50    
             needAnswer := True
 
-        Case "set_PY_TO_FL_MODE":
+        Case "set_PY_TO_FL_FILTER":
             cc := 30    
             toFL := False
             toPY := True

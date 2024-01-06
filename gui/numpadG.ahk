@@ -27,13 +27,13 @@ makeNumpadG()
 
     posX := 10
     posY += numpadGbuttH
-    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_5, Autom
+    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_5, EC
     posX += numpadGbuttW
-    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_6, step edit
+    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_6, mIze
     posX += numpadGbuttW
     Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_7, 
     posX += numpadGbuttW
-    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_8, 
+    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_8, step edit
 
     posX := 10
     posY += numpadGbuttH
@@ -47,7 +47,7 @@ makeNumpadG()
 
     posX := 10
     posY += numpadGbuttH
-    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_13, EC
+    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_13, Autom
     posX += numpadGbuttW
     Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_14, Source
     posX += numpadGbuttW
@@ -61,9 +61,97 @@ makeNumpadG()
     posX += numpadGbuttW
     Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_18, Lock chan
     posX += numpadGbuttW
-    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_19,
+    Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_19, Idea
     posX += numpadGbuttW
     Gui, NumpadG:Add, Button, x%posX% y%posY% w%width% h%height% gNUMPAD_G_20,
+    return 
+
+    NUMPAD_G_1:                                 ; c min max
+    hideNumpadG()
+    freezeExecute("Knob.linkApplyMinMax")
+    return
+    NUMPAD_G_2:                                 ; c link
+    hideNumpadG()
+    freezeExecute("Knob.pickLink") 
+    return
+    NUMPAD_G_3:                                 ; Main Events
+    hideNumpadG()
+    freezeExecute("toggleMainEvents")
+    return
+    NUMPAD_G_4:                                 ; note
+    hideNumpadG()
+    freezeExecute("loadScore", [2], True, True)
+    return
+
+    NUMPAD_G_5:                                 ; EC
+    hideNumpadG()
+    freezeExecute("EnvC.applyCtl")
+    return
+    NUMPAD_G_6:                                 ; mIze currChan
+    hideNumpadG()
+    freezeExecute("EnvC.mIzeCurrChan")
+    return
+    NUMPAD_G_7:
+    hideNumpadG()
+    return
+    NUMPAD_G_8:                                 ; step edit
+    hideNumpadG()
+    freezeExecute("toggleStepEdit") 
+    return    
+
+    NUMPAD_G_9:                                 ; LFO
+    hideNumpadG()
+    freezeExecute("LFO")
+    return
+    NUMPAD_G_10:                                ; Make Unique
+    hideNumpadG()
+    freezeExecute("makeUnique")
+    return
+    NUMPAD_G_11:                                ; Select similar clips
+    hideNumpadG()
+    freezeExecute("selectSimilarClips")
+    return
+    NUMPAD_G_12:
+    hideNumpadG()
+    return
+
+
+    NUMPAD_G_13:                                 ; Autom
+    hideNumpadG()
+    freezeExecute("Knob.createAutomation")
+    return
+    NUMPAD_G_14:                                ; source
+    hideNumpadG()
+    freezeExecute("selectSourceForAllSelectedClips")
+    return
+    NUMPAD_G_15:                                ; reverse sound
+    hideNumpadG()
+    freezeExecute("reverseSound")
+    return
+    NUMPAD_G_16:                                ; Layer
+    hideNumpadG()
+    freezeExecute("Layer")
+    return    
+
+    NUMPAD_G_17:                                ; Note length
+    hideNumpadG()
+    freezeExecute("toggleHoveredNoteLenght", [], True, True)       
+    return    
+
+    NUMPAD_G_18:                                ; Lock channel
+    hideNumpadG()
+    if (StepSeq.mouseOverInstr())
+        freezeExecute("lockChan")
+    else if (isInstr())
+        freezeExecute("lockChanFromInstrWin")
+    return    
+
+    NUMPAD_G_19:                                ;
+        displayRandomIdea()
+    return
+
+    NUMPAD_G_20:                                ;
+    return
 }
 
 showNumpadG()
@@ -83,8 +171,8 @@ showNumpadG()
     Gui, NumpadG:Show, x%mX% y%mY% NoActivate, NumpadG
     placeNumpadG()
     showNumpadGToolTip()
-    row := randInt(1, numpadGRowQty)
-    col := randInt(1, numpadGColQty)
+    row := Floor(numpadGRowQty/2) ;randInt(1, numpadGRowQty)
+    col := Floor(numpadGColQty/2) ;randInt(1, numpadGColQty)
     placeMouseOnNumpadG(row, col)
 }
 
@@ -93,7 +181,7 @@ showNumpadGToolTip()
     WinGetPos, winX, winY,,, ahk_id %NumpadGId%
     tipX := winX
     tipY := winY - 20
-    tipMsg := "+(!) scroll/x1x2        Rclick"
+    tipMsg := "+ vertical   +! horizontal        Rclick"
     setToolTipCoordMode("Screen")
     ToolTip, %tipMsg%, %tipX%, %tipY%, 2
 }

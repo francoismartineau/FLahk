@@ -1,13 +1,8 @@
 ; -- External Mixer Slots References------------------------------
-#If WinActive("ahk_exe FL64.exe") and doubleClicked() and (mouseOverStepSeqMixerInserts() or mouseOverInstrMixerInsert())
-~LButton::
-    freezeExecute("openMixerInsert")
-    return
-#If
-
-#If WinActive("ahk_exe FL64.exe") and (mouseOverStepSeqMixerInserts() or mouseOverInstrMixerInsert())
-+LButton::
-    freezeExecute("openMixerInsert")
+#If WinActive("ahk_exe FL64.exe") and doubleClicked() and (StepSeq.mouseOverMixerInserts() or mouseOverInstrMixerInsert())
+LButton::
+    waitKey("LButton")
+    freezeExecute("StepSeq.openMixerInsert")
     return
 #If
 ;-- 
@@ -20,16 +15,11 @@ LButton::
 #If
 ; --
 
-
-
 #If WinActive("ahk_exe FL64.exe") and mouseOverMixerSlotSection()
 RButton::
     bringMixer()
     return
 #If
-
-
-
 
 ; -- Mixer Menu Clicks ------------------------------------------
 #If WinActive("ahk_exe FL64.exe") and mouseOnMixerButUnderMenu()

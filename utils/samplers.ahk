@@ -31,7 +31,7 @@ dragDropAnyPatcherSampler(oriX, oriY, oriWin, samplerId = "")
     }
     if (movedSampler)
         WinMove, ahk_id %samplerId%,, 400, 200
-    randomizeName(True, False, False, baseName)
+    ;randomizeName(True, False, False, baseName)
 }
 
 detectWhichSampler(samplerId)
@@ -57,7 +57,7 @@ altClickSampler()
     {
         whichLfo := mouseOverSamplerLfoSpeedSet()
         if (whichLfo)
-            samplerLfoSetTime(whichLfo, whichSampler)
+            samplerLfoSetSpeed(whichLfo, whichSampler)
         else if (mouseOverSamplerPatcherArp())
             randomizeArpParams()
         else if (mouseOverSamplerPatcherDel())
@@ -65,6 +65,7 @@ altClickSampler()
         else
         {
             n := mouseOverNsetter()
+            msg("  n: " n)
             if (n)
                 patcherSamplerSetKnobN(n)   
         }

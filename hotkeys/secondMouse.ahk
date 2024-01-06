@@ -98,6 +98,7 @@ secondMouseKnobSetMouseCtl()
     knobY := secondMouseY - winY
     WinGet, secondMouseKnobWinId, ID, A
     WinGetTitle, secondMouseKnobWinTitle, ahk_id %secondMouseKnobWinId%
+    /*   moveWinIf became a private CtxMenu func
     movedWin := moveKnobWinIfNecessary(knobX, knobY, secondMouseKnobWinId)
     if (movedWin)
     {
@@ -110,12 +111,12 @@ secondMouseKnobSetMouseCtl()
         mX := secondMouseX-2
         mY := secondMouseY
     }
-    
+    */
 
     moveMouse(mX, mY, "Screen")
-    linkKnobDontMoveWin := True
-    linkKnobToNextMidiInput()
-    linkKnobDontMoveWin := False
+    CtxMenu.dontMoveWin := True
+    Knob.openLinkWin()
+    CtxMenu.dontMoveWin := False
 
 
     if (movedWin)
@@ -129,7 +130,7 @@ secondMouseResetMouseCtl()
     {
         WinActivate, %secondMouseKnobWinTitle%
         moveMouse(secondMouseX-2, secondMouseY, "Screen")
-        knobResetCtl()
+        Knob.resetLink()
         secondMouseKnobWinId := ""
         secondMouseKnobWinTitle := ""
     }

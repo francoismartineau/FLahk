@@ -7,21 +7,21 @@
 
 
 ;-- moveWin --------------------------------
-#If !numpadGShown and (WinActive("ahk_class TStepSeqForm") or (WinActive("ahk_class TPluginForm") and !isMasterEdison()))
+#If !numpadGShown and (isPlugin() and !isMasterEdison()) or StepSeq.isWin()
 +!XButton1::
-    moveWinLeftScreen()
+    freezeExecute("MoveWin.switchMon", ["left"])
     return
 
 +!XButton2::
-    moveWinRightScreen()
+    freezeExecute("MoveWin.switchMon", ["right"])
     return
 
-~!XButton1::
-    moveWinLeft("XButton1")
+!XButton1::
+    freezeExecute("MoveWin.nudge", ["left"])
     return
 
-~!XButton2::
-    moveWinRight("XButton2")
+!XButton2::
+    freezeExecute("MoveWin.nudge", ["right"])
     return
 #If
 ; ------- 
@@ -33,6 +33,8 @@ MButton::
 MButton Up::
     if (!acceptPressed)
         acceptPressed := True
+    else if (isNameEditor() or isPianoRollTool())
+        Send {Enter}
     else if (isInstr())
         return
     else
@@ -60,11 +62,32 @@ MButton Up::
 
 
 ;-- LButton --------------------------------
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.mouseOverChannChoice()
+LButton::
+    return
+LButton Up::
+    scrollInstrStart("pianoRoll")
+    return
+#If
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.mouseOverNoteCol()
+LButton::
+    return
+LButton Up::
+    freezeExecute("PianoRoll.setNoteCol", [1])
+    return
+#If
 #If WinActive("ahk_exe FL64.exe") and mouseOverRecordButton()
 LButton::
     return
 LButton Up::
-    msg("Use upper razer buttons  [_][R][ ][ ]")
+recordButtonMsg = 
+(
+Use upper razer buttons:
+[X]
+[ ]
+[R]
+)
+    msg(recordButtonMsg)
     return
 #If
 #If WinActive("ahk_exe FL64.exe") and mouseOverMainFileMenu("new")
@@ -100,8 +123,7 @@ LButton Up::
 #If
 #If WinActive("ahk_exe FL64.exe") and doubleClicked() and hoveringUpperMenuPattern()
 LButton::
-    return
-LButton Up::
+    waitKey("LButton")
     Send {ShiftDown}{CtrlDown}p{ShiftUp}{CtrlUp}
     return
 #If 
@@ -113,15 +135,6 @@ LButton Up::
     return
 #If
 ;------------------------------------------------
-; -- RButton ------------------------------------
-#If WinActive("ahk_exe FL64.exe") and !alternativeChoicePressed
-+^RButton::
-    return
-+^RButton Up::
-    alternativeChoicePressed := True
-    return
-#If
-; -----------------------------------------------
 
 
 
@@ -140,12 +153,17 @@ RButton::
     PreGenBrowser.removeSound()
     return
 #If
+#If saveNewProjectRighClickGenName
+RButton::
+    generateProjectName()
+    return
+#If
 
 
 ; -- ^Click: pianoRoll
 #If WinActive("ahk_exe FL64.exe") and ((isMixer("", True) or isMainFlWindow("", True) or (!isInstr("", True) and !isEdison("", True) and isPlugin("", True))))
 ^LButton::
-    bringPianoRoll()
+    freezeExecute("PianoRoll.bringWin")
     return
 #If
 ; --
@@ -166,16 +184,21 @@ RButton::
     freezeExecute("disableRecord")
     return
 
-!F16::                                  ; 6
+!F24::                                  ; 1
     freezeExecute("recordModeChoice")
     return
 #If
-
+#If WinActive("ahk_exe FL64.exe") and whileSetPyToFlFilter
+!F17::                                  ; 7
+    acceptPressed := True
+    return
+#If
 #If WinActive("ahk_exe FL64.exe") 
 !F17::                                  ; 7
-    setPyToFlMode()
+    setPyToFlFilter()
     return
-
+#If
+#If True
 !F20::                                  ; 10
     Send {Volume_Mute}
     return

@@ -1,8 +1,30 @@
-﻿global masterEdisonId = ""
-bringMasterEdison(moveMouse := True)
+﻿bringMainWin(winId)
+{
+    if (StepSeq.isWin(winId))
+        StepSeq.bringWin(True, True, winId)
+    else if (PianoRoll.isWin(winId))
+        PianoRoll.bringWin(True, True, winId)
+    else if (Playlist.isWin(winId))
+        Playlist.bringWin(True, winId)
+    else if isEventEditor(winId)
+        bringEventEditor(True, winId)
+    else if isMasterEdison(winId)
+        bringMasterEdison(True, winId)
+    else if isMixer(winId)
+        bringMixer(True)
+    else
+        WinActivate, ahk_id %winId%
+}
+
+global masterEdisonId = ""
+bringMasterEdison(moveMouse := True, winId := "")
 {
     WinGet, currWinId, ID, A
-    WinGet, freshMasterEdisonId, ID, Master Edison
+    if (winId == "")
+        WinGet, freshMasterEdisonId, ID, Master Edison
+    else 
+        freshMasterEdisonId := winId
+
     if (currWinId != freshMasterEdisonId)
     {
         if (!freshMasterEdisonId)
@@ -14,6 +36,8 @@ bringMasterEdison(moveMouse := True)
         }
         else
             WinActivate, ahk_id %freshMasterEdisonId%
+
+        moveMasterEdison()
 
         masterEdisonId := freshMasterEdisonId
         if (moveMouse)
@@ -28,9 +52,12 @@ bringMasterEdison(moveMouse := True)
     return masterEdisonId
 }
 
-bringMixer(moveMouse = True)
+bringMixer(moveMouse := True, winId := "")
 {
-    WinGet, mixerId, ID, ahk_class TFXForm
+    if (winId == "")
+        WinGet, mixerId, ID, ahk_class TFXForm
+    else
+        mixerId := winId
     if (!mixerId or !isVisible(mixerId))
     {
         Send {F9}
@@ -46,55 +73,6 @@ bringMixer(moveMouse = True)
     return mixerId
 }
 
-bringPianoRoll(focusNotes := True, moveMouse := True)
-{
-    WinGet, pianoRollId, ID, ahk_class TEventEditForm, Piano roll
-    if (isPianoRoll())
-        return  
-
-    if (!pianoRollId)
-    {
-        WinGet, currId, ID, A
-        Send {F7}
-        pianoRollId := waitNewWindowTitled("Piano roll", currId)
-    }
-    else
-        WinActivate, ahk_id %pianoRollId%
-    
-    movePianoRoll(pianoRollId)
-
-    if (focusNotes)
-    {
-        MouseMove, 767, 356, 0
-        Send, {Ctrl Down}{Wheelup}{Ctrl Up}
-        Send, {Ctrl Down}{RButton}{Ctrl Up}
-    }
-
-    if (moveMouse)
-        centerMouse(pianoRollId)
-
-    
-    return pianoRollId
-}
-
-bringPlaylist(moveMouse := True)
-{
-    WinGet, playlistId, ID, ahk_class TEventEditForm, Playlist
-    if (!playlistId or !isVisible(playlistId))
-    {
-        WinGet, currId, ID, A
-        Send {F5}
-        playlistId := waitNewWindowTitled("Playlist", currId)
-    }
-    else
-        WinActivate, ahk_id %playlistId%
-
-    if (moveMouse)
-        centerMouse(playlistId)
-    
-    return playlistId
-}
-
 bringControlSurface(moveMouse := True)
 {
     WinGet, controlSurfaceId, ID, Control Surface (knobs)
@@ -108,33 +86,10 @@ bringControlSurface(moveMouse := True)
 }
 
 
-bringStepSeq(moveMouse := True)
+bringEventEditor(moveMouse := True, winId := "")
 {
-    WinGet, stepSeqId, ID, ahk_class TStepSeqForm
-    if (!stepSeqId or !isVisible(stepSeqId))
-    {
-        WinGet, currId, ID, A
-        Send {F6}
-        stepSeqId := waitNewWindowOfClass("TStepSeqForm", currId)
-        if (!stepSeqId)
-            return
-    }
-    else
-        WinActivate, ahk_id %stepSeqId%
-    
-
-    if (!stepSeqMaximized(stepSeqId))
-        maximizeStepSeq(stepSeqId)
-
-    if (moveMouse)
-        centerMouse(stepSeqId)
-        
-    return stepSeqId
-}
-
-bringEventEditor(moveMouse := True)
-{
-    WinGet, eventEditorId, ID, Events -
+    if (winId == "")
+        WinGet, eventEditorId, ID, Events -
     if (eventEditorId != "")
     {
         WinActivate, ahk_id %eventEditorId%
@@ -165,48 +120,30 @@ bringFL()
         WinActivate, ahk_exe FL64.exe
 }
 
-bringM1()
-{
-    stepSeqId := bringStepSeq(False)
-    x := 180
-    quickClick(x, 13)           ; Group
-    quickClick(x, 37)           ; All
-    moveMouse(x, 60)            ; 1st Chan
-    m1Id := openChannelUnderMouse(False)
-    restoreWin(m1Id)
-    if (isM1(m1Id))
-        centerMouse(m1Id)
-    else
-    {
-        WinClose, ahk_id %m1Id%
-        m1Id := ""        
-    }
-    return m1Id
-}
-
-global percEnvId
 bringPercEnv()
 {
-    if (WinExist(percEnvId))
+    if (winExists(PercEnv.winId))
     {
+        percEnvId := PercEnv.winId
         WinActivate, ahk_id %percEnvId%
-        if (makeSureWinIsPercEnv(percEnvId))
+        if (PercEnv.confirmWin(PercEnv.winId))
         {
-            centerMouse(percEnvId)
+            centerMouse(PercEnv.winId)
             return
         }
     }
 
-    stepSeqId := bringStepSeq(False)
+    stepSeqId := StepSeq.bringWin(False)
     x := 180
-    quickClick(x, 13)           ; Group
-    quickClick(x, 37)           ; All
-    moveMouse(x, 122)           ; 3rd Chan
-    percEnvId := openChannelUnderMouse(False)
-    if (makeSureWinIsPercEnv(percEnvId))
-        centerMouse(percEnvId)
-    return percEnvId
+    StepSeq.changeGroup(StepSeq.knownChannels["percEnv"]["group"])
+    y := StepSeq.channelIndexToY(StepSeq.knownChannels["percEnv"]["index"])
+    moveMouse(x, y)
+    percEnvId := StepSeq.bringChanUnderMouse(False)
+    if (PercEnv.confirmWin(percEnvId))
+        centerMouse(PercEnv.winId)
+    return PercEnv.winId
 }
+
 
 bringLoopMidi()
 {
@@ -215,6 +152,7 @@ bringLoopMidi()
     if (!isOpen)
     {
         WinGet, currWinId, ID, A
+        loopMidiPath := Paths.loopMidi
         run, %loopMidiPath%
         loopMidiId := waitNewWindowOfProcess("loopMIDI.exe", currWinId)
     }

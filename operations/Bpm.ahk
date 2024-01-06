@@ -1,10 +1,9 @@
 ﻿randomizeBpm()
 {
-    ;clipboardSave := clipboard
     controlSurfaceId := bringControlSurface(False)
     if (controlSurfaceId)
     {
-        setKnobValue(1556, 85, centeredExpRand(0, 1))
+        Knob.setVal(1556, 85, centeredExpRand(0, 1))
     }
     /*
     id := bringMainFLWindow()
@@ -22,7 +21,6 @@
         clipboard := projectBpm
         Send {CtrlDown}v{CtrlUp}
         Send, {Enter}
-        clipboard := clipboardSave
         externalizeBpm()
     }
     */

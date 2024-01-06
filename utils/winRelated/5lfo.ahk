@@ -23,5 +23,5 @@ mouseOver5lfoSetSpeed()
     WinClose, ahk_id %lfoId%
     WinActivate, ahk_id %patcherId%
     patcherActivateSurface(patcherId)
-    setKnobValue(oriX, oriY-40, newVal, "patcherSurface") 
+    Knob.setVal(oriX, oriY-40, newVal, "patcherSurface") 
 }

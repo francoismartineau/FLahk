@@ -80,7 +80,7 @@ masterEdisonTruncateAudioScanSound(mode, threshY, leftX, reverse)
     width := masterEdisonSoundRightX - leftX
     colorsMatchDebug := True
     colorsMatchDebugTime := 1000
-    rightX := scanColorsRight(leftX, threshY, masterEdisonSoundWidth, cols, colVar, incr, "", False, reverse)
+    rightX := scanColorsRight(leftX, threshY, masterEdisonSoundWidth, cols, colVar, incr, reverse)
     colorsMatchDebug := False
     return rightX
 }
@@ -261,9 +261,8 @@ edisonArmed()
     y := 49
     col := [0xB62B08]
     colVar := 0
-    hint := ""
     ;colorsMatchDebug := True
-    res := colorsMatch(x, y, col, colVar, hint)
+    res := colorsMatch(x, y, col, colVar)
     ;colorsMatchDebug := False
     return res
 }

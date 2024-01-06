@@ -16,7 +16,7 @@ winHistoryTick()
     
         if (isFLWindow(id) and justChangedWindow(id) and !isWindowHistoryExclude(id))
         {
-            if (isPlugin(id) or isWrapperPlugin(id))
+            if (isPlugin(id))
                 mode := "plugin"
             else
                 mode := "mainWin"
@@ -39,7 +39,7 @@ justChangedWindow(id)
 {
     res := False
     if (id != "")
-        res := id != pluginWinHistory[pluginWinHistoryIndex] and id != mainWinHistory[mainWinHistoryIndex]
+        res := id != pluginWinHistory[1] and id != mainWinHistory[1]
     return res
 }
 
@@ -62,14 +62,11 @@ removeWinFromHistory(index, mode)
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
-    }    
-    %history%.RemoveAt(index)
-    if (%historyIndex% >= index)
-        %historyIndex% := %historyIndex% - 1
+    }   
+    if index >= 1 and index <= %history%.MaxIndex()
+        %history%.RemoveAt(index)
 }
 
 removeWinFromHistoryById(winId, mode)
@@ -78,26 +75,20 @@ removeWinFromHistoryById(winId, mode)
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
     }    
 
-    index := pluginWinHistoryIndex
-    i := 1
-    while (%history%.MaxIndex() >= 1 and i <= %history%.MaxIndex())
+    index := 1
+    while (%history%.MaxIndex() >= 1 and index <= %history%.MaxIndex())
     {
-        if (index > %history%.MaxIndex())
-            index := 1            
         currWinId := %history%[index]
         if (winId == currWinId)
         {
             removeWinFromHistory(index, mode)
             break
         }
-        i := i + 1
-        index := index + 1
+        index += 1
     }
 }
 
@@ -122,42 +113,38 @@ registerWinToHistory(id, mode)
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
     }    
-    %history%.InsertAt(%historyIndex%, id)
+    %history%.InsertAt(1, id)
 }
 
 displayHistoryContent(moreInfo = "")
 {
     msg = %moreInfo% `r`n`r`n
-    lookingBackInHistory := mainWinHistoryIndex > 1
     n := mainWinHistory.MaxIndex()
-    msg = %msg% mainWins %n%     looking back: %lookingBackInHistory%
+    msg = %msg% mainWins %n% 
     Loop %n%
     {
         id := mainWinHistory[A_Index]
         WinGetTitle, title, ahk_id %id%
         msg = %msg% `r`n
-        if (A_Index == mainWinHistoryIndex)
+        if (A_Index == 1)
             msg := msg ">"
         else
             msg := msg " "
         msg = %msg%%A_Index% : %title%
     }
 
-    lookingBackInHistory := pluginWinHistoryIndex > 1
     n := pluginWinHistory.MaxIndex()
     msg = %msg% `r`n`r`n
-    msg = %msg% pluginWins %n%     looking back: %lookingBackInHistory%
+    msg = %msg% pluginWins %n% 
     Loop %n%
     {
         id := pluginWinHistory[A_Index]
         WinGetTitle, title, ahk_id %id%
         msg = %msg% `r`n
-        if (A_Index == pluginWinHistoryIndex)
+        if (A_Index == 1)
             msg := msg ">"
         else
             msg := msg " "
@@ -165,6 +152,20 @@ displayHistoryContent(moreInfo = "")
     }
     toolTip(msg, toolTipIndex["debug"], 1422, 82, "Screen")
 }
+
+isLastPlugin(title)
+{
+    lastPluginTitle := getLastPluginTitle()
+    return InStr(lastPluginTitle, title)
+}
+
+getLastPluginTitle()
+{
+    lastPluginId := pluginWinHistory[1]
+    WinGetTitle, lastPluginTitle, ahk_id %lastPluginId%
+    return lastPluginTitle
+}
+
 
 ; -- Tab Caps -------------------------------------
 activatePrevPlugin()
@@ -193,36 +194,26 @@ activatePrevNextWin(mode, dir)
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
         notFoundFunc := "activateAhkFoundPlugin"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
-        notFoundFunc := "bringStepSeq"
+        notFoundFunc := "StepSeq.bringWin"
     }   
-    found := False
-    index := %historyIndex% 
 
-    if (currentIndexWinIsNotActive(mode))
+    found := False
+    if (currentHistoryWinIsNotActive(mode))
     {
         found := True
-        id := %history%[%historyIndex%]
+        id := %history%[1]
     }
-
-    if (dir == "prev")
-        incr := 1
     else if (dir == "next")
-        incr := -1
-
+        index := %history%.MaxIndex()
     while (%history%.MaxIndex() > 1 and !found)
     {
-        index := index + incr
-        if (index > %history%.MaxIndex())
-            index := 1        
-        else if (index < 1)
-            index := %history%.MaxIndex()     
+        if (dir == "prev")
+            index := Max(2, %history%.MaxIndex())
         id := %history%[index]
-        if (WinExist("ahk_id " id) and isVisible(id))
+        if (winExists(id))
             found := True
         else
             removeWinFromHistory(index, mode)
@@ -230,12 +221,9 @@ activatePrevNextWin(mode, dir)
     
     if (found)
     {
-        %historyIndex% := index
         WinActivate, ahk_id %id%
         centerMouse(id)
     }
-    else
-        id := %notFoundFunc%()
     return id
 }
 
@@ -265,24 +253,25 @@ toolTipChoiceActivateMainWin()
 global whileToolTipChoiceActivateWin := False
 toolTipChoiceActivateWin(mode)
 {
+    winHistoryTick()
     whileToolTipChoiceActivateWin := True
     Switch mode
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
         notFoundFunc := "activateAhkFoundPlugin"
+        initIndex := isPlugin() ? 2 : 1
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
-        notFoundFunc := "bringStepSeq"
+        notFoundFunc := "StepSeq.bringWin"
+        initIndex := isPlugin() ? 1 : 2
     }    
     presentToolTip := True
     while (presentToolTip)
     {
         cleanHistory(mode)
         winTitleList := historyToWinTitleList(mode)
-        initIndex := Min(2, winTitleList.MaxIndex())
+        initIndex := Min(initIndex, winTitleList.MaxIndex())
         res := toolTipChoice(winTitleList, "-------- R: close", initIndex, "", True)
         id := %history%[toolTipChoiceIndex]
         if (res == "alternative")
@@ -290,12 +279,15 @@ toolTipChoiceActivateWin(mode)
             presentToolTip := True
             removeWinFromHistory(toolTipChoiceIndex, mode)
             WinClose, ahk_id %id%
+            Send {Tab Down}
         }
         else if (res != "")
         {
-            WinActivate, ahk_id %id%
-            centerMouse(id)
             presentToolTip := False
+            if (mode == "plugin")
+                centerMouse(id)
+            else if (mode == "mainWin")
+                bringMainWin(id)
         }
         else if (res == "")
             presentToolTip := False
@@ -309,31 +301,23 @@ cleanHistory(mode)
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
     Default:
         waitToolTip("cleanHistory(mode): mode is == to """". Error")
         return
     }
-    index := %historyIndex%
-    count := 1
-    while (count <= %history%.MaxIndex())
+    index := 1
+    while (index <= %history%.MaxIndex())
     {   
         id := %history%[index]
-        if (!WinExist("ahk_id " id) or !isVisible(id))
+        if (!winExists(id))
         {
             removeWinFromHistory(index, mode)
             continue
         }
         else
-        {
             index += 1
-            if (index > %history%.MaxIndex())
-                index := 1        
-            count += 1
-        }
     }
 }
 
@@ -350,50 +334,57 @@ historyToWinTitleList(mode)
     for _, id in %history%
     {
         WinGetTitle, title, ahk_id %id%
-        title := StrSplit(title, " ")[1]
+        if (isPlugin(id))    
+            title := filterPluginTitle(title)             
+        else if isEventEditForm(id)
+            title := cleanEventEditorTitle(title)
+        title := filterTitleList(title)
         titleList.Push(title)
     }
     return titleList
 }
+
+filterTitleList(title)
+{
+    if (InStr(title, "Channel Rack"))
+        title := "Step Seq"
+    return title
+}
 ; ----
 
 ; ---------------------------------------------------
-currentIndexWinIsNotActive(mode)
+currentHistoryWinIsNotActive(mode)
 {
     Switch mode
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
     }     
     WinGet, id, ID, A
-    return id != %history%[%historyIndex%]
+    return id != %history%[1]
 }
 
-bringHistoryWins(mode = "plugin")
+bringHistoryWins(mode := "plugin")
 {
     Switch mode
     {
     Case "plugin":
         history := "pluginWinHistory"
-        historyIndex := "pluginWinHistoryIndex"
     Case "mainWin":
         history := "mainWinHistory"
-        historyIndex := "mainWinHistoryIndex"
     } 
-    i := 1
+    index := %history%.MaxIndex()
     n := %history%.MaxIndex()
-    Loop, %n%
+    while (index >= 1 and %history%.MaxIndex() >= 1)
     {
-        %historyIndex% := %historyIndex% - 1
-        if (%historyIndex% < 1)
-            %historyIndex% := %history%.MaxIndex()
-        id := %history%[%historyIndex%]
-        if (id)
+        id := %history%[index]
+        if (winExists(id))
             WinActivate, ahk_id %id%
+        else
+            removeWinFromHistory(index, mode)
+        index -= 1
     }
     centerMouse(id)
 }
@@ -403,22 +394,15 @@ findInPluginWinHistory(filterFunction)
 {
     ; mode plugin or mainWin
     found := False
-    index := pluginWinHistoryIndex
-    i := 1
-    while (pluginWinHistory.MaxIndex() >= 1 and !found and i <= pluginWinHistory.MaxIndex())
+    index := pluginWinHistory.MaxIndex()
+    while (pluginWinHistory.MaxIndex() >= 1 and !found and index >= 1)
     {
-        index := index + 1
-        if (index > pluginWinHistory.MaxIndex())
-            index := 1            
         id := pluginWinHistory[index]
-        if (WinExist("ahk_id " id))
-        {
-            if (%filterFunction%(id))
+        if (winExists(id) and %filterFunction%(id))
                 found := True
-        }
         else
             removeWinFromHistory(index, mode)
-        i := i + 1
+        index -= 1
     }
     if (found)
         return id
@@ -480,9 +464,9 @@ saveWinHistoriesToFile()
 
 
 ; -- Clear from history --------------------------
-winHistoryClosePluginsExceptLast(n = 3)
+winHistoryClosePluginsExceptLast(n := 3)
 {
-    ;; use only plugin hist
+    ;; use only plugin list
     currIndexWinId := pluginWinHistory[pluginWinHistoryIndex]
     index := pluginWinHistoryIndex
     
@@ -522,5 +506,15 @@ winHistoryClosePluginsExceptLast(n = 3)
             break
         }
     }
+}
+; ----
+
+; -- Gui ----------------------------------------
+winHistoryDebugToggle()
+{
+    GuiControlGet, checked,, winHistoryDebugGui
+    debugWindowHistory := checked
+    if (!debugWindowHistory)
+        toolTip("", toolTipIndex["debug"])    
 }
 ; ----

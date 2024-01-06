@@ -52,11 +52,12 @@ scrollTabStart(mode)
     }    
     colVar := 10
     timelineCol := [0x1B272E, 0xA25B5D]
-    tabX := scanColorsRight(x , timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    reverse := True
+    tabX := scanColorsRight(x , timeLineY, w, timelineCol, colVar, incr, reverse)
     x := tabX-(incr-6)
     w := incr
     incr := 7
-    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, reverse)
     if (tabX)
     {
         scrollingTab := True
@@ -110,9 +111,9 @@ activateEventEditorScale()
 insertEditEventsValue()
 {
     MouseGetPos, knobX, knobY, pluginId
-    val := copyKnob(False)
+    val := Knob.copy(False)
     moveMouse(knobX, knobY)
-    knobEditEvents()
+    Knob.editEvents()
 
     toolTip("Place mouse and Accept / Abort")
     unfreezeMouse()
@@ -128,7 +129,7 @@ insertEditEventsValue()
 
     WinActivate, ahk_id %pluginId%
     moveMouse(knobX, knobY)
-    pasteKnob(False, val)
+    Knob.paste(False, val)
     WinActivate, Events -
 
     Sleep, 100
@@ -185,9 +186,18 @@ turnEventsIntoAutomation()
         return
     }
     Send {Enter}
-    autwinId := bringAutomationWindow()
+    autwinId := Automation.bringFreshWin()
     registerWinToHistory(autwinId, "plugin")
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     registerWinToHistory(playlistId, "mainWin")
     msg("Tab to bring automation")
+}
+
+; --
+
+cleanEventEditorTitle(title)
+{
+    if (SubStr(title, -1) == " -") 
+        title := SubStr(title, 1, -2) 
+    return title
 }

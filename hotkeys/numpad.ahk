@@ -1,10 +1,10 @@
-
 ; -- Main Keyboard ----------------------------------------
-#If !numpad1Context.IsActive and WinActive("ahk_exe FL64.exe")
+#If WinActive("ahk_exe FL64.exe") ; and !numpad1Context.IsActive
 Volume_Mute::
     return
 Volume_Mute Up::
-    freezeExecute("bringM1")
+    msg("disabled. See StepSeq.bringKnownChannels")
+    ;freezeExecute("bringM1")
     return
 NumLock Up::                                    ; edison
     freezeExecute("bringMasterEdison", [], False)
@@ -23,25 +23,25 @@ NumpadDiv Up::                                  ; render in place
     return
 
 NumpadMult::                                    ; activate loop (playlist: start)
-    if (isPlaylist())
+    if (Playlist.isWin())
         freezeExecute("setPlaylistLoop", ["start"])
-    else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", [True])
+    else if (PianoRoll.isWin())
+        freezeExecute("PianoRoll.activateLoop")
     return
 
 NumpadSub::                                     ; activate loop (playlist: end)
-    if (isPlaylist())
+    if (Playlist.isWin())
         freezeExecute("setPlaylistLoop", ["end"])
-    else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", [True])
+    else if (PianoRoll.isWin())
+        freezeExecute("PianoRoll.activateLoop")
     return
 
 LWin & NumpadMult::                             ; deactivate loop / playlist tab
 LWiN & NumpadSub::
-    if (isPlaylist())
+    if (Playlist.isWin())
         freezeExecute("deleteNextPlaylist")
-    else if (isPianoRoll())
-        freezeExecute("activatePianoRollLoop", [False])
+    else if (PianoRoll.isWin())
+        freezeExecute("PianoRoll.deactivateLoop", [False])
     return
 
 Numpad7::                                       ; mixer
@@ -58,7 +58,7 @@ Numpad9::                                       ; event editor
 
 ^Numpad9::                                      ; knob edit events
     waitForModifierKeys()
-    freezeExecute("knobEditEvents", [True], False)
+    freezeExecute("Knob.editEvents")
     return    
 
 !Numpad9::                                      ; knob place edit events value
@@ -68,12 +68,12 @@ Numpad9::                                       ; event editor
 
 
 Numpad4::                                       ; piano roll
-    freezeExecute("bringPianoRoll", [False, True], False)
+    freezeExecute("PianoRoll.bringWin")
     return  
 
 Numpad5::                                       ; playlist
     bringFL()
-    freezeExecute("bringPlaylist", [], False)
+    freezeExecute("Playlist.bringWin", [], False)
     return
 
 Numpad6::                                       ; rec
@@ -100,7 +100,7 @@ LWin & Numpad6::
 
 Numpad2::                                       ; step seq
     bringFL()
-    freezeExecute("bringStepSeq", [], False)
+    freezeExecute("StepSeq.bringWin", [], False)
     return
 
 Numpad1::                                       ; play pause
@@ -136,122 +136,7 @@ NumpadDot::                                     ; patt song
     return
 
 Numpad0::
-    freezeExecute("openLinkKnobWindow", [], False)
+    freezeExecute("Knob.openLinkWin")
     return
 #If
 ; --
-
-
-
-
-
-; -- Numpad1 ----------------------------------------------
-/*
-
-#If numpad1Context.IsActive and WinActive("ahk_exe FL64.exe")
-::aaa::JACKPOT
-NumLock Up::                                ; c min max
-    ;msgTip("numlock")
-    freezeExecute("applyMinMaxLinkController")
-    return
-
-NumpadDiv::                                 ; c link
-    freezeExecute("linkControllerOnly") 
-    return
-
-
-NumpadMult::                                ; Main Events
-    freezeExecute("toggleMainEvents")
-    return
-
-NumpadSub::                                 ; note
-    freezeExecute("loadScore", True, True, 2)
-    return
-
-
-Numpad7 Up::                                ; Autom
-    freezeExecute("Autom")
-    return
-
-Numpad8::                                   ; step edit
-    freezeExecute("toggleStepEdit") 
-    return
-
-Numpad9::                                   ; ns
-    CoordMode, Mouse, Screen
-    MouseGetPos, oriX, oriY, oriWin
-    CoordMode, Mouse, Client
-    freezeExecute("createPatcherSampler", False, False, oriX, oriY, oriWin)
-    return
-
-^Numpad9::                                  ; ns slicex
-    CoordMode, Mouse, Screen
-    MouseGetPos, oriX, oriY, oriWin
-    CoordMode, Mouse, Client
-    freezeExecute("createPatcherSlicex", False, False, oriX, oriY, oriWin)
-    return
-
-NumpadAdd::                                 ; s
-    CoordMode, Mouse, Screen
-    MouseGetPos, oriX, oriY, oriWin
-    CoordMode, Mouse, Client
-    freezeExecute("dragDropAnyPatcherSampler", False, False, oriX, oriY, oriWin)
-    return 
-
-Numpad4 Up::                                ; LFO
-    freezeExecute("LFO")
-    return
-
-Numpad5::                                   ; Make Unique
-    freezeExecute("makeUnique")
-    return
-
-Numpad6::                                   ; Select similar clips
-    freezeExecute("selectSimilarClips")
-    return
-
-BackSpace::                                 ; rand arp
-    if (isInstr())
-        freezeExecute("randomizeArpParams")
-    return
-
-^BackSpace::                                ; rand delay
-    if (isInstr())
-        freezeExecute("randomizeDelayParams")
-    return
-
-
-Numpad1 Up::                                ; EC
-    freezeExecute("EnvC")
-    return                                
-
-Numpad2::                                   ; source
-    freezeExecute("selectSourceForAllSelectedClips")
-    return
-
-Numpad3::                                   ; reverse sound
-    freezeExecute("reverseSound")
-    return
-
-
-Numpad0::                                   ; Layer
-    freezeExecute("Layer")
-    return
-
-NumpadDot Up::                              ; Note length
-    freezeExecute("toggleHoveredNoteLenght", True, True)       
-    return
-
-NumpadEnter::
-    return
-    
-NumpadEnter Up::                            ; Lock channel
-    if (isPianoRoll())
-        freezeExecute("pianorollActivate2")
-    else if (mouseOverStepSeqInstruments())
-        freezeExecute("lockChan")
-    return
-#If
-; --
-*/
-

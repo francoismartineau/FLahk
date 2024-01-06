@@ -1,4 +1,4 @@
-global transferFolder := packsPath "\_transfert"
+global transferFolder := Paths.packs "\_transfert"
 global transferFileName := "latestTransferFile"
 clearTransferFolder()
 {
@@ -83,6 +83,7 @@ fromEdisonToAudacity()
 
 openAudacity()
 {
+    audacityPath := Paths.audacity
     Run, %audacityPath%
     WinGet, id, ID, A
     waitNewWindowOfClass(id, "wxWindowNR")
@@ -106,7 +107,7 @@ openTransferSoundInAudacity(audacityId)
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 10000, False, True)
     toolTip()
 
     MouseMove, 162, 89      ; first icon
@@ -129,7 +130,7 @@ openTransferSoundInAudacity(audacityId)
     MouseMove, 283, 341     
     Sleep, 100
     Click
-    TypeText(transferFileName)
+    TypeText(transferFileName ".wav")
     Sleep, 100
     Send {Enter}    
 }
@@ -151,7 +152,7 @@ dragSoundFromAudacity()
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 2000, False, True)
     toolTip()
 
     MouseMove, 162, 89      ; first icon
@@ -215,6 +216,7 @@ fromEdisonToMelodyne()
 openMelodyne()
 {
     WinGet, currWinId, id, A
+    melodynePath := Paths.melodyne
     Run, %melodynePath%
     melodyneId := waitNewWindowOfProcess("Melodyne singletrack.exe", currWinId)
     WinActivate, ahk_id %melodyneId%
@@ -235,7 +237,7 @@ melodyneLoadTransferSound(melodyneId)
     Sleep, 100
     Click
     toolTip("waiting quick access")
-    waitForColor([119], [72], [0xFFFFFF], 0, 2000, "", False, True)
+    waitForColor([119], [72], [0xFFFFFF], 0, 2000, False, True)
     toolTip()    
  
     MouseMove, 162, 89      ; first icon
@@ -265,7 +267,7 @@ melodyneLoadTransferSound(melodyneId)
     loadCircleColor := [0x868686]
     loadCircleX := 360
     loadCircleY := 283
-    res := colorsMatch(loadCircleX, loadCircleY, loadCircleColor, 20, "", True)    
+    res := colorsMatch(loadCircleX, loadCircleY, loadCircleColor, 20)    
     msgTip(res, 10000)
     */
 }

@@ -215,7 +215,24 @@ incrMouseCtlValue(val, incr)
     return val
 }
 
-; --------------------------
+; -- Gui ------------------------
+toggleMouseCtlInterpolationMode()
+{
+    Switch mctlIncrMode
+    {
+    Case "stop":
+        mctlIncrMode := "pacman"
+        mctlIncrMode := "pacman"
+    Case "pacman":
+        mctlIncrMode := "pong"
+        mctlIncrMode := "pong"
+    Case "pong":
+        mctlIncrMode := "stop"
+        mctlIncrMode := "stop"
+    }
+    updateGuiMouseCtlIncrMode()
+}
+
 updateGuiMouseCtl(cc, val)
 {
     if (cc == mCtlCcL)

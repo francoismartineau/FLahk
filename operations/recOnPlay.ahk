@@ -29,7 +29,7 @@ recOnPlayCreatePlugin(currWinId)
 
 placePlayHead()
 {
-    bringPlaylist(False)
+    Playlist.bringWin(False)
     playlistToolTip("Place the play head and press Enter")
     unfreezeMouse()
     waitAcceptAbort()

@@ -71,17 +71,13 @@
 
 #If
 
-#If WinActive("ahk_exe FL64.exe") and isPatcherMap() and !(mouseOverMidiKnot() or mouseOverCtlKnot() or mouseOverAudioKnot())
-LButton Up::
-    if (doubleclicked())
-    {
-        WinGet, patcherMapId, ID, A
-        sendinput !{LButton Up}
-        pluginId := waitNewWindowOfClass("TWrapperPluginForm", patcherMapId, 1000)
-        AlwaysOnTop(pluginId)
-    }
-    else
-        Send {LButton Up}
+#If WinActive("ahk_exe FL64.exe") and doubleClicked() and isPatcherMap() ; and !(mouseOverMidiKnot() or mouseOverCtlKnot() or mouseOverAudioKnot())
+LButton::
+    waitKey("LButton")
+    WinGet, patcherMapId, ID, A
+    SendInput !{LButton}
+    pluginId := waitNewWindowOfClass("TWrapperPluginForm", patcherMapId, 1000)
+    AlwaysOnTop(pluginId)
     return
 /*
 ~LButton::

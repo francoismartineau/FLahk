@@ -1,13 +1,13 @@
 #If WinActive("ahk_class TStepSeqForm")
 ~Up::
     Sleep, 100
-    moveMouseToSelY()
+    StepSeq.moveMouseToSelChan()
     return
 
 
 ~Down::
     Sleep, 100
-    moveMouseToSelY()
+    StepSeq.moveMouseToSelChan()
     return
 
 XButton1::
@@ -16,6 +16,7 @@ XButton1::
 XButton2::
     return     
 
+; -- Instr ---------------------------------
 1::
 2::
 3::
@@ -32,34 +33,51 @@ XButton2::
 !6::
 !7::
 !8::
-    if (hasVal(A_ThisHotkey, "!"))
+    if (InStr(A_ThisHotkey, "!"))
         num := SubStr(A_ThisHotkey, 2, 1) "_2"
     else
         num := SubStr(A_ThisHotkey, 1, 1) "_1"
-    freezeExecute("loadStepSeq" num)
+    freezeExecute("StepSeq.loadInstr", [num])
     return
 #If
 
+#If WinActive("ahk_exe FL64.exe") and StepSeq.isWin() and StepSeq.mouseOnStepSeqMenu()
+LButton Up::
+    mousePosNum := StepSeq.mouseOnMenuSection()
+    freezeExecute("StepSeq.loadInstr", [mousePosNum])
+    return 
+#If
+; -------------------------------------------
 
-#If WinActive("ahk_exe FL64.exe") and !scrollingInstr and mouseOverStepSeqInstruments()
+#If WinActive("ahk_exe FL64.exe") and scrollingInstr and StepSeq.mouseOverInstr()
+LButton::
+    scrollInstrStop("instr")
+    return
+^LButton::
+    scrollInstrStop("pianoRoll")
+    return
+#If
+
+#If WinActive("ahk_exe FL64.exe") and !scrollingInstr and StepSeq.mouseOverInstr()
 +RButton::
     return
 
 ; Dont set it to Up otherwise stopping to drag a knob over a channel triggers it
 LButton::
-    freezeExecute("openChannelUnderMouse")
+    freezeExecute("StepSeq.bringChanUnderMouse")
     return
 
 ^LButton Up::
-    freezeExecute("openChannelUnderMouseInPianoRoll")
+    freezeExecute("StepSeq.bringChanUnderMouseInPianoRoll")
     return
 
 +^LButton Up::
-    freezeExecute("selectChannelUnderMouse")
+    freezeExecute("StepSeq.selOnlyChanUnderMouse")
     return
 
 +LButton Up::
-    freezeExecute("selectOnlyChannelUnderMouse")
+    waitForModifierKeys()
+    freezeExecute("StepSeq.selOnlyChanUnderMouse")
     return
 
 +^RButton Up::
@@ -69,32 +87,24 @@ LButton::
 #If
 
 
-#If WinActive("ahk_exe FL64.exe") and isStepSeq() and mouseOverStepSeqInstruments()
+#If WinActive("ahk_exe FL64.exe") and StepSeq.isWin("", True) and StepSeq.mouseOverInstr()
 l::
-    freezeExecute("toggleLockKeyboardUnlock")
+    freezeExecute("toggleLockUnlockKeyboard")
     return
 #If
 
 
-; -- Menu ---------------------------------
-#If WinActive("ahk_exe FL64.exe") and isStepSeq() and mouseOnStepSeqMenu()
-LButton Up::
-    pos := mouseOnStepSeqMenuSection()
-    freezeExecute("loadStepSeq" pos)
-    return 
-#If
-
 ; -- Clipboard -----------------------------
-#If WinActive("ahk_exe FL64.exe") and mouseOverStepSeqInstrOrScore()
+#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm") and StepSeq.mouseOverInstrOrNotes()
 ^c::
-    freezeExecute("copyMouseChannelNotes", [], True, True)
+    freezeExecute("StepSeq.copyMouseChannelNotes", [], True, True)
     return
 
 ^x::
-    freezeExecute("cutMouseChannelNotes", [], True, True)
+    freezeExecute("StepSeq.cutMouseChannelNotes", [], True, True)
     return
 
 ^v::
-    freezeExecute("pasteMouseChannelNotes", [], True, True)
+    freezeExecute("StepSeq.pasteMouseChannelNotes", [], True, True)
     return
 #If

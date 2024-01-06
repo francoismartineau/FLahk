@@ -1,21 +1,27 @@
-global mouseInRightMon := True
+global mouseCurrentMon := "Center"
 obsCheckMousePosTick()
 {
     prevMode := setMouseCoordMode("Screen")
     MouseGetPos, mX
     setMouseCoordMode(prevMode)
-    if (mouseInRightMon and mX < 0)
+    if (mouseCurrentMon != "Left" and mX < Mon1Right)
     {
-        ;toolTip("left")
-        mouseInRightMon := False
+        ; toolTip("left")
+        mouseCurrentMon := "Left"
         ControlSend,, {NumpadMult}, ahk_class Qt5152QWindowIcon
     }
-    else if (!mouseInRightMon and mX >= 0)
+    else if (mouseCurrentMon != "Center" and mX > Mon1Right and mX < Mon2Right)
     {
-        ;toolTip("right")
-        mouseInRightMon := True
-        ControlSend,, {NumpadSub}, ahk_class Qt5152QWindowIcon
+        ; toolTip("center")
+        mouseCurrentMon := "Center"
+        ControlSend,, {NumLock}, ahk_class Qt5152QWindowIcon
     }   
+    else if (mouseCurrentMon != "Right" and mX > Mon2Right)
+    {
+        ; toolTip("right")
+        mouseCurrentMon := "Right"
+        ControlSend,, {NumpadSub}, ahk_class Qt5152QWindowIcon
+    }
 }
 
 

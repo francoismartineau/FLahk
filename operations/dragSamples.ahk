@@ -28,7 +28,7 @@ dragSample(proposeEdison := True)
     Case dragLabels["melodyneLabel"]:
         fromEdisonToMelodyne()
     Case dragLabels["percEnvLabel"]:
-        dragDropPercEnv(mX, mY, winId)
+        PercEnv.dragDrop(mX, mY, winId)
     }
 }
 

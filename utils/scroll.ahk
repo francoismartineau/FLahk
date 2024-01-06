@@ -1,12 +1,12 @@
 scrollMouseHorizontal()
 {
     MouseGetPos, mx, my
-    if (isPianoRoll())
+    if (PianoRoll.isWin())
     {
         incr := 92
         MouseMove, %mx%, 821, 0
     }
-    else if (isStepSeq())
+    else if (StepSeq.isWin())
     {
         incr := 63
         if (my)

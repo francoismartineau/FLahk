@@ -1,19 +1,18 @@
 global leftScreenWindowsShown := True
-global moveWinSpeed := 100
 
 moveWindows()
 {
+    return
     WinMaximize, ahk_class TFruityLoopsMainForm 
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     movePlaylist(playlistId)
     if (leftScreenWindowsShown)
     {
         moveEventEditor()
-        movePianoRoll()
+        PianoRoll.moveWin()
         moveMixer()
         moveMasterEdison()
-
-        moveScreenKeyboard()
+        ;moveScreenKeyboard()
         moveKnobsWin()
     }
     moveScriptOutput()
@@ -35,11 +34,7 @@ moveScreenKeyboard()
 moveKnobsWin()
 {
     WinGet, knobsWinId, ID, Control Surface
-
-    ;msgTip("id: " knobsWinId)
-    ;WinRestore, ahk_id %knobsWinId%
-    WinMove, ahk_id %knobsWinId%,,  240, 933, 1680, 118
-    ;;WinMove, WinTitle, WinText, X, Y, [Width, Height, ExcludeTitle, ExcludeText]
+    WinMove, ahk_id %knobsWinId%,,  240, 962, 1680, 118
 }
 
 moveEventEditor(eventEditorId = "")
@@ -59,20 +54,7 @@ moveEventEditor(eventEditorId = "")
 movePlaylist(playlistId)
 {
     WinRestore, ahk_id %playlistId%
-    WinMove, ahk_id %playlistId%,, 240, 82, 1680, 884
-}
-
-movePianoRoll(pianoRollId = "")
-{
-    if (!pianoRollId)
-        WinGet, pianoRollId, ID, ahk_class TEventEditForm, Piano roll
-
-    if (pianoRollId)
-    {
-        WinActivate, ahk_id %pianoRollId%
-        WinMove, ahk_id %pianoRollId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, %Mon1Height%
-        WinMaximize, ahk_id %pianoRollId%
-    }
+    WinMove, ahk_id %playlistId%,, 240, 82, 1680, 908
 }
 
 moveMixer()
@@ -106,13 +88,9 @@ hidePianoRoll()
 
 moveMasterEdison()
 {
-    global leftScreenWindowsShown
-    if (leftScreenWindowsShown)
-    {
-        WinGet, edisonId, ID, Master Edison
-        WinRestore, ahk_id %edisonId%
-        WinMove, ahk_id %edisonId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, 459
-    }
+    WinGet, edisonId, ID, Master Edison
+    WinRestore, ahk_id %edisonId%
+    WinMove, ahk_id %edisonId%,, %Mon1Left%, %Mon1Top%, %Mon1Width%, 459
 }
 
 
@@ -128,154 +106,147 @@ moveScriptOutput()
 
 ; ------------------------------
 
-moveWinRightScreen(id := "")
+Class MoveWin
 {
-    if (!id)
-    WinGet, id, ID, A
-    WinGetPos, x, y,,, ahk_id %id%
-    if (x < 0)
+    switchMon(dir, winId := "")
     {
-        x := x + Mon1Width
-        y := y - 560
-        WinMove, ahk_id %id%,, %x%, %y%
-        centerMouse(id)
-    }
-}
-
-moveWinLeftScreen(id := "")
-{
-    if (!id)
-        WinGet, id, ID, A
-    WinGetPos, x, y,,, ahk_id %id%
-    if (x > 0)
-    {
-        x := x - Mon2Width
-        y := y + 560	
-        WinMove, ahk_id %id%,, %x%, %y%
-        centerMouse(id)
-    } 
-}
-
-moveWinUp()
-{
-    global Mon2Top, Mon1Top, Mon2Left
-    global moveWinSpeed
-    WinGet, id, ID, A
-    WinGetPos, x, y,,, ahk_id %id%
-    if (x > Mon2Left)
-    {
-        higherLimit := 82
-    }
-    else
-    {
-        higherLimit := Mon1Top
-    }
-    y := y - moveWinSpeed
-    if (y < higherLimit)
-        y := higherLimit
-    WinMove, ahk_id %id%,, %x%, %y%
-    centerMouse(id)
-}
-
-moveWinDown()
-{
-    global Mon2Bottom, Mon1Bottom, Mon2Left
-    global moveWinSpeed
-    WinGet, id, ID, A
-    WinGetPos, x, y,, h, ahk_id %id%
-    if (x > Mon2Left)
-    {
-        lowerLimit := Mon2Bottom
-    }
-    else
-    {
-        lowerLimit := Mon1Bottom
-    }
-    y := y + moveWinSpeed
-    if (y + h > lowerLimit)
-        y := lowerLimit - h
-    WinMove, ahk_id %id%,, %x%, %y%
-    centerMouse(id)
-}
-
-moveWinRight(key)
-{  
-    global Mon2Right, Mon2Left, Mon1Top
-    global moveWinSpeed
-    WinGet, id, ID, A
-    WinGetPos, x, y, w, h, ahk_id %id%
-    pressing := GetKeyState(key)
-    while (pressing)
-    {
-        wasInLeftScreen := x + w < Mon2Left
-        if (x + w < Mon2Right) 
-            x := x + moveWinSpeed
-        else
-            x := Mon2Right - w
-        isInRightScreen := x + w >= Mon2Left
-        if (wasInLeftScreen and isInRightScreen)
+        if (winId == "")
+            WinGet, winId, ID, A
+        MoveWin.__initMonYdiff()
+        WinGetPos, winX, winY,,, ahk_id %winId%
+        Switch dir
         {
-            x := Mon2Left
-            y := y - Mon1Top
+        Case "left":
+            MoveWin.__switchMonLeft(winX, winY, winId)
+        Case "right":
+            MoveWin.__switchMonRight(winX, winY, winId)
         }
-        WinMove, ahk_id %id%,, %x%, %y%
-        if (!isStepSeq(id))
-            centerMouse(id)
-        else
-            moveMouse(14, 37)   ; avoid clicking on sel chan
-        pressing := GetKeyState(key)
+        MoveWin.__apply(winX, winY, winId)
     }
-}
-
-moveWinLeft(key)
-{   
-    global Mon1Left, Mon2Left, Mon1Top
-    global moveWinSpeed
-    WinGetClass, class, A
-    WinGet, id, ID, A
-    WinGetPos, x, y, w, h, ahk_id %id%
-    pressing := GetKeyState(key)
-    while (pressing)
+    __switchMonLeft(ByRef winX, ByRef winY, winId)
     {
-        wasInRightScreen := x + w > Mon2Left
-        if (x > Mon1Left)
-            x := x - moveWinSpeed
-        else
-            x := Mon1Left
-        isInLeftScreen := x < Mon2Left
-        if (wasInRightScreen and isInLeftScreen)
+        if (winX >= Mon2Left)
         {
-            x := Mon2Left - w
-            y := y + Mon1Top
+            winX -= Mon2Width
+            winY += MoveWin.monYdiff
+        } 
+    }
+    __switchMonRight(ByRef winX, ByRef winY, winId)
+    {
+        if (winX < Mon1Right)
+        {
+            winX += Mon1Width
+            winY -= MoveWin.monYdiff
         }
-        WinMove, ahk_id %id%,, %x%, %y%
-        if (!isStepSeq(id))
-            centerMouse(id)
+    }    
+    __apply(ByRef winX, ByRef winY, winId, moveRight := False)
+    {
+        MoveWin.__moveAndKeepInScreen(winX, winY, winId, moveRight)
+        centerMouse(winId)
+    }
+    static __nudgeWinSpeed := 100
+    nudge(dir, winId := "")
+    {
+        if (winId == "")
+            WinGet, winId, ID, A
+        MoveWin.__initMonYdiff()
+        WinGetPos, winX, winY,,, ahk_id %winId%
+        Switch dir
+        {
+        Case "up":
+            MoveWin.__nudgeUp(winX, winY, winId)
+        Case "down":
+            MoveWin.__nudgeDown(winX, winY, winId)
+        Case "left":
+            MoveWin.__nudgeLeft(winX, winY, winId)
+        Case "right":
+            MoveWin.__nudgeRight(winX, winY, winId)
+        }
+    }
+    __nudgeUp(ByRef winX, ByRef winY, winId)
+    {
+        winY -= MoveWin.__nudgeWinSpeed
+        MoveWin.__apply(winX, winY, winId)
+    }   
+    __nudgeDown(ByRef winX, ByRef winY, winId)
+    {
+        winY += MoveWin.__nudgeWinSpeed
+        MoveWin.__apply(winX, winY, winId)
+    }   
+    __nudgeLeft(ByRef winX, ByRef winY, winId)
+    {
+        while (keyDown("XButton1"))
+        {
+            wasInMon2 := winX >= Mon2Left
+            winX -= MoveWin.__nudgeWinSpeed
+            isInMon1 := winX < Mon1Right
+            if (wasInMon2 and isInMon1)
+                winY += MoveWin.monYdiff
+            MoveWin.__apply(winX, winY, winId)
+        }
+    }             
+    __nudgeRight(ByRef winX, ByRef winY, winId)
+    {
+        WinGetPos,,, winW,, ahk_id %winId%
+        while (keyDown("XButton2"))
+        {
+            wasInMon1 := winX < Mon1Right
+            winX += MoveWin.__nudgeWinSpeed
+            isInMon2 := winX+winW >= Mon2Left
+            if (wasInMon1 and isInMon2)
+                winY -= MoveWin.monYdiff
+            MoveWin.__apply(winX, winY, winId, True)
+        }        
+    }
+    static monYdiff
+    __initMonYdiff()
+    {
+        if (MoveWin.monYdiff == "")
+            MoveWin.monYdiff := Abs(Mon2Top - Mon1Top)
+    }      
+    __moveAndKeepInScreen(ByRef winX, ByRef winY, winId, moveRight := False)
+    {
+        WinGetPos,,, winW, winH, ahk_id %winId%
+        mon := MoveWin.__getMon(winX)
+        if (winX < %mon%Left)
+            winX := %mon%Left
+        else if (winX+winW >= %mon%Right)
+        {
+            if (moveRight)
+                winX := Mon2Left
+            else
+                winX := Mon1Right - winW
+        }
+        mon := MoveWin.__getMon(winX)
+        if (winY < %mon%Top)
+            winY := %mon%Top
+        else if (winY+winH > %mon%Bottom)
+            winY := %mon%Bottom - winH        
+        WinMove, ahk_id %winId%,, %winX%, %winY%
+    }   
+    __getMon(winX)
+    {
+        if (winX >= Mon2Left)
+            mon := "Mon2"
         else
-            moveMouse(14, 37)   ; avoid clicking on sel chan
-        pressing := GetKeyState(key)
+            mon := "Mon1"  
+        return mon
+    }
+    centerInMon(winId) 
+    {
+        if (!winExists(winId))
+            return
+        WinGetPos, winX, winY, winW, winH, ahk_id %winId%
+        mon := MoveWin.__getMon(winX)
+        horiCenter := %mon%Width/2 + %mon%Left
+        vertiCenter := %mon%Height/2 + %mon%Top
+        winX := horiCenter - winW/2
+        winY := vertiCenter - winH/2
+        WinMove, ahk_id %winId%,, %winX%, %winY%            
     }
 }
 
-moveFxLeftScreen(pluginId)
-{
-    WinGetPos,,, winW, winH, ahk_id %pluginId%
-    Mon1HorizontalCenter := Mon1Width/2 + Mon1Left
-    Mon1VerticalCenter := Mon1Height/2 + Mon1Top
-    winX := Mon1HorizontalCenter - winW/2
-    winY := Mon1VerticalCenter - winH/2
-    WinMove, ahk_id %pluginId%,, %winX%, %winY%
-}
 
-moveInstRightScreen(pluginId)
-{
-    WinGetPos,,, winW, winH, ahk_id %pluginId%
-    Mon2HorizontalCenter := Mon2Width/2 + Mon2Left
-    Mon1VerticalCenter := Mon1Height/2 + Mon1Top
-    winX := Mon2HorizontalCenter - winW/2
-    winY := Mon2VerticalCenter - winH/2
-    WinMove, ahk_id %pluginId%,, %winX%, %winY%
-}
 
 
 ; ------------------------------
@@ -289,7 +260,7 @@ upperMenuMoveWindowIfNecessary()
 clearWayToMouse(desiredWinId, newWinX, newWinY)
 {
     res := False
-    if (!WinExist("ahk_id " desiredWinId) or !isVisible(desiredWinId))
+    if (!winExists(desiredWinId))
     {
         msg("clearWayToMouse(): win doesn't exist")
         return res

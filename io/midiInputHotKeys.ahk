@@ -131,7 +131,7 @@ MidiControlChange127:
         msg += "MidiControlChange{0}:\n   knobCCIn({0})\n    return\n".format(i)
     print(msg)
     */
-    receiveCc(midiI.MidiIn())
+    MidiInput.receiveCc(midiI.MidiIn())
     return
 
 ;;; -- oxygen ------------------------------------------

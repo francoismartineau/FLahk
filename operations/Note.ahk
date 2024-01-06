@@ -1,6 +1,7 @@
 ﻿loadScore(n)
 {
-    pianoRollID := bringPianoRoll(False, False)
+    pianoRollID := PianoRoll.bringWin(False, False)
+
     Click, 10, 13
     Send {Down}{Right}{Down}{Enter}
     waitNewWindow(pianoRollID)
@@ -51,5 +52,5 @@ hoveringNote()
     noteCols := [0x9ED1A5, 0x62926B, 0x9FD3BA, 0xA1D6D0, 0xA3CAD8, 0xA5B8DB, 0xA8A7DE, 0xBCA7DE, 0xD1A7DE, 0xDDA7D6, 0xDBA5C0, 0xD9A3A9, 0xD6AFA2, 0xD4C1A0, 0xD1D29E, 0xBDD19E, 0xA9D19D, 0xE49091]
     colVar := 10
     MouseGetPos, x, y
-    return colorsMatch(x, y, noteCols, colVar, "")
+    return colorsMatch(x, y, noteCols, colVar)
 }

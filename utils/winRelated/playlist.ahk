@@ -1,3 +1,80 @@
+Class Playlist
+{
+; -- Win -----
+    isWin(winId := "")
+    {
+        success := False
+        if (winId == "")
+            WinGet, winId, ID, A
+        WinGetClass, class, ahk_id %winId%
+        if (class == "TEventEditForm")
+        {
+            WinGetTitle, title, ahk_id %winId%
+            success := InStr(title, "Playlist -")
+        }
+        if (success)
+            Playlist.winId := winId
+        return success
+    }
+    bringWin(moveMouse := True, winId := "")
+    {
+        if (winId == "")
+            winId := Playlist.__forceGetWinId()
+
+        WinActivate, ahk_id %winId%
+        if (!Playlist.__patternsShown())
+            Playlist.__showPatterns()
+
+        if (moveMouse)
+            centerMouse(winId)
+        
+        return winId
+    }
+    static winId := ""
+    __forceGetWinId()
+    {
+        winId := Playlist.winId
+        if (!Playlist.isWin(winId))
+            winId := Playlist.__getExistingWin()
+        if (!Playlist.isWin(winId))
+            winId := Playlist.__bringWinWithKey()
+        if (!Playlist.isWin(winId))
+            return False
+        else
+            return winId
+    }
+    __getExistingWin()
+    {
+        WinGet, winId, ID, ahk_class TEventEditForm, Playlist
+        return winId
+    }
+    __bringWinWithKey()
+    {
+        WinGet, currId, ID, A
+        Send {F5}
+        winId := waitNewWindowTitled("Playlist", currId)  
+        return winId
+    }
+
+
+    static __patternsPianoButtonX := 27
+    static __patternsPianoButtonY := 74
+    __patternsShown()
+    {
+        x := Playlist.__patternsPianoButtonX
+        y := Playlist.__patternsPianoButtonY
+        success := colorsMatch(x, y, [0x3F4879])
+        return success
+    }
+    __showPatterns()
+    {
+        mX := Playlist.__patternsPianoButtonX
+        mY := Playlist.__patternsPianoButtonY
+        quickClick(mX, mY)
+    }
+; --
+}
+
 global timelineMouseDownX := 
 global timelineMouseUpX := 
 
@@ -20,7 +97,7 @@ moveMouseOverPlaylistTimeline()
 
 playlistTimelineIsSelected()
 {
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     colorsMatch(280, 53, [0xA05A5B])
     x := 280
     y := 53
@@ -33,7 +110,7 @@ playlistTimelineIsSelected()
 mouseOverPlaylist()
 {
     MouseGetPos,,, winId
-    return isPlaylist(winId)
+    return Playlist.isWin(winId)
 }
 
 mouseOverPlaylistPatternRow()
@@ -47,7 +124,7 @@ mouseOverPlaylistSong()
     CoordMode, Mouse, Screen
     MouseGetPos, mX, mY, winId
     CoordMode, Mouse, Client
-    if (isPlaylist(winId))
+    if (Playlist.isWin(winId))
     {
         WinGetPos, winX, winY, winW, winH, ahk_id %winId%
         mX := mX - winX
@@ -63,7 +140,7 @@ mouseOverPlaylistTimeLine()
     CoordMode, Mouse, Screen
     MouseGetPos, mX, mY, winId
     CoordMode, Mouse, Client
-    if (isPlaylist(winId))
+    if (Playlist.isWin(winId))
     {
         WinGetPos, winX, winY, winW, winH, ahk_id %winId%
         mX := mX - winX
@@ -86,7 +163,7 @@ mouseOverPlaylistTrackNames()
     CoordMode, Mouse, Screen
     MouseGetPos, mX, mY, winId
     CoordMode, Mouse, Client
-    if (isPlaylist(winId))
+    if (Playlist.isWin(winId))
     {
         WinGetPos, winX, winY, winW, winH, ahk_id %winId%
         mX := mX - winX
@@ -100,7 +177,7 @@ mouseOverPlaylistTrackNames()
 ; -- Loop -------------------------------
 setPlaylistLoop(mode)
 {
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     MouseGetPos, mX, mY
     timeLineY:= 80
     MouseMove, %mX%, %timeLineY%, 0
@@ -111,7 +188,8 @@ setPlaylistLoop(mode)
     Send {Enter}
 
     WinActivate, ahk_id %playlistId%
-    mX := scanColorsRight(mX , timeLineY, 30, [0x1C272F], 40, 20, "", False, True)
+    reverse := True
+    mX := scanColorsRight(mX , timeLineY, 30, [0x1C272F], 40, 20, reverse)
     if (mX)
     {
         MouseMove, %mX%, %timeLineY%, 0
@@ -156,7 +234,8 @@ fineTuneLoopPos(mX)
     w := 40
     colVar := 10
     timelineCol := [0x1B272E, 0xA25B5D]
-    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, "", False, True)
+    reverse := True
+    tabX := scanColorsRight(x, timeLineY, w, timelineCol, colVar, incr, reverse)
 
     MouseMove, %tabX%, %timeLineY%, 0
     Send {LButton down}
@@ -173,10 +252,11 @@ fineTuneLoopPos(mX)
 
 deleteNextPlaylist()
 {
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     MouseGetPos, mX, mY
     timeLineY:= 80
-    mX := scanColorsRight(mX , timeLineY, 100, [0x1C272F], 10, 20, "", False, True)
+    reverse := True
+    mX := scanColorsRight(mX , timeLineY, 100, [0x1C272F], 10, 20, reverse)
     if (mX)
     {
         MouseMove, %mX%, %timeLineY%, 1
@@ -214,7 +294,7 @@ advanceInSong(rewind = False)
     if (toolWinActive)
     {
         WinGet, toolWinId, ID, A
-        bringStepSeq(False)
+        StepSeq.bringWin(False)
     }
 
     if (rewind)
@@ -242,7 +322,7 @@ activateSlideTool()
     y := 15   
     if (!colorsMatch(x, y, [0xFFA64A]))
     {
-        QuickClick(x, y)
+        quickClick(x, y)
     }
 }
 

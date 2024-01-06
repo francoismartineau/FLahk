@@ -43,6 +43,11 @@ moveWinIfOverPos(posX, posY, winID)
     return movedWin
 }
 
+winExists(winId)
+{
+    return WinExist("ahk_id " winId) and isVisible(winId)
+}
+
 isVisible(winId)
 {
     WinGet, Style, Style, ahk_id %winId%
@@ -82,7 +87,7 @@ restoreWin(winId := "")
         return
 
     WinGet, WinState, MinMax, ahk_id %winId%
-    ;if (isMainFlWindow(winId) or isPianoRoll(winId) and WinState != 1)
+    ;if (isMainFlWindow(winId) or PianoRoll.isWin(winId) and WinState != 1)
     ;{
     ;    WinMaximize, ahk_id %winId%
     ;    return
@@ -119,14 +124,13 @@ toggleLeftScreenWindows()
     if (leftScreenWindowsShown)
         turnOffLeftScreenWindows()
     else
-        freezeExecute("turnOnLeftScreenWindows")
+        freezeExecute("turnOnLeftScreenWindows", [], True, True)
     startWinHistoryClock()
 }
 
 turnOffLeftScreenWindows()
 {
-    global leftScreenWindowsShown ;, BackgroundWindow
-    ;Gui, BackgroundWindow:Hide    
+    global leftScreenWindowsShown
     flWins := getFlWindows()
     for i, winId in flWins
     {
@@ -142,7 +146,13 @@ turnOnLeftScreenWindows()
 {
     global leftScreenWindowsShown
     leftScreenWindowsShown := True
-    ;;;;;showBackgroundWindow()
     bringMixer(False)
     bringMasterEdison(False)
+}
+
+adjustWindowSeparators()
+{
+    StepSeq.adjustSep()
+    PianoRoll.adjustSep()
+    bringHistoryWins()
 }

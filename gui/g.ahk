@@ -21,14 +21,18 @@ global winHistoryDebugGui
 global knobSavesDebugToggleGui
 global ProjPathGui
 
+
+OnMessage(0x0200, "onMouseMoveOverGui")     ; https://www.autohotkey.com/docs/misc/SendMessageList.htm
+OnMessage(0x020A, "onWheelOverGui")
+
 makeWindow()
 {
     makeFLahkIsRunningWindow()
     ;makeBackgroundWindow()
-    makePianoRollMenus()
+    PianoRoll.makeMenus()
     makeEventEditorMenu()
     makePatcherMapMenu()
-    makeStepSeqMenus()
+    StepSeq.makeMenus()
     makeMixerMenu()
     makeMasterEdisonMenu()
     makeAudacityMenu()
@@ -38,12 +42,10 @@ makeWindow()
     makeWindowRow2()
     makeConcatAudioButtons()
     makeNumpadG()
-    makeMmenu()
+    EnvC.makeMmenu()
     makeRecordEnabledGui()
     
     Menu, Tray, Icon, fl.ico,,1
-    
-
 }
 
 makeFLahkIsRunningWindow()
@@ -64,28 +66,62 @@ makeWindowRow1()
     Gui, Main1:Show, x935 y1 w918 h39, FLahk window1
 
     Gui, Main1:Add, Text, x0 y5, 
-    Gui, Main1:Add, Button, x+10 gBPM, 💓 
-    Gui, Main1:Add, Button, x+8 gRANDOM_TYPING_KEYBOARD, 🎹
-    Gui, Main1:Add, Button, x+8 gRAND_PLUGIN, 🎲
-    Gui, Main1:Add, Button, x+10 gCONCAT_AUDIO, _gen    
+    Gui, Main1:Add, Button, x+10 h20 w20 gBPM, 💓 
+    Gui, Main1:Add, Button, x+5 h20 w20 gRANDOM_TYPING_KEYBOARD, 🎹
+    Gui, Main1:Add, Button, x+5 h20 w20 gRAND_PLUGIN, 🎲
+    Gui, Main1:Add, Button, x+10 gCONCAT_AUDIO, _gen   
+    global GenWord 
+    ;global GenWord_TT := "clipboard random word(s). Scroll over to change quantity."
+    Gui, Main1:Add, Button, x+10 h13 w34 vGenWord gGEN_WORD, word
 
-    Gui, Main1:Add, Button, x+52 h20 gUNWRAP_PROJECT, unwrap
-    Gui, Main1:Add, Button, x+10 h20 gPREV_PROJECT, prev proj
-    Gui, Main1:Add, CheckBox, x+10 vPYnoteToggleGui gPY_NOTE_TOGGLE checked, PY
-    Gui, Main1:Add, Button, x+2 h13 w35 gLOOP_MIDI, midi
+    static ENCAPSULATION
+    Gui, Main1:Add, Button, x+52 vENCAPSULATION h20 gENCAPSULATION, Encapsulation
+    static SET_DATA_FOLDER
+    global SET_DATA_FOLDER_TT := "Set current project's Data Folder as ...\projFolder\projName"
+    Gui, Main1:Add, Button, x+10 h20 vSET_DATA_FOLDER gSET_DATA_FOLDER, DataFolder
 
-    Gui, Main1:Add, Text, x+50 h50 w260 vProjPathGui gOPEN_PROJECT_FOLDERS,
+    Gui, Main1:Add, Text, x+30 h50 w260 vProjPathGui gOPEN_PROJECT_FOLDERS,
     Gui, Main1:Add, Text, x+10, !F3: win@mouse
-
     ;;; marche pas? 
-    ;Gui, Main1:Add, Text, x+50 vMainGuiMsg, %MainGuiMsg%
-}
+    ;Gui, Main1:Add, Text, x+50 vMainGuiMsg, %MainGuiMsg%    
+    return
 
-mouseOverAhkGui()
-{
-    MouseGetPos,,, mWinId
-    WinGetClass, class, ahk_id %mWinId%
-    return class == "AutoHotkeyGUI"
+    BPM:
+    freezeExecute("randomizeBpm")
+    return
+
+    RANDOM_TYPING_KEYBOARD:
+    freezeExecute("randomizeTypingKeyboard")
+    return
+
+    RAND_PLUGIN:
+    freezeExecute("randomizePlugin")
+    return
+
+    CONCAT_AUDIO:
+    toggleShowConcatAudio()
+    return
+
+    GEN_WORD:
+    words := GetWords.gen()
+    clipboard := words
+    msg(words)
+    return
+
+    ENCAPSULATION:
+    waitKey("LButton")
+    freezeExecute("Encapsulation.start")
+    return
+
+
+    SET_DATA_FOLDER:
+    waitKey("LButton")
+    freezeExecute("DataFolder.set")
+    return
+
+    OPEN_PROJECT_FOLDERS:
+    openProjectFolders()
+    return
 }
 
 
@@ -99,21 +135,57 @@ makeWindowRow2()
     Gui, Main2:Show, x935 y45 w%gui2W% h%gui2H%, FLahk window2
 
     Gui, Main2:Add, Text, x0 y5 h+5,
-    Gui, Main2:Add, Button, x+10 h20 gTOGGLE_LEFT_SCREEN,🢤 screen
-    ;Gui, Main2:Add, Button, x+10 gRESET_AUDIO_DEVICE, ↺ device
-    Gui, Main2:Add, Button, x+10 h20 gAUTO_CLEAN_AUDIO, denoise
-    Gui, Main2:Add, Button, x+50 h20 gWINDOW_SPY, Win Spy
-    Gui, Main2:Add, Button, x+10 h20 gADJUST_WINDOW_SEPARATORS, separators
+    static TOGGLE_LEFT_SCREEN
+    global TOGGLE_LEFT_SCREEN_TT := "Close left screen windows / Show Mixer and Edison"
+    Gui, Main2:Add, Button, x+10 h20 h20 w20 vTOGGLE_LEFT_SCREEN gTOGGLE_LEFT_SCREEN,🢤
 
-    Gui, Main2:Add, Text, x+75 w45 vGuiMouseCtlL, L:
-    Gui, Main2:Add, Text, x+10 w45 vGuiMouseCtlR, R:
-    Gui, Main2:Add, Text, x+10 w45 w50 gTOGGLE_MOUSE_CTL_INTERPOLATION_MODE vGuiMouseCtlIncrMode, stop
-    Gui, Main2:Add, Text, x+10 w45 w100, ^(+)mclick
+
+    static LOOP_MIDI
+    global LOOP_MIDI_TT := "Edit virtual midi ports"
+    Gui, Main2:Add, Button, x+10 h13 w35 vLOOP_MIDI gLOOP_MIDI, midi
+    Gui, Main2:Add, Button, x+5 h13 w50 gWINDOW_SPY, WinSpy
+    Gui, Main2:Add, CheckBox, x+10 vPYnoteToggleGui gPY_NOTE_TOGGLE checked, PY
+
+    ;Gui, Main2:Add, Text, x+75 w45 vGuiMouseCtlL, L:
+    ;Gui, Main2:Add, Text, x+10 w45 vGuiMouseCtlR, R:
+    ;Gui, Main2:Add, Text, x+10 w45 w50 gTOGGLE_MOUSE_CTL_INTERPOLATION_MODE vGuiMouseCtlIncrMode, stop
+    ;Gui, Main2:Add, Text, x+10 w45 w100, ^(+)mclick
     Gui, Main2:Add, CheckBox, x+10 vwinHistoryDebugGui gWIN_HISTORY_DEBUG_TOGGLE, winHistory
     Gui, Main2:Add, CheckBox, x+10 vknobSavesDebugToggleGui gKNOB_SAVES_DEBUG_TOGGLE, knobSaves
 
-    Gui, Main2:Add, Text, x438 y20 w100 vGuiMouseCtlActive, ^
-    Gui, Main2:Add, Text, x+10 y20 w200 vGuiMouseCtlIncrActive, L0 R0
+    ;Gui, Main2:Add, Text, x438 y20 w100 vGuiMouseCtlActive, ^
+    ;Gui, Main2:Add, Text, x+10 y20 w200 vGuiMouseCtlIncrActive, L0 R0
+    return
+
+    TOGGLE_LEFT_SCREEN:
+    toggleLeftScreenWindows()
+    return
+
+    LOOP_MIDI:
+    bringLoopMidi()
+    return
+
+    WINDOW_SPY:
+    windowSpyPath := Paths.windowSpy
+    run, %windowSpyPath%
+    return
+
+    PY_NOTE_TOGGLE:
+    ; pyNoteToggle()
+    return    
+
+    ;TOGGLE_MOUSE_CTL_INTERPOLATION_MODE:
+    ;toggleMouseCtlInterpolationMode()
+    ;return
+
+    WIN_HISTORY_DEBUG_TOGGLE:
+    winHistoryDebugToggle()
+    return
+
+    KNOB_SAVES_DEBUG_TOGGLE:
+    knobSavesDebugToggle()
+    return
+
 }
 
 
@@ -147,3 +219,63 @@ showMainGuis()
     WinShow, ahk_id %FLahkGuiId1%
     WinShow, ahk_id %FLahkGuiId2%    
 }
+; -----
+
+; -----
+onMouseMoveOverGui(disableTT := False)
+{
+    static CurrControl, PrevControl, _TT
+    if (!isValidVarName(A_GuiControl))
+        return
+    CurrControl := A_GuiControl
+    if (disableTT)
+    {
+        SetTimer, DisplayGuiInfoToolTip, Off
+        SetTimer, HideGuiInfoToolTip, Off
+        ToolTip
+    }
+    else if (CurrControl != PrevControl and not InStr(CurrControl, " "))
+    {
+        ToolTip
+        SetTimer, DisplayGuiInfoToolTip, 1000
+        PrevControl := CurrControl
+    }
+    return
+
+    DisplayGuiInfoToolTip:
+    SetTimer, DisplayGuiInfoToolTip, Off
+    ToolTip % %CurrControl%_TT  ; The leading percent sign tell it to use an expression.
+    ;SetTimer, HideGuiInfoToolTip, 3000
+    return
+
+    HideGuiInfoToolTip:
+    SetTimer, HideGuiInfoToolTip, Off
+    ToolTip
+    return
+}
+
+onWheelOverGui()
+{
+    Switch A_ThisHotkey
+    {
+    Case "WheelUp":
+        dir := "up"
+    Case "WheelDown":
+        dir := "down"
+    }
+    Switch A_GuiControl
+    {
+    Case "GuiPianoRollMagnet":
+        freezeExecute("PianoRoll.toggleMagnet")
+    Case "GenWord":
+        GetWords.incrNum(dir)
+    }
+}
+
+mouseOverAhkGui()
+{
+    MouseGetPos,,, mWinId
+    WinGetClass, class, ahk_id %mWinId%
+    return class == "AutoHotkeyGUI"
+}
+; -----

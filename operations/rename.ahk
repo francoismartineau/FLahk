@@ -1,6 +1,39 @@
 ﻿global copypasteNameValue
 global randomizingNameLoop := False
 
+
+rename(name := "", randomizeColor := False, pasteCol := False, forceKeepPos := False)
+{
+    WinGet, winId, ID, A
+    nameEditorId := bringNameEditor(winId)
+    if (!nameEditorId)
+        return False
+    if (randomizeColor)
+        Send {F2}
+    if (pasteCol)
+        pasteColor(nameEditorId, False)
+
+    if (name != "")
+    {
+        TypeText(name)
+        Send {Enter}
+    }
+    else
+    {
+        if (!forceKeepPos)
+            centerMouse(nameEditorId)
+        res := waitToolTip("Accept / Abort")
+        if (isNameEditor())
+        {
+            if (res)
+                Send {Enter}
+            else
+                Send {Esc}
+        }
+    }
+    return res
+}
+
 startRandomizeNameLoop(randomizeColor := False, pasteCol := False)
 {
     randomizingNameLoop := True
@@ -32,41 +65,31 @@ randomizeName(randomizeColor := False, pasteCol := False, forceKeepPos := False,
     rename(name, randomizeColor, pasteCol, forceKeepPos)
 }
 
-rename(name := "", randomizeColor := False, pasteCol := False, forceKeepPos := False)
+randomizeColor(nameEditorOpen := False, winId := "")
 {
-    WinGet, winId, ID, A
-    nameEditorId := bringNameEditor(winId)
-    if (!nameEditorId)
-        return False
-    if (randomizeColor)
+    if (nameEditorOpen)
+    {
         Send {F2}
-    if (pasteCol)
-        pasteColor(nameEditorId, False)
+        return
+    }
 
-    if (name != "")
-    {
-        TypeText(name)
-        Send {Enter}
-    }
+    if (winId == "")
+        WinGet, winId, ID, A
+    if (!isNameEditor(winId))
+        nameEditorId := bringNameEditor(winId)
     else
-    {
-        if (!forceKeepPos)
-            centerMouse(nameEditorId)
-        
-        res := waitToolTip("Accept / Abort")
-        unfreezeMouse()
-        acceptAbort := waitAcceptAbort(True, True)
-        freezeMouse()
-    }
-    if (!forceKeepPos)
-        centerMouse(winId)
-    return acceptAbort
+        nameEditorId := winId
+    if (nameEditorId)
+        Send {F2}
 }
 
-copyName()
+
+
+copyName(winId := "")
 {
-    WinGet, winId, ID, A
-    WinGetClass, class, A
+    if (winId == "")
+        WinGet, winId, ID, A
+    WinGetClass, winClass, ahk_id %winId%
     if (isWrapperPlugin(winId))
     {
         WinGetTitle, winTitle, ahk_id %winId%
@@ -74,34 +97,25 @@ copyName()
     }    
     else 
     {
-        if (class == "TNameEditForm")
-        {
-            WinGet, nameEditorId, ID, A
-            Send {CtrlDown}a{CtrlUp}
-        }
+        if (isNameEditor(winId))
+            SendInput ^a
         else
-        {
-            MouseGetPos, mX, mY
-            nameEditorId := bringNameEditor() 
-            MouseMove, %mX%, %mY%
-        }
-
-        ;clipboardSave := clipboard
-        ;Send {CtrlDown}c{CtrlUp}{Esc}
+            bringNameEditor() 
         name := copyTextWithClipboard()
         Send {Esc}
-        ;clipboard := clipboardSave
     }
     return name
 }
 
-pasteName(suffix := "", autoConfirm = True)
+pasteName(suffix := "", autoConfirm := True)
 {
-    WinGetClass, class, A
-    if (class == "TNameEditForm")
+    WinGet, currWinId, ID, A
+
+    if (isNameEditor(currWinId))
     {
+        nameEditorId := currWinId
         WinGet, nameEditorId, ID, A
-        Send {CtrlDown}a{CtrlUp}
+        SendInput ^a
     }
     else
         nameEditorId := bringNameEditor()    
@@ -124,17 +138,15 @@ pasteColor(nameEditorId := "", autoConfirm := True)
 {
     if (!nameEditorId)
     {
-        WinGetClass, class, A
-        if (class == "TNameEditForm")
-            WinGet, nameEditorId, ID, A
+        WinGet, currWinId, ID, A
+        if (isNameEditor(currWinId))
+            nameEditorId := currWinId
         else
             nameEditorId := bringNameEditor()
     }
-    MouseMove, 205, 22, 0
-    Click                       ; open color palette
+    quickClick(205, 22)         ; open color palette
     waitNewWindowOfClass("TPaletteEditorForm", nameEditorId)
-    MouseMove, 41, 345
-    Click                       ; choose last color
+    quickClick(41, 345)         ; choose last color
     Send {Enter}
     WinActivate, ahk_id %nameEditorId%
     if (autoConfirm)
@@ -142,26 +154,26 @@ pasteColor(nameEditorId := "", autoConfirm := True)
 }
 
 
-bringNameEditor(winId := "")
+bringNameEditor(currWinId := "")
 {
-    if (!winId)
-        WinGet, winId, ID, A
-    if (isWrapperPlugin(winId))
+    if (!currWinId)
+        WinGet, currWinId, ID, A
+
+    if (isNameEditor(currWinId))
+        return currWinId
+    if (isWrapperPlugin(currWinId))
         return False
-    if (isPlugin(winId))
+
+    saveMousePos()
+    if (isRaveGen(currWinId))
     {
-        if (isRaveGen())
+        quickClick(10, 10)
+        Loop, 6
         {
-            QuickClick(10, 10)
-            Loop, 6
-            {
-                Sleep, 20
-                Send {WheelUp}
-            }
-            Send {Enter}
+            Sleep, 20
+            Send {WheelUp}
         }
-        else
-            Send {F2}
+        Send {Enter}
     }
     else if (mouseOverPlaylistTrackNames())
     {
@@ -170,9 +182,10 @@ bringNameEditor(winId := "")
     }
     else
         Send {F2}
-    nameEditorId := waitNewWindowOfClass("TNameEditForm", winId)
-    WinGetPos, winX, winY,,, ahk_id %winId%
+    nameEditorId := waitNewWindowOfClass("TNameEditForm", currWinId)
+    WinGetPos, winX, winY,,, ahk_id %currWinId%
     WinMove, ahk_id %nameEditorId%,, %winX%, %winY%
+    retrieveMousePos()
     return nameEditorId
 }
 
@@ -205,4 +218,15 @@ getPluginCtxMenuLength()
     else if (colorsMatch(350, 236, menuColor, 10))
         result := "layer"      
     return result
+}
+
+makeControllerName(prefix, oriPluginName, suffix = "", autoAutomationName = "")
+{
+    pluginName := StrSplit(oriPluginName, " ")[1]
+    if (autoAutomationName)
+    {
+        autoAutomationName := StrSplit(autoAutomationName, " ")
+        suffix := autoAutomationName[autoAutomationName.MaxIndex()]
+    }
+    return prefix " " pluginName " " suffix
 }

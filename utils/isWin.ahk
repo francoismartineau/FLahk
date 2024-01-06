@@ -6,6 +6,14 @@ isFLWindow(winId := "")
     return program == "FL64.exe"
 }
 
+isBrowser(winId := "")
+{
+    if (winId == "")
+        WinGet, winId, ID, A
+    WinGetClass, resClass, ahk_id %winId%
+    return resClass == "#32770"
+}
+
 isPureData(winId := "")
 {
     if (winId == "")
@@ -18,14 +26,23 @@ isOneOfMainWindows(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
-    return isMixer(winId) or isMainFlWindow(winId) or isPlaylist(winId) or isMasterEdison(winId) or isTouchKeyboard(winId)
+    return isMixer(winId) or isMainFlWindow(winId) or Playlist.isWin(winId) or isMasterEdison(winId) or isTouchKeyboard(winId)
 }
 
 isWindowHistoryExclude(winId := "")
 {
     if (!winId)
         WinGet, winId, ID, A
-    return isMainFlWindow(winId) or isPlaylist(winId) or isTouchKeyboard(winId) or isControlSurface(winId)
+    return isMainFlWindow(winId) or isTouchKeyboard(winId) or isControlSurface(winId)
+
+}
+
+isNameEditor(winId := "")
+{
+    if (!winId)
+        WinGet, winId, ID, A
+    WinGetClass, winClass, ahk_id %winId%
+    return winClass == "TNameEditForm"
 
 }
 
@@ -40,20 +57,6 @@ isMixer(winId := "", underMouse := False)
     }
     WinGetClass, class, ahk_id %winId%
     return class == "TFXForm"
-}
-
-
-isStepSeq(winId := "", underMouse := False)
-{
-    if (!winId)
-    {
-        if (underMouse)
-            MouseGetPos,,, winId
-        else
-            WinGet, winId, ID, A
-    }
-    WinGetClass, class, ahk_id %winId%
-    return class == "TStepSeqForm"
 }
 
 isMainFlWindow(winId := "", underMouse := False)
@@ -112,31 +115,21 @@ isAhkGui()
 ; -- EventEditForms ---------------
 isPianoRoll(winId := "")
 {
-    res := False
+    success := False
     if (!winId)
         WinGet, winId, ID, A
     WinGetClass, class, ahk_id %winId%
     if (class == "TEventEditForm")
     {
         WinGetTitle, title, ahk_id %winId%
-        res := InStr(title, "Piano roll -")
+        success := InStr(title, "Piano roll -")
     }
-    return res or winId == PianoRollMenu1Id or winId == PianoRollMenu2Id
+    if (success)
+        PianoRoll.winId := winId
+    return success
 }
 
-isPlaylist(winId := "")
-{
-    res := False
-    if (!winId)
-        WinGet, winId, ID, A
-    WinGetClass, class, ahk_id %winId%
-    if (class == "TEventEditForm")
-    {
-        WinGetTitle, title, ahk_id %winId%
-        res := InStr(title, "Playlist -")
-    }
-    return res
-}
+
 
 isEventEditForm(winId := "")
 {
@@ -214,6 +207,24 @@ isPianoRollLfo(id := "")
 }
 
 ; -- Plugins ---------------------
+isMidiWin(id := "", underMouse := False)
+{
+    success := False
+    if (id == "")
+    {
+        if (underMouse)
+            MouseGetPos,,, id
+        else
+            WinGet, id, ID, A
+    }
+    if (isInstr(id))
+    {
+        WinGetTitle, winTitle, ahk_id %id%
+        success := SubStr(winTitle, 1, 2) == "PY"
+    }
+    return success
+}
+
 isInstr(id := "", underMouse := False)
 {
     ; look at the red around the pitch bend range
@@ -271,8 +282,6 @@ is3xosc(id := "")
         WinGet, id, ID, A    
     WinGetPos,,, winW, winH, ahk_id %id%
     res := winW == 568 or winH == 466
-    ;if (correctSize)
-    ;    res := colorsMatch(489, 409, [0x252D32]) and colorsMatch(499, 409, [0x687176])
     return res
 }
 
@@ -574,37 +583,16 @@ is5lfo(id := "")
     return res
 }
 
-isEnvC(id := "")
-{
-    res := False
-    if (id == "")
-        WinGet, id, ID, A
-    if (isPlugin(id))
-        res := colorsMatch(135, 76, [0x31373B]) and colorsMatch(129, 76, [0x21272B])
-    return res
-}
-
-isM1(id := "")
-{
-    res := False
-    if (id == "")
-        WinGet, id, ID, A
-    if (isEnvC(id))
-    {
-        WinGetTitle, winTitle, ahk_id %id%
-        res := InStr(winTitle, "m1")
-    }
-    return res    
-}
-
 isPercEnv(id := "")
 {
-    res := False
+    success := False
     if (id == "")
         WinGet, id, ID, A
     if (isInstr(id))
-        res := colorsMatch(18, 110, [0xD92628]) and colorsMatch(15, 127, [0xB449B6])
-    return res    
+        success := colorsMatch(18, 110, [0xD92628]) and colorsMatch(15, 127, [0xB449B6])
+    if (success)
+        PercEnv.winId := id
+    return success    
 }
 
 ; -- fx ---------------------------------------------
@@ -691,7 +679,7 @@ isDistructor(id := "")
     {
         WinGetPos,,, winW, winH, ahk_id %id%
         if (winW == 934 and winH == 416)
-            res := colorsMatch(745, 391, [0x1C2429], 0, "") and colorsMatch(754, 393, [0x66767E], 0, "") 
+            res := colorsMatch(745, 391, [0x1C2429]) and colorsMatch(754, 393, [0x66767E]) 
     } 
     return  res 
 }

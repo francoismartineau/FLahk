@@ -1,7 +1,7 @@
 lockChanFromInstrWin()
 {
-    bringStepSeq(False)
-    moveMouseToSelY()
+    StepSeq.bringWin(False)
+    StepSeq.moveMouseToSelChan()
     lockChan()
 }
 
@@ -15,6 +15,8 @@ lockChan(device := "")
             return
     }
 
+    if (device == "keyboard" and !typingKeyboardEnabled())
+        SendInput ^t
     lockChanGoToDeviceCtxMenu()
 
     MouseGetPos, mX, mY
@@ -25,8 +27,6 @@ lockChan(device := "")
         lockChanUnlockDevice(isLocked)
     else if (device == "keyboard")
     {
-        if (!typingKeyboardEnabled())
-            SendInput ^t
         if (isLocked)
             Send {Down}            
         Send {Down}{Enter}
@@ -79,8 +79,10 @@ lockChanUnlockDevice(isLocked)
 }
 
 ; -------------------------------
-toggleLockKeyboardUnlock()
+toggleLockUnlockKeyboard()
 {
+    if (!typingKeyboardEnabled())
+        SendInput ^t    
     Click, Right
     Send {Up}{Up}{Up}{Right}{Down}{Enter}
     
@@ -89,7 +91,7 @@ toggleLockKeyboardUnlock()
 maximizePattLen()
 {
     WinGetPos,,, ssW,, A
-    QuickClick(ssW-93, 14, "Right")
+    quickClick(ssW-93, 14, "Right")
     Send {Up}
     Send {Enter}
 }

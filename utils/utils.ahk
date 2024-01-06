@@ -1,6 +1,9 @@
 ; -- Mouse ------------------------------------------
 centerMouse(winId := "", speed := 1.5)
 {
+    if (!isActive(winId))
+        activateWin(winId)
+        
     res := True
     if (winId == "")
         WinGet, winId, ID, A
@@ -11,8 +14,6 @@ centerMouse(winId := "", speed := 1.5)
         return res
     }
 
-
-
     WinGetPos, winX, winY, winW, winH, ahk_id %winId%
     ;mouseGetPos(currMouseX, _, "Screen")
 
@@ -21,12 +22,13 @@ centerMouse(winId := "", speed := 1.5)
         mX := 1747
         mY := mixerSlotIndexToY(mixerSlotIndex)
     }
-    else if (isStepSeq(winId))
+    else if (StepSeq.isWin(winId))
     {
         mX := 220
-        mY := getFirstSelChannelY() + 10      
+        mY := StepSeq.getFirstSelChanY() + 10      
     }
-    else if (isPianoRoll(winId))
+    /*
+    else if (PianoRoll.isWin(winId))
     {
         loop := [98, 12]
         notes := [261, 464]
@@ -35,6 +37,7 @@ centerMouse(winId := "", speed := 1.5)
         mX := loc[1]
         mY := loc[2]
     }
+    */
     else if (isRev())
     {
         mX := 506
@@ -71,7 +74,7 @@ centerMouse(winId := "", speed := 1.5)
     sencondMouseX := mX
     sencondMouseY := mY
     ;msg(sencondMouseX "  , " sencondMouseY)
-    showSecondMouse()
+    ;showSecondMouse()
     moveMouse(mX, mY, "Screen", speed)
     ;restoreWin(winId)
 
@@ -80,7 +83,7 @@ centerMouse(winId := "", speed := 1.5)
     return res
 }
 
-QuickClick(x, y, param := "")
+quickClick(x, y, param := "")
 {
     moveMouse(x, y)
     Click, %param%
@@ -89,7 +92,7 @@ QuickClick(x, y, param := "")
 mouseOverKnobsWin()
 {
     MouseGetPos,,, winId
-    return isPlugin(winId) or isMixer(winId) or isWrapperPlugin(winId) ;or isStepSeq(winId) non parce que copy score
+    return isPlugin(winId) or isMixer(winId) or isWrapperPlugin(winId) ;or StepSeq.isWin(winId) non parce que copy score
 }
 
 mouseOverEventEditorZoomSection()           ; The little square top right. (Why did I make this function?)
@@ -104,11 +107,11 @@ mouseOverEventEditorZoomSection()           ; The little square top right. (Why 
         WinGetPos, winX, winY,,, ahk_id %winId%
         mx := mx - winX
         my := my - winY
-        if (isPlaylist(winId))
+        if (Playlist.isWin(winId))
         {
             res := 278 < mx and 48 < my
         }
-        else if (isPianoRoll(winId))
+        else if (PianoRoll.isWin(winId))
         {
             res := 72 < mx and 44 < my and mx < 1897 and my < 810     
 
@@ -147,10 +150,10 @@ mouseOverMainFileMenu(row := "")
 
 
 
+global doubleClickTime := DllCall("User32\GetDoubleClickTime")
 doubleClicked()
 {
-    global doubleClickTime
-    return A_PriorHotkey == "~LButton" and A_TimeSincePriorHotkey <= doubleClickTime
+    return InStr(A_PriorHotkey, "LButton") and A_TimeSincePriorHotkey <= doubleClickTime and InStr(A_ThisHotkey, "LButton")
 }
 ; ----
 
@@ -233,29 +236,25 @@ makeSureMainFLWinActive()
     if (activeWinId != mainFlWinId)
         WinActivate, ahk_id %mainFlWinId%
 }
-
-retrieveWinPos(winX, winY, winId)
-{
-    WinGetPos, currWinX, currWinY,,, ahk_id %winId%
-    if (winY != currWinY or winX != currWinX)
-        WinMove, ahk_id %winId%,, %winX%, %winY%  
-}
 ; ----
 
 
 ; -- Wallpaper ---
 setFlahkWallpaper()
 {
-    wallPaperFolder := FLahkPath "\wallpapers\"
+    wallPaperFolder := Paths.FLahk "\wallpapers\"
     wallpapers := ["hotkeys"] ;, "mixer"]
     w := wallPaperFolder . randomChoice(wallpapers) ".bgi"
-    cmd = %BginfoPath% %w% /silent /timer 0
+    bginfoPath := Paths.BGinfo
+    cmd = %bginfoPath% %w% /silent /timer 0
     Run, %cmd%
 }
 
 setBlackWallpaper()
 {
-    cmd = %BginfoPath% %FLahkPath%\wallpapers\black.bgi /silent /timer 0
+    FLahkPath := Paths.FLahk
+    bginfoPath := Paths.BGinfo
+    cmd = %bginfoPath% %FLahkPath%\wallpapers\black.bgi /silent /timer 0
     Run, %cmd%
 
 }
@@ -276,12 +275,6 @@ exitFlahk()
 	ExitApp
 }
 
-keepNumLockOn()
-{
-    if (!GetKeyState("NumLock", "T"))
-        SetNumLockState, On
-}
-
 ; ---- hideShow FLahk ---------------------------------------
 hideShowFLahk()
 {
@@ -298,11 +291,11 @@ hideShowFLahk()
     if (usingFL and !FLahkOpen) ; and !maxedWin)
     {
         showMainGuis()
-        showSecondMouse()
+        ;showSecondMouse()
         ;if (leftScreenWindowsShown)
         ;    WinActivate, ahk_id %FLahkBackgroundGuiId%
         WinActivate, ahk_exe FL64.exe
-        startWinMenusClock()
+        startGuiClock()
         startWinHistoryClock()
         startMouseCtlClock()
     }
@@ -310,9 +303,9 @@ hideShowFLahk()
     else if (!usingFL and FLahkOpen)
     {
         ;WinHide, ahk_id %FLahkBackgroundGuiId%
-        hideSecondMouse()
+        ;hideSecondMouse()
         hideMainGuis()
-        stopWinMenusClock()
+        stopGuiClock()
         stopWinHistoryClock()
         stopMouseCtlClock()
     }

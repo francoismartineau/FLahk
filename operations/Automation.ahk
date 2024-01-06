@@ -1,74 +1,69 @@
-﻿Autom()
+﻿
+Class Automation
 {
-    MouseGetPos, knobX, knobY, pluginId
-    if (pluginId != WinExist("A"))
-        WinActivate, ahk_id %pluginId%
-    
-    minMax := knobCopyMinMax()
-    if (minMax.MaxIndex() != 2)
-        return
-        
-    pluginName := copyName()
-
-    bringPlaylist(False)
-    waitForUserToMakeTimeSelection(automX, automY)
-    if (knobCreateAutomation(knobX, knobY, pluginId))
+    makeTimeSel(ByRef timeSelEndX, ByRef timeSelEndY)
     {
-        saveKnobPos(knobX, knobY, pluginId)
-        autwinId := bringAutomationWindow()
-        registerWinToHistory(autwinId, "plugin")     ; to customize autom ( user can press tab to bring back autom)
+        success := False
+        Playlist.bringWin(False)
+        timelineStart := 541
+        mouseGetPos(mX, _, "Screen")
+        if (mX < timelineStart)
+            mX := timelineStart
+        moveMouse(mX, 137, "Screen")
+        res := waitToolTip("Make a time selection and accept")
+        if (res)
+        {
+            success := True
+            mouseGetPos(timeSelEndX, timeSelEndY, "Screen")
+        }
+        return success
+    }
+    bringFreshWin()
+    {
+        ssId := StepSeq.bringWin(False, False)
+        WinGetPos,,,, ssH, ahk_id %ssId%
+        lastPluginY := ssH - 60
+        Sleep, 100
+        moveMouse(147, lastPluginY)
+        autwinId := StepSeq.bringChanUnderMouse()
+        registerWinToHistory(autwinId, "plugin")     ; to customize autom ( user can press tab to bring back autom)        
+        Sleep, 500
+        return autwinId 
+    }
+    set(values, pluginName)
+    {
         pasteColor()
-        adjustAutomation(autwinId, minMax)
+        min := values[1]
+        max := values[2]
+        Knob.setVal(384, 45, min, "normal")
+        Knob.setVal(417, 45, max, "normal")
+
         autName := copyName()
         autName := makeControllerName("autom", pluginName, "", autName)
-        rename(autName)
-        bringPlaylist(False)
-        moveMouse(automX-30, automY, "Screen")
-        retrieveMouse = False
+        rename(autName)        
     }
-}
-
-
-
-bringAutomationWindow()
-{
-    ssId := bringStepSeq(False)
-    WinGetPos,,,, h, ahk_id %ssId%
-    lastPluginY := h - 60
-    Sleep, 100
-    moveMouse(147, lastPluginY)
-    autwinId := openChannelUnderMouse()
-    Sleep, 500
-    return autwinId
-}
-
-adjustAutomation(autwinId, minMax)
-{
-    min := minMax[1]
-    max := minMax[2]
-    ;pasteName()
-
-    WinGetPos, winX, winY,,, ahk_id %autwinId%
-    moveMouse(winX, winY, "Screen")
-    ;msgTip("Mouse at aut window    X: " winX "  Y: " winY)
-    setKnobValue(384, 45, min, "other")
-    ;MouseMove,                  ; Min
-    ;pasteKnob(False)
-    setKnobValue(417, 45, max, "other")
-    
-    
-    ;MouseMove, 417, 45                  ; Max
-    ;pasteKnob(False)
-    ;MouseClick, Left, 20, 88            ; LFO
-}
-
-makeControllerName(prefix, oriPluginName, suffix = "", autoAutomationName = "")
-{
-    pluginName := StrSplit(oriPluginName, " ")[1]
-    if (autoAutomationName)
+    moveMouseToTimeSel(timeSelEndX, timeSelEndY)  
     {
-        autoAutomationName := StrSplit(autoAutomationName, " ")
-        suffix := autoAutomationName[autoAutomationName.MaxIndex()]
+        Playlist.bringWin(False)
+        moveMouse(timeSelEndX-30, timeSelEndY, "Screen")
+        retrieveMouse := False
     }
-    return prefix " " pluginName " " suffix
+    __bringBackKnob(knobX, knobY, pluginId)
+    {
+        success := False
+        if (!winExists(pluginId))
+        {
+            res := waitToolTip("Bring back plugin and accept", True)
+            if (!res)
+            {
+                msg("Can't continue creating automation")
+                return success
+            }
+            WinGet, pluginId, ID, A
+        }
+        WinActivate, ahk_id %pluginId%
+        moveMouse(knobX, knobY)
+        success := True
+        return success
+    }
 }

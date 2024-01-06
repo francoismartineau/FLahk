@@ -6,6 +6,11 @@ startHighlightClock()
 {
     SetTimer, HIGHLIGHT_TICK, 100
     isHighlighting := True
+    return
+
+    HIGHLIGHT_TICK:
+    highlightTick()
+    return
 }
 
 stopHighlightClock()

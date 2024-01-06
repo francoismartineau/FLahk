@@ -13,6 +13,13 @@ loadSynth()
     centerMouse(winId)
 }
 
+loadPads()
+{
+    name := "Pads " randString(randInt(1, 4))
+    winId := loadInstr(1, 14, name)
+    centerMouse(winId)
+}
+
 load3xosc()
 {
     name :=
@@ -166,17 +173,18 @@ loadRandomFlSynth()
 }
 
 ; -----------------------------------------
-loadInstr(n, preset := "", name := "")
+loadInstr(n, preset := "", name := "", location := "")
 {
     choices := ["step seq", "new patcher", "existing patcher"]
-    location := askLoadLocation(choices)
+    if (location == "")
+        location := askLoadLocation(choices)
     winId := reachLoadLocation(choices, location)
 
     if (InStr(location, "patcher") and isPatcherMap(winId) and placeMouseOnMidiKnot())
         pluginId := patcherLoadPlugin("instr", name, n, preset)
     else if (InStr(location, "step"))
     {
-        pluginId := loadInstrInStepSeq(n, preset)
+        pluginId := loadInstrInStepSeq(n, preset, name)
     }
     return pluginId
 }
@@ -194,7 +202,7 @@ reachLoadLocation(choices, location)
     Switch location
     {
     Case choices[1]:
-        winId := bringStepSeq(False)
+        winId := StepSeq.bringWin(False)
     Case choices[2]:
         winId := createRootPatcher()
     Case choices[3]:
@@ -239,7 +247,7 @@ placeMouseOnMidiKnot()
 
 loadInstrInStepSeq(n, preset := "", name := "", waitInstr := True)
 {
-    stepSeqId := bringStepSeq(False)
+    stepSeqId := StepSeq.bringWin(False)
     if (WinActive("ahk_class TStepSeqForm"))
     {
         clickStepSeqPlusButton(stepSeqId)
@@ -276,12 +284,12 @@ loadInstrInStepSeq(n, preset := "", name := "", waitInstr := True)
         isPatcher := n == 1
         if (isPatcher)
         {
-            bringStepSeq(False)
-            selChanToggleMidiChannelThrough()
+            StepSeq.bringWin(False)
+            StepSeq.toggleMidiChannelThrough()
             WinActivate, ahk_id %pluginId%
         }
     }
-    moveInstRightScreen(pluginId)
+    moveInstrRightScreen(pluginId)
     return pluginId  
 }
 

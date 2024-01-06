@@ -8,7 +8,7 @@ channelPluginWins := []
 /*
 showChannelWindows()
 {
-    stepSeqId := bringStepSeq(False)
+    stepSeqId := StepSeq.bringWin(False)
     instrId := openSelectedChannel(stepSeqId)
     WinMove, ahk_id %instrId%,, 900, 169
     openAllFx()

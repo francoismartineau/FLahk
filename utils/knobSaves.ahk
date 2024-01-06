@@ -120,10 +120,14 @@ loadKnobPos()
     searchForNextPosNumCalls := 0
 }
 
-saveKnobPos(knobX, knobY, winId)        ; winId must be active
+saveKnobPos()
 {
     ;loadPotentialAssociatedKnobSaves(knobX, knobY, winId)
+    activateWinUnderMouse()
+    if (knobX == "" or knobY == "")
+        winId := mouseGetPos(knobX, knobY)
     WinGetTitle, winTitle, ahk_id %winId%
+
     if (isInstr(winId))
         panelId := getActivePanel() 
     else
@@ -156,12 +160,11 @@ saveLoadKnob(mode, saveSlot = "")
         msg("Save project first")
         return
     }
-
-    MouseGetPos, mX, mY, winId
+    activateWinUnderMouse()
+    winId := mouseGetPos(mX, mY)
     ;loadPotentialAssociatedKnobSaves(mX, mY, winId)
-    WinGetPos, winX, winY,,, ahk_id %winId%
+    saveWinPos(winId)
     WinGetTitle, winTitle, ahk_id %winId%
-    clipboardSave := clipboard
     
     if (isInstr())
         panelId := getActivePanel() 
@@ -182,8 +185,7 @@ saveLoadKnob(mode, saveSlot = "")
         msgTip(mode " knob " saveSlot)
     }
 
-    clipboard := clipboardSave
-    retrieveWinPos(winX, winY, winId)
+    retrieveWinPos(winId)
 }
 
 loadKnob(winTitle, panelId, mX, mY, saveSlot)
@@ -205,9 +207,8 @@ loadKnob(winTitle, panelId, mX, mY, saveSlot)
     }
     if (val != "")
     {
-        clipboard := val
-        ctxMenuLen := openKnobCtxMenu(mX, mY)
-        clickPaste(ctxMenuLen)
+        moveMouse(mX, mY)
+        Knob.paste(False, val)
         success := True
     }
     return success
@@ -217,9 +218,8 @@ saveKnob(winTitle, panelId, mX, mY, saveSlot := "") ; if saveSlot is ommited, on
 {
     if (saveSlot != "")
     {
-        ctxMenuLen := openKnobCtxMenu(mX, mY)
-        clickCopy(ctxMenuLen)
-        val := clipboard  
+        moveMouse(mX, mY)
+        val := Knob.copy(False)
     }
 
     success := False
@@ -358,10 +358,9 @@ createNewWinData(panelId, mX, mY, saveSlot, val)
 
 
 ; -- File -------------------------------------------------
-global savesFolderPath := FLahkPath "\saves"
+global savesFolderPath := Paths.FLahk "\saves"
 global savesFilePath := ""
 global knobSavesLoaded := False
-global currProjPath := ""
 
 loadKnobSaves()
 {
@@ -396,4 +395,12 @@ knobSavesDebuger()
 {
     if (knobSavesDebug)
         toolTip(knobSaves, toolTipIndex["debug"], 1422, 82, "Screen")
+}
+
+knobSavesDebugToggle()
+{
+    GuiControlGet, checked,, knobSavesDebugToggleGui
+    knobSavesDebug := checked
+    if (!knobSavesDebug)
+        toolTip("", toolTipIndex["debug"])    
 }

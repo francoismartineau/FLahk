@@ -59,10 +59,6 @@ def log_to_file(x, y):
     with open("screen_reader_log.txt", "w") as f:
         f.write("x: {} y: {}".format(x, y))
 
-
-        
-
-
 #---------------------------------------------------------------------------------
 if __name__ == '__main__':
     try:

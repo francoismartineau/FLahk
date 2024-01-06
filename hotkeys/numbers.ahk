@@ -85,30 +85,30 @@
 ; -------
 
 ; ---- Piano roll --------------------------------
-#If WinActive("ahk_exe FL64.exe") and isPianoRoll()
+#If WinActive("ahk_exe FL64.exe") and PianoRoll.isWin()
 1::
-    freezeExecute("pianorollRand")
+    freezeExecute("PianoRoll.randNotes")
     return
 
 +1::
-    freezeExecute("pianorollGen")
+    freezeExecute("PianoRoll.genNotes")
     return
 
 !1::
-    freezeExecute("pianorollArp")
+    freezeExecute("PianoRoll.arp")
     return
 
 
 2::
-    freezeExecute("pianorollLen")
+    freezeExecute("PianoRoll.notesLen")
     return
 
 !2::
-    freezeExecute("pianorollDisableLenghts")
+    freezeExecute("PianoRoll.disableLenghts")
     return
 
 3::
-    freezeExecute("toogleNoteSlide")
+    freezeExecute("PianoRoll.toogleNoteSlide")
     return
 
 +3::
@@ -118,19 +118,19 @@
     return
 
 !3::
-    freezeExecute("pianoRollDismissPitches")
+    freezeExecute("PianoRoll.dismissPitches")
     return
 
 4::
-    freezeExecute("pianoRollAddSpace")
+    freezeExecute("PianoRoll.addSpace")
     return
 
 +4::
-    freezeExecute("pianoRollCropTimeSel")
+    freezeExecute("PianoRoll.cropTimeSel")
     return
 
 !4::
-    pianoRollDelTimeSel()
+    PianoRoll.delTimeSel()
     return
 #If
 ; -------

@@ -636,7 +636,7 @@ loadFx(n, preset = False, prompt = "")
 getFX1Y(x)
 {
     col := [0x929DA4]                                               ; couleur bande séparatrice
-    y := scanColorsDown(x, -409  , 100, col, 10, 4, "")              ; à partir d'en haut du menu effets
+    y := scanColorsDown(x, -409  , 100, col, 10, 4)                 ; à partir d'en haut du menu effets
     return y + 25
 }
 
@@ -697,11 +697,9 @@ getMixerChanNameAndColor()
     {
 
         Send {F2}
-        ;clipboardSave := clipboard
         ;Send {CtrlDown}c{CtrlUp}{Esc}
         name := copyTextWithClipboard()
         Send {Esc}
-        ;clipboard := clipboardSave
     }
     return name    
 }

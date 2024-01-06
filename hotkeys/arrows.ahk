@@ -41,7 +41,7 @@ Right::
 
 
 
-#If WinActive("ahk_exe FL64.exe") and (isPianoRoll() or isPlaylist())
+#If WinActive("ahk_exe FL64.exe") and (PianoRoll.isWin() or Playlist.isWin())
 ^!Left::
     Send {CtrlDown}{Left}{CtrlUp}
     return

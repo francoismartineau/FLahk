@@ -1,5 +1,8 @@
+global currProjPath := ""
+global projectNameNoExtension := ""
+
 ; -- newProject -------------------
-createNewProject(mouseOverNewProject := False)
+createNewProject(mouseOverNewProject := False, projectName := "", projectDir := "")
 {
     toolTip("New project...")
     clickNewProjectInCtxMenu(mouseOverNewProject)
@@ -9,7 +12,7 @@ createNewProject(mouseOverNewProject := False)
         return
 
     waitLoadProject()
-    if (saveNewProject())
+    if (saveNewProject(projectName, projectDir))
         randomizeBpm()
     toolTip()
 }
@@ -64,113 +67,16 @@ waitLoadProject()
     toolTip("Waiting 2 sec while project loading")
     Sleep, 2000
     ;;;;;;; marche trop vite. Faudrait regarder un pixel plus à droite
-    ;res:= waitForColor(x1, y, cols1, colVar, timeout, hint, debug, reverse)
+    ;res:= waitForColor(x1, y, cols1, colVar, timeout, debug, reverse)
     ;if (res)
-    ;    res:= waitForColor(x2, y, cols2, colVar, timeout, hint, debug, reverse)
+    ;    res:= waitForColor(x2, y, cols2, colVar, timeout, debug, reverse)
     ;toolTip("done loading")
     toolTip()
     return res
 }
 
-setDataFolder(mainFlWinId := "")
-{
-    if (mainFlWinId == "")
-        mainFlWinId := bringMainFLWindow()
-    if (mainFlWinId == "")
-        return
-    if (projectNameNoExtension == "")
-    {   
-        msg("Save project first")
-        return
-    }
-
-    toolTip("Setting data Folder")
-    WinActivate, ahk_id %mainFlWinId%
-    
-    Send {F11}
-    settingsWinId := waitNewWindowOfClass("TMIDIForm", mainFlWinId, 0)
-    if (!settingsWinId)
-        return
-    moveMouse(376, 52)                      ; Project
-    Click
-    moveMouse(69, 120)                      ; Auto
-    Click
-    moveMouse(109, 119)                     ; Folder
-    Click
-
-    dirWinId := waitNewWindowOfClass("#32770", settingsWinId, 0)
-    if (!dirWinId)
-        return
-    WinMove, ahk_id %dirWinId%,, 801, 264, 642, 579
-    Sleep, 100
-    moveMouse(97, 549)                      ; Make New Folder
-    Click
-    Sleep, 100
-    typeText(projectNameNoExtension)        ; Name Data Folder
-    res := waitToolTip("Folder ok?")
-    if (!res)
-        return
-    moveMouse(490, 550)                     ; Ok
-    Click
-
-    toolTip("Waiting dir window to close")
-    unfreezeMouse()
-    waitWindowNotOfClass("#32770", 0)
-    freezeMouse()
-    toolTip()
-
-    promptWinId := waitNewWindowOfClass("TMsgForm", settingsWinId, 0)
-    if (!promptWinId)
-        return
-    Send {Right}{Enter}
-    toolTip("Waiting Yes No Prompt to close")
-    unfreezeMouse()
-    waitWindowNotOfClass("TMsgForm", 0)
-    freezeMouse()
-    toolTip()
-
-    WinClose, ahk_id %settingsWinId%
-    toolTip("Waiting settings win to close")
-    unfreezeMouse()
-    waitWindowNotOfClass("TMIDIForm", 0)
-    freezeMouse()
-    toolTip()
-    return True
-}
-; -----
-
-
-
-; -- saveFile -------------------
-saveProject()
-{
-    if (projectIsSaved())
-    {
-        if (savesFilePath == "")
-            getCurrentProjFilePath()
-        saveKnobSavesToFile()
-        saveWinHistoriesToFile()
-        sendinput ^s
-        lastSaveTime := timeOfDaySeconds()
-    }
-    else
-        saveNewProject()
-}
-
-projectIsSaved()
-{
-    ; When a project isn't saved, username FranoisMartineau is displayed (top left). Look for that.
-    ; x, y: from Martineau's t bar pixel to the right
-    colorListX := 68
-    colorListY := 52
-    colorList := [0x9d9272, 0x4d5b82, 0x9eb6af]
-    prevMode := setPixelCoordMode("Screen")
-    res := !scanColorsLine(colorListX, colorListY, colorList)
-    setPixelCoordMode(prevMode)
-    return res
-}
-
-saveNewProject()
+global saveNewProjectRighClickGenName := False
+saveNewProject(projectName := "", projectDir := "")
 {
     WinGet, currWinId, ID, A
     sendinput ^s
@@ -180,12 +86,18 @@ saveNewProject()
         return
     toolTip()
     resizeSavePrompt(savePromptId)
-    centerMouse()
 
-    msg("will wait accept")
+    if (projectName != "")
+        savePromptSetProjectName(projectName)
+    if (projectDir != "")
+        savePromptSetProjectDir(projectDir)
+    
+    centerMouse()
     while (!accepted)
     {
-        accepted := waitToolTip("Accept")
+        saveNewProjectRighClickGenName := True
+        accepted := waitToolTip("Accept`r`nRclick: GetWords")
+        saveNewProjectRighClickGenName := False
         if (!accepted)
         {
             res := waitToolTip("Quit?")
@@ -194,7 +106,6 @@ saveNewProject()
         }
         Sleep, 200
     }
-    msg("done")
 
     res := savePromptClickSave()
     if (!res)
@@ -215,16 +126,243 @@ saveNewProject()
     lastSaveTime := timeOfDaySeconds()
     if (!getCurrentProjFilePath())
         return False
-
-
-    setDataF := waitToolTip("Set Data Folder?")
-    if (setDataF)
-    {
-        res := setDataFolder(mainFlWinId)
-        if (!res)
-            waitToolTip("Could not set Data Folder")
-    }
     return True
+}
+
+savePromptSetProjectName(projectName)
+{
+    selProjFileName()
+    typeText(projectName)
+}
+
+savePromptSetProjectDir(projectDir)
+{
+    selProjDir()
+    typeText(projectDir)
+}
+
+generateProjectName()
+{
+    selProjFileName()
+    words := GetWords.gen(1)
+    typeText(words)
+}
+
+Class DataFolder
+{
+    set()
+    {
+        res := DataFolder.__makeSureProjectIsSaved()
+        if (!res)
+            return False
+
+        toolTip("Setting Data folder")
+        settingsWinId := DataFolder.__bringProjectSettings()
+        if (!settingsWinId)
+            return False
+        while (!dataFolderIsSet)
+        {
+            dataFolderExists := DataFolder.__checkIfExists(dataFolderPath)
+            if (dataFolderExists)
+                dataFolderIsSet := DataFolder.__askIfAlreadySet(dataFolderPath, settingsWinId)
+            if (!dataFolderIsSet)
+            {
+                dirPickerWinId := DataFolder.__bringDirPickerWin(settingsWinId)
+                if (!dirPickerWinId)
+                    return False
+                Sleep, 100
+                if (!dataFolderExists)
+                    FileCreateDir, %dataFolderPath%
+                res := DataFolder.__pickExistingFolder(dataFolderPath)
+                if (!res)
+                    return False
+                DataFolder.__closePrompt(settingsWinId)
+            }
+        }
+        DataFolder.__closeSettingsWin(settingsWinId)
+        toolTip()
+        return True        
+    }
+    __makeSureProjectIsSaved()
+    {
+        res := True
+        if (!projectNameNoExtension)
+        {   
+            res := saveProject()
+            if (!res)
+                msg("Project must be saved to set Data Folder.")
+        }
+        return res
+    }
+    __bringProjectSettings()
+    {
+        WinGet, currWinId, ID, A
+        Send {F11}                                      ; Settings win
+        settingsWinId := waitNewWindowOfClass("TMIDIForm", currWinId, 0)
+        if (!settingsWinId)
+            msg("DataFolder.set() can't bring settings window")
+        else
+        {
+            Sleep, 5
+            quickClick(376, 52)                             ; Project tab
+        }
+        return settingsWinId
+    }
+    __checkIfExists(ByRef dataFolderPath)
+    {
+        SplitPath, currProjPath,, projectFolder 
+        dataFolderPath := projectFolder "\" projectNameNoExtension
+        success := InStr(FileExist(dataFolderPath), "D")
+        return success
+    }
+    __askIfAlreadySet(dataFolderPath, settingsWinId)
+    {
+        success := False
+        if (!WinActive("ahk_id " settingsWinId))
+        {
+            WinActivate %ahk_id% settingsWinId
+            Sleep, 200
+        }
+        toolTip(dataFolderPath, 1, 120, 90)
+        moveMouse(129, 134)
+        success := waitToolTip("Is this a match? Enter: Y   Esc: N")
+        toolTip("", 1)
+        return success
+    }
+    __bringDirPickerWin(currWinId)
+    {
+        quickClick(69, 120)                         ; Auto
+        quickClick(109, 119)                        ; Folder
+        dirPickerWinId := waitNewWindowOfClass("#32770", currWinId, 0)
+        if (dirPickerWinId)                         ; Dir picker win
+            WinMove, ahk_id %dirPickerWinId%,, 801, 264, 642, 579
+        else
+            msg("Expected file picker. Aborting st Data folder.")   
+        return dirPickerWinId
+    }
+    __pickExistingFolder(dataFolderPath)
+    {
+        success := True
+        moveMouse(403, 154)                 ; Trick to activate curr folder in browser
+        Click, R                            ;   (open ctx menu in browser area)
+        Send {Esc}{Right}                   ;   (leave ctx menu, open current folder)
+        nthFolder := DataFolder.__getNthInParentFolder(dataFolderPath)
+        if (nthFolder)
+        {
+            Loop %nthFolder%
+            {
+                Send {Down}                 ; Reach existing folder
+                Sleep, 10
+            }
+        }
+        else
+            success := waitToolTip("pick " projectNameNoExtension " and accept")
+        if (success and WinActive("ahk_class #32770"))
+        {
+            quickClick(490, 550)                ; Ok, close dir picker win
+            unfreezeMouse()
+            success := waitWindowNotOfClass("#32770", 0)
+            if (!success)
+                msg("Couldn't close dir picker win")
+            freezeMouse()
+            toolTip()    
+        }
+        if (!success)
+            msg("Couldn't pick existing folder")        
+        return success
+    }
+    __getNthInParentFolder(dataFolderPath)
+    {
+        SplitPath, dataFolderPath,, projectFolder
+        nth := 1
+        success := False
+        folderNames := getSortedFilesInFolder(projectFolder, "D")
+        for nth, folderName in folderNames
+        {
+            fullPath := projectFolder "\" folderName
+            if (InStr(FileExist(fullPath), "D"))
+            {
+                if (fullPath == dataFolderPath)
+                {
+                    success := True
+                    break
+                }
+                nth += 1
+            }            
+        }
+        if (!success)
+            nth := ""
+        return nth
+    }
+    __closePrompt(currWinId)
+    {
+        toolTip("Waiting Yes No Prompt")
+        promptWinId := waitNewWindowOfClass("TMsgForm", currWinId, 0)
+        if (promptWinId)
+        {
+            Send {Right}{Enter}                     ; Are you sure?
+            toolTip("Waiting Yes No Prompt to close")
+            unfreezeMouse()
+            waitWindowNotOfClass("TMsgForm", 0)
+            freezeMouse()
+        }
+        toolTip()  
+    }
+    __closeSettingsWin(settingsWinId)
+    {
+        WinClose, ahk_id %settingsWinId%
+        toolTip("Waiting settings win to close")
+        unfreezeMouse()
+        waitWindowNotOfClass("TMIDIForm", 0)
+        freezeMouse()
+        toolTip()
+    }    
+}
+; -----
+
+
+
+; -- saveFile -------------------
+saveProject()
+{
+    success := False
+    if (projectIsSaved())
+    {
+        if (savesFilePath == "")
+            getCurrentProjFilePath()
+        if (savesFilePath != "")
+        {
+            saveKnobSavesToFile()
+            saveWinHistoriesToFile()
+            sendinput ^s
+            lastSaveTime := timeOfDaySeconds()
+            success := True            
+        }
+        else
+            msg("did not save", 400)
+    }
+    else
+    {
+        success := saveNewProject()
+        if (success)
+            if (waitToolTip("Set Data Folder?"))
+                if (!DataFolder.set())
+                    waitToolTip("Could not set Data Folder. Ac/Ab")
+    }
+    return success
+}
+
+projectIsSaved()
+{
+    ; When a project isn't saved, username FranoisMartineau is displayed (top left). Look for that.
+    ; x, y: from Martineau's t bar pixel to the right
+    colorListX := 68
+    colorListY := 52
+    colorList := [0x9d9272, 0x4d5b82, 0x9eb6af]
+    prevMode := setPixelCoordMode("Screen")
+    res := !scanColorsLine(colorListX, colorListY, colorList)
+    setPixelCoordMode(prevMode)
+    return res
 }
 
 getCurrentProjFilePath()
@@ -235,10 +373,12 @@ getCurrentProjFilePath()
     {
         while (!FileExist(currProjPath))
         {
+            toolTip("getting project path")
             res := clipboardCurrProjFilePath(savePromptId)
             if (!res)
                 return False
         }
+        toolTip()
     }
     clipboard := cliboardSave
     if (WinExist("ahk_id " savePromptId))
@@ -323,7 +463,7 @@ clipboardCurrProjFilePath(savePromptId)
     {
         currProjPath := path
         getSaveFilePath(folderName, projName)
-        if (waitToolTip("confirm projName: " projName))
+        if (waitToolTip("confirm current projName: " projName))
             res := True
         else
         {
@@ -345,8 +485,7 @@ clipboardCurrProjFilePath(savePromptId)
 
 clipboardProjFileName()
 {
-    moveMouse(235, 473)         ; double click file name
-    Click
+    selProjFileName()
     clipboard := ""
     toolTip("copying project name")
     i := 0
@@ -363,16 +502,27 @@ clipboardProjFileName()
     return projName
 }
 
+selProjFileName()
+{
+    quickClick(235, 473)
+    SendInput ^a
+}
+
+selProjDir()
+{
+    quickClick(313, 52)
+    SendInput ^a
+}
+
 clipboardProjFolderName()
 {
-    moveMouse(313, 52)
     clipboard := ""
     toolTip("copying project folder")
     whileWaiting := True
     while (clipboard == "" or FileExist(folderName) != "D" and whileWaiting)
     {
-        Click
-        Send {CtrlDown}ac{CtrlUp}
+        selProjDir()
+        SendInput ^c
         folderName := clipboard
         toolTip("folderName: " folderName)
     }
@@ -414,17 +564,52 @@ loadSaveFileIfExists()
     return res
 }
 
+getProjectName()
+{
+    if (currProjPath == "")
+        getCurrentProjFilePath()
+    if (currProjPath == "")
+        return
 
-global projectNameNoExtension := ""
+    folderAndFileHierarchy := StrSplit(currProjPath, "\")
+    fileName := folderAndFileHierarchy[folderAndFileHierarchy.MaxIndex()]
+    projectNameNoExtension := SubStr(fileName, 1, -4)   
+    return projectNameNoExtension
+}
+
+getProjectDir()
+{
+    if (currProjPath == "")
+        getCurrentProjFilePath()
+    if (currProjPath == "")
+        return
+
+    folderAndFileHierarchy := StrSplit(currProjPath, "\")
+    folderAndFileHierarchy.Pop()
+    dir := ""
+    for _, pathElement in folderAndFileHierarchy
+        dir := dir . pathElement . "/"
+    return dir
+}
+
 updateGuiFilePath()
 {
-    folderAndFileHierarchy := StrSplit(savesFilePath, "\")
-    fileName := folderAndFileHierarchy[folderAndFileHierarchy.MaxIndex()]
-    projectNameNoExtension := SubStr(fileName, 1, -4)
+    projectNameNoExtension := getProjectName()
     folderName := folderAndFileHierarchy[folderAndFileHierarchy.MaxIndex() - 1]
     txt := folderName "/" projectNameNoExtension
     GuiControl, Main1:, ProjPathGui, -> %txt%
 }
 ; -----
 
-
+; -- gui ----------
+openProjectFolders()
+{
+    if (savesFilePath and currProjPath)
+    {
+        browseFolder(savesFilePath)
+        browseFolder(currProjPath)
+    }
+    else
+        freezeExecute("loadSaveFileIfExists")
+}
+; -----

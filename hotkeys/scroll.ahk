@@ -1,28 +1,40 @@
 #If WinActive("ahk_exe FL64.exe") or isAhkGui()
 ; -----------
 WheelUp::
-    if (numpadGShown)
-        numpadGScroll("next")
-    else if (whileToolTipChoice)
+    if (whileToolTipChoice)
        incrToolTipChoiceIndex()
+    else if (StepSeq.mouseOverGroupButton())
+        StepSeq.changeGroup("chans")       
+    else if (scrollingInstr)
+        scrollInstr("up")      
+    else if (GetWords.choosingNum)
+        GetWords.incrNum("up")
+    else if (PianoRoll.mouseOverChannChoice())
+        scrollInstrStart("pianoRoll")
     else if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
         scrollPatternUp()
     else if (isPianorollLen() and mouseOverPianorollLenOptions())
         Send {LButton}{WheelUp}
-    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or mouseOverStepSeqMixerInserts())
+    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or StepSeq.mouseOverMixerInserts())
         Send {WheelUp}
     return
 
 WheelDown::
-    if (numpadGShown)
-        numpadGScroll("prev")
-    else if (whileToolTipChoice)
+    if (whileToolTipChoice)
        decrToolTipChoiceIndex()
+    else if (StepSeq.mouseOverGroupButton())
+        StepSeq.changeGroup("utils")       
+    else if (scrollingInstr)
+        scrollInstr("down")
+    else if (GetWords.choosingNum)
+        GetWords.incrNum("down")                 
+    else if (PianoRoll.mouseOverChannChoice())
+        scrollInstrStart("pianoRoll")       
     else if (mouseOverPlaylistPatternRow() or hoveringUpperMenuPattern())
         scrollPatternDown()
     else if (isPianorollLen() and mouseOverPianorollLenOptions())
         Send {LButton}{WheelDown}     
-    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or mouseOverStepSeqMixerInserts())
+    else if (!isMixer("", True) or mouseOverInstrMixerInsert() or StepSeq.mouseOverMixerInserts())
         Send {WheelDown}
     return
 
@@ -33,16 +45,12 @@ WheelDown::
         numpadGScroll("up")
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", ["up"], False)
-    else if (isPianoRoll())
-        scrollInstr("pianoRoll")
-    else if (isPlaylist())
-        scrollInstr("playlist")
+    else if (Playlist.isWin())
+        scrollInstrStart("playlist")
     else if (isPlugin())
-        scrollInstr("plugin")
-    else if (isStepSeq() and !scrollingInstr)
-        scrollInstr("stepSeq")        
-    else if (scrollingInstr or isStepSeq()) 
-        scrollChannels("up")
+        scrollInstrStart("plugin")
+    else if (StepSeq.isWin() and !scrollingInstr)
+        SendInput +{WheelUp}
     else if (makingUnique)
         Send {WheelUp}
     return
@@ -53,16 +61,14 @@ WheelDown::
         numpadGScroll("down")
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", ["down"], False)
-    else if (isPianoRoll())
-        scrollInstr("pianoRoll")
-    else if (isPlaylist())
-        scrollInstr("playlist")
+    else if (PianoRoll.isWin())
+        scrollInstrStart("pianoRoll")
+    else if (Playlist.isWin())
+        scrollInstrStart("playlist")
     else if (isPlugin())
-        scrollInstr("plugin")
-    else if (isStepSeq() and !scrollingInstr)
-        scrollInstr("stepSeq")         
-    else if (scrollingInstr or isStepSeq())
-        scrollChannels("down")
+        scrollInstrStart("plugin")
+    else if (StepSeq.isWin() and !scrollingInstr)
+        SendInput +{WheelDown}
     else if (makingUnique)
         Send {WheelDown}        
     return
@@ -75,20 +81,18 @@ WheelDown::
 #If (WinActive("ahk_exe FL64.exe") or isAhkGui()) and numpadGShown
 RButton::
 Esc::
+    return
+RButton Up::
+Esc Up::
     freezeExecute("hideNumpadG")
     return
 #If 
 
-#If WinActive("ahk_exe FL64.exe") or isAhkGui()
-Shift Up::
-    if (scrollingInstr and !keyIsDown("Ctrl")) 
-        scrollInstrStop("instr")
-    return
-; --------
 
 
 
 ; --    !    --------------------------------------
+#If WinActive("ahk_exe FL64.exe") or isAhkGui()
 !WheelUp::
     if (PreGenBrowser.running)
         PreGenBrowser.browse()
@@ -96,12 +100,12 @@ Shift Up::
         freezeExecute("PreGenBrowser.start", [], False) 
     else if (isMasterEdison())
         freezeExecute("setMasterEdisonMode", ["onPlay"])
-    else if (isStepSeq() or (isPlugin())) ; and !isMasterEdison()))
-        moveWinUp()
+    else if (StepSeq.isWin() or (isPlugin())) ; and !isMasterEdison()))
+        freezeExecute("MoveWin.nudge", ["up"])
     else if (isMixer())
         Send {Left}  
-    else if (isPianoRoll())
-        freezeExecute("pianoRollScrollColors", ["up"])
+    else if (PianoRoll.isWin())
+        freezeExecute("PianoRoll.scrollColors", ["up"])
     return
 
 !WheelDown::
@@ -109,18 +113,18 @@ Shift Up::
         moveMouseToConcatAudio() 
     else if (isMasterEdison())
         freezeExecute("setMasterEdisonMode", ["input"])
-    else if (isStepSeq() or (isPlugin())) ; and !isMasterEdison()))
-        moveWinDown()
+    else if (StepSeq.isWin() or (isPlugin())) ; and !isMasterEdison()))
+        freezeExecute("MoveWin.nudge", ["down"])
     else if (isMixer())
         Send {Right}        
-    else if (isPianoRoll())
-        freezeExecute("pianoRollScrollColors", ["down"], False)
+    else if (PianoRoll.isWin())
+        freezeExecute("PianoRoll.scrollColors", ["down"], False)
     return
 
 #If
-#If pianoRollScrollingColors
+#If PianoRoll.scrollingColors
 ~LAlt Up::
-    pianoRollStopScrollingColors()
+    PianoRoll.stopScrollColors()
     return
 #If
 #If WinActive("ahk_exe FL64.exe") or isAhkGui()
@@ -133,9 +137,9 @@ Shift Up::
 LWin & WheelUp::
     if (whileToolTipChoice)
        incrToolTipChoiceIndex()           
-    else if (isPlaylist())     
+    else if (Playlist.isWin())     
         scrollTab("left", "playlist")
-    else if (isPianoRoll())     
+    else if (PianoRoll.isWin())     
         scrollTab("left", "pianoroll")
     else if (isMasterEdison())
         msg("not implemented")
@@ -153,9 +157,9 @@ LWin & WheelUp::
 LWin & WheelDown::
     if (whileToolTipChoice)
        decrToolTipChoiceIndex()      
-    else if (isPlaylist())     
+    else if (Playlist.isWin())     
         scrollTab("right", "playlist")
-    else if (isPianoRoll())     
+    else if (PianoRoll.isWin())     
         scrollTab("right", "pianoroll")
     else if (isSampleClip())    
         freezeExecute("getReadyToDragFromSampleClip", [], False)        
@@ -208,7 +212,7 @@ LWin Up::
             freezeExecute("PreGenBrowser.addFolder", [], True, True)        
         else
             freezeExecute("PreGenBrowser.addSound", [], True, True)        
-    else if (scrollingTab and (isPlaylist() or isPianoRoll()))
+    else if (scrollingTab and (Playlist.isWin() or PianoRoll.isWin()))
         scrollTabStop()
     return
 #If
@@ -220,53 +224,45 @@ LWin Up::
 #If WinActive("ahk_exe FL64.exe")
 ; --    ^    --------------------------------------
 ^WheelUp::
+    if (scrollingInstr)
+        scrollInstr("up")
     if (isMasterEdison())
         freezeExecute("armEdison")
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", ["up"], False)        
-    else if (isPianoRoll())
-        scrollInstr("pianoRoll")
-    else if (isPlaylist())
-        scrollInstr("playlist")
+    else if (PianoRoll.isWin())
+        scrollInstrStart("pianoRoll")
+    else if (Playlist.isWin())
+        scrollInstrStart("playlist")
     else if (isPlugin())
-        scrollInstr("plugin")      
-    else if (isStepSeq() and !scrollingInstr)
-        scrollInstr("stepSeq")         
-    else if (scrollingInstr or isStepSeq()) 
-        scrollChannels("up")          
+        scrollInstrStart("plugin")      
+    else if (StepSeq.isWin() and !scrollingInstr)
+        scrollInstrStart("stepSeq")         
     return
 
 ^WheelDown::
-    if (isMasterEdison())
+    if (scrollingInstr)
+        scrollInstr("down")
+    else if (isMasterEdison())
         freezeExecute("unarmEdison")    
     else if (isMixer())
         freezeExecute("moveMouseOnMixerSlot", ["down"], False)        
-    else if (isPianoRoll())
-        scrollInstr("pianoRoll")
-    else if (isPlaylist())
-        scrollInstr("playlist")
+    else if (PianoRoll.isWin())
+        scrollInstrStart("pianoRoll")
+    else if (Playlist.isWin())
+        scrollInstrStart("playlist")
     else if (isPlugin())
-        scrollInstr("plugin")    
-    else if (isStepSeq() and !scrollingInstr)
-        scrollInstr("stepSeq")           
-    else if (scrollingInstr or isStepSeq()) 
-        scrollChannels("down")          
-    return
-
-~Ctrl::
-    return
-
-Ctrl Up::
-    if (scrollingInstr and !keyIsDown("Shift")) 
-        scrollInstrStop("pianoRoll")
+        scrollInstrStart("plugin")    
+    else if (StepSeq.isWin() and !scrollingInstr)
+        scrollInstrStart("stepSeq")           
     return
 ; --------
 
 ; --     +^     ---------------------------------
 +^WheelUp::
-    if (scrollingInstr or mouseOverStepSeqInstruments())
-        scrollChannels("up")        
-    ;else if (mouseOverStepSeqInstruments())        ; move instr doesnt work probably because of modifier keys conflict
+    if (scrollingInstr or StepSeq.mouseOverInstr())
+        scrollInstr("up")
+    ;else if (StepSeq.mouseOverInstr())        ; move instr doesnt work probably because of modifier keys conflict
     ;{
     ;    Send {Ctrl Up}
     ;    Send {WheelUp}
@@ -287,9 +283,9 @@ Ctrl Up::
        decrToolTipChoiceIndex()
     else if (isInstr())
         freezeExecute("cloneActiveInstr")
-    else if (scrollingInstr or mouseOverStepSeqInstruments()) 
-        scrollChannels("down")
-    ;else if (mouseOverStepSeqInstruments())        ; move instr doesnt work probably because of modifier keys conflict
+    else if (scrollingInstr or StepSeq.mouseOverInstr()) 
+        scrollInstr("down")
+    ;else if (StepSeq.mouseOverInstr())        ; move instr doesnt work probably because of modifier keys conflict
     ;    SendInput +^{WheelDown}
     else if (isMixer("", True)) mouseOverMixerDuplicateTrackRegion()
         freezeUnfreezeMouse("cloneMixerTrackState")
@@ -298,7 +294,7 @@ Ctrl Up::
 
 ; --    ^!      ----------------------------------
 ^!WheelUp::
-    if (isStepSeq() or isPianoRoll() or isPlaylist())
+    if (StepSeq.isWin() or PianoRoll.isWin() or Playlist.isWin())
         scrollMouseHorizontal()
     else if (isMixer())
         scrollMixerMenu("left")
@@ -318,7 +314,7 @@ Ctrl Up::
     return
 
 ^!WheelDown::
-    if (isStepSeq() or isPianoRoll() or isPlaylist())
+    if (StepSeq.isWin() or PianoRoll.isWin() or Playlist.isWin())
         scrollMouseHorizontal()
     else if (isMixer())
         scrollMixerMenu("right")
@@ -362,10 +358,6 @@ Ctrl Up::
         numpadGScroll("left")
     else if (isMixer())
         freezeExecute("bigScrollMixer", ["left"])
-    else if (isStepSeq())
-        freezeExecute("changeInstrGroup", ["left"])
-    else if (isPlugin() and !isMasterEdison())
-        moveWinRightScreen()
     else if (mouseOverBrowser())
         freezeExecute("browserMove", ["up", 8], False)
     return
@@ -375,10 +367,6 @@ Ctrl Up::
         numpadGScroll("right")
     else if (isMixer())
         freezeExecute("bigScrollMixer", ["right"])
-    else if (isStepSeq())
-        freezeExecute("changeInstrGroup", ["right"])
-    else if (isPlugin() and !isMasterEdison())
-        moveWinLeftScreen()
     else if (mouseOverBrowser())
         freezeExecute("browserMove", ["down", 8], False)
     return
@@ -387,32 +375,19 @@ Ctrl Up::
 
 
 ; --    RButton      -----------------------
-#If WinActive("ahk_exe FL64.exe") and isStepSeq()
+#If WinActive("ahk_exe FL64.exe") and StepSeq.isWin()
 ~RButton & WheelUp::
-    msgTip("RButton & WheelDown")
-    if (isStepSeq())
-        freezeExecute("changeInstrGroup", ["left"])
+    ;msgTip("RButton & WheelDown")
+    ;if (StepSeq.isWin())
+    ;    freezeExecute("changeInstrGroup", ["left"])
     return     
 
 
 RButton & WheelDown::
-    if (isStepSeq())
-        freezeExecute("activatePianoRollLoop", ["True"])
+    if (StepSeq.isWin())
+        freezeExecute("PianoRoll.activateLoop")
     return
 #If     
-
-#If WinActive("ahk_exe FL64.exe") and numpadGShown
-+!XButton1 Up::
-+XButton1 Up::
-    numpadGScroll("left")
-    return
-
-+!XButton2 Up::
-+XButton2 Up::
-    numpadGScroll("right")
-    return
-#If
-
 ; --------
 
 ; -- XButton  < > ---------------------------
@@ -454,24 +429,3 @@ XButton2 Up::
     return     
 #If
 ;--
-
-/*
-; -- Playlist Scrolling and Zooming ----------------------------------------
-
-#If WinActive("ahk_exe FL64.exe") and mouseOverPlaylist() and mouseOverPlaylistSong()
-WheelDown::
-    if (GetKeyState("Shift"))
-    {
-
-    }
-    return
-
-+WheelDown::
-    Send {AltDown}{WheelDown}{AltUp}
-    return
-
-+WheelUp::
-    Send {AltDown}{WheelUp}{AltUp}
-    return
-#If
-*/

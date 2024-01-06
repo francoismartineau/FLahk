@@ -84,7 +84,7 @@ waitCtxMenuUnderMouse()
     MouseGetPos, x, y
     y := y + 5
     x := x + 10
-    result := waitForColor([x], [y], ctxMenuColors, 10, 1000, "")
+    result := waitForColor([x], [y], ctxMenuColors, 10, 1000)
     return result
 }
 
@@ -94,22 +94,27 @@ waitClipCtxMenu()
     MouseGetPos, x, y
     y := y + 140
     cols := [0xBDC2C6]
-    result := waitForColor([x], [y], cols, 0, 2, " ", False, True)
+    result := waitForColor([x], [y], cols, 0, 2, False, True)
     return result    
 }
 */
 
-waitToolTip(msg := "")
+waitToolTip(msg := "", unfreezeExecuting := False)
 {
-    if (freezeExecuting)
+    wasFreezeExecuting := freezeExecuting
+    if (wasFreezeExecuting)
         unfreezeMouse()
+    if (unfreezeExecuting)
+        freezeExecuting := False
     res := "accept" == waitAcceptAbort(False, msg)
-    if (freezeExecuting)
+    if (unfreezeExecuting and wasFreezeExecuting)
+        freezeExecuting := True
+    if (wasFreezeExecuting)
         freezeMouse()
     return res
 }
 
-waitForColor(xList, yList, cols, colVar := 0, timeout := 2000, hint := "", debug := False, reverse := False)
+waitForColor(xList, yList, cols, colVar := 0, timeout := 2000, debug := False, reverse := False)
 {
     t1 := A_TickCount
     if (debug)
@@ -120,7 +125,7 @@ waitForColor(xList, yList, cols, colVar := 0, timeout := 2000, hint := "", debug
         {
             for _, y in yList
             {
-                matches := colorsMatch(x, y, cols, colVar, hint, debug, reverse)
+                matches := colorsMatch(x, y, cols, colVar, reverse)
                 if (matches)
                     return True
             }
@@ -142,7 +147,7 @@ waitforBrowserCtxMenu(isFolder)
         xIncr := 249
     x := mX + xIncr
     yList := [mY+1, mY-1]
-    res := waitForColor([x], yList, ctxMenuCol, 30, 500)
+    res := waitForColor([x], yList, ctxMenuCol, 30, 750)
     return res
 }
 
@@ -153,6 +158,6 @@ waitForWindowsCtxMenu()
     mouseGetPos(mX, mY)
     x := mX + 5
     yList := [mY+2, mY-2]
-    res := waitForColor([x], yList, ctxMenuCol, 30, 500)
+    res := waitForColor([x], yList, ctxMenuCol, 30, 750)
     return res
 }

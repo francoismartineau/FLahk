@@ -1,6 +1,15 @@
+toggleShowConcatAudio()
+{
+    if (ConcatAudioShown)
+        hideConcatAudio()
+    else
+        showConcatAudio()    
+}
+
 
 pickConcatAudioPaths(n)
 {
+    packsPath := Paths.packs
     Switch n
     {
     Case 1:
@@ -39,7 +48,7 @@ pickConcatAudioPaths(n)
             SplitPath, path, ConcatAudioFolder5
         }
     }
-    updateConcatAudioPathText(n)
+    updateConcatAudioPath(n)
 }
 
 disableConcatAudioPath(n)
@@ -58,12 +67,12 @@ disableConcatAudioPath(n)
     Case 5:
         ConcatAudioFolder5 := ConcatAudioFolderEmpty
     }
-    updateConcatAudioPathText(n)
+    updateConcatAudioPath(n)
 }
 
 getRandomSoundDir()
 {
-    dir := SysCommand(pythonPath " " ConcatAudioPath "\getRandomSoundDir.py")
+    dir := SysCommand(Paths.python " " Paths.ConcatAudio "\getRandomSoundDir.py")
     return dir
 }
 
@@ -96,6 +105,7 @@ concatAudioRun()
     }
 
     num := LinearToLogarithmic(ConcatAudioNumSliderVal, true)
+    GuiControlGet, forceNum,, ConcatAudioForceNumToggle
     if (ConcatAudioLenToggle)
     {
         len := LinearToLogarithmic(ConcatAudioLenSliderVal)
@@ -106,17 +116,55 @@ concatAudioRun()
         gate := ConcatAudioGateSliderVal
         len := 0
     }
+    pythonPath := Paths.python
     cmd = cmd.exe /q /c %pythonPath%
-    cmd = %cmd% %ConcatAudioPath%\concat_audio.py
-    cmd = %cmd% --paths %pathsArg% --num %num% --len %len% --gate %gate%
+    concatAudioPath := Paths.ConcatAudio
+    cmd = %cmd% %concatAudioPath%\concat_audio.py
+    cmd = %cmd% --paths %pathsArg%
+    cmd = %cmd% --num %num%
+    if (forceNum)
+        cmd = %cmd% --forceNum
+    cmd = %cmd% --len %len%
+    cmd = %cmd% --gate %gate%
     if (PreGenBrowser.running)
-        cmd = %cmd% --browse 1
-    ;clipboard := cmd
-    ; replace with SysCommand() ?
-    ComObjCreate("WScript.Shell").Exec(cmd).StdOut.ReadAll()
+        cmd = %cmd% --preGenBrowser
+    if (ConcatAudioBpmToggle)
+        cmd = %cmd% --bpmFileName
+    if (PreGenBrowser.debugConcatAudio)
+    {
+        clipboard := cmd
+        msg("Run manually.`r`nclipboard: " cmd)
+    }
+    else
+    {
+        response := SysCommand(cmd)
+        concatAudioReachFile(response)
+    }
+        
     if (PreGenBrowser.running)
         PreGenBrowser.stop()
 }
+
+concatAudioReachFile(response)
+{
+    concatAudioResponseGetFilesRows(response, dirRow, fileRow)
+    browsePacks(dirRow, "fileRow", fileRow)
+}
+
+concatAudioResponseGetFilesRows(response, ByRef dirRow, ByRef fileRow)
+{
+    caseSensitive := True
+    dirFlag := "dirPos|"
+    endFlag := "|"
+    dirPos := InStr(response, dirFlag, caseSensitive) + StrLen(dirFlag)
+    dirEndPos := InStr(response, "|", caseSensitive, dirPos) - dirPos
+    dirRow := SubStr(response, dirPos, dirEndPos)
+    fileFlag := "filePos|"
+    filePos := InStr(response, fileFlag, caseSensitive, dirEndPos) + StrLen(fileFlag)
+    fileEndPos := InStr(response, endFlag, caseSensitive, filePos) - filePos
+    fileRow := SubStr(response, filePos, fileEndPos)
+}
+
 
 moveMouseToConcatAudio()
 {

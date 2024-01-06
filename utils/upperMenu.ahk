@@ -116,7 +116,7 @@ togglePatternSongFromPianoRollToolWin()
         bringMainFLWindow()
         SendInput ^t
     }    
-    bringTouchKeyboard()
+    ;bringTouchKeyboard()
     Send l
     if (typingKeyEnabled)
     {
@@ -140,7 +140,7 @@ songEnabled()
 toggleRecord()
 {
     winId := WinActive("A")
-    bringPlaylist(False)
+    Playlist.bringWin(False)
     Send {Alt down}r{Alt up}
     bringHistoryWins()
     WinActivate, ahk_id %winId%
@@ -212,12 +212,12 @@ typingKeyboardEnabled()
 randomizeTypingKeyboard()
 {
     WinActivate, ahk_class TFruityLoopsMainForm
-    QuickClick(488, 62, "Right")
+    quickClick(488, 62, "Right")
     Random, octave, 1, 3
     Loop, %octave%
         Send {WheelDown}
     Send {LButton}
-    QuickClick(488, 62, "Right")
+    quickClick(488, 62, "Right")
     Random, layout, 4, 34
     Loop, %layout%
         Send {WheelDown}    
@@ -261,7 +261,7 @@ loopRecordingEnabled()
     x := 491
     y := 54
     cols := [0xFFEC9E]
-    enabled := colorsMatch(x, y, cols, 20, "")
+    enabled := colorsMatch(x, y, cols, 20)
     WinActivate, ahk_id %winId%
     return enabled    
 }
@@ -285,7 +285,7 @@ checkIfSnap()
     x := 553
     y := 59
     cols := [0x383F44]
-    result := colorsMatch(x, y, cols, 10, "")
+    result := colorsMatch(x, y, cols, 10)
     CoordMode, Pixel, Client
     return result        
 }

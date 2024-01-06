@@ -11,11 +11,10 @@
 #Include utils/utils.ahk
 #Include utils/loadFx.ahk
 #Include utils/loadInstr.ahk
-#Include utils/applyController.ahk
 #Include utils/upperMenu.ahk
 #Include utils/isWin.ahk
 #Include utils/wait.ahk
-#Include utils/windowMenus.ahk
+#Include utils/guiTick.ahk
 #Include utils/windows.ahk
 #Include utils/bringWin.ahk
 #Include utils/moveWin.ahk
@@ -30,7 +29,7 @@
 
 #Include utils/msgRefresh.ahk 
 #Include utils/project.ahk 
-#Include utils/openingMessage.ahk 
+#Include utils/ideas.ahk 
 #Include utils/transferSounds.ahk 
 #Include utils/winRelated/eventEditor.ahk
 #Include utils/winRelated/pianoRoll.ahk
@@ -61,6 +60,7 @@
 #Include operations/Encapsulation.ahk
 #Include operations/Arp.ahk
 #Include operations/concatAudio.ahk
+#Include operations/GetWords.ahk
 #Include operations/recOnPlay.ahk
 #Include operations/deletePlugin.ahk
 #Include operations/knobs.ahk
@@ -91,6 +91,7 @@
 ; -- lib
 #Include %A_MyDocuments%/AutoHotkey/Lib/maLib.ahk
 #Include %A_MyDocuments%/AutoHotkey/Lib/vision.ahk
+#Include %A_MyDocuments%/AutoHotkey/Lib/Osc/osc.ahk
 
 ; -- gui
 #Include gui/g.ahk
@@ -104,13 +105,14 @@
 ; -- Test
 #Include Test.ahk
 
-; -- midi
+; -- io
 #Include %A_MyDocuments%/AutoHotkey/Lib/midi/MidiIn.ahk
 #Include %A_MyDocuments%/AutoHotkey/Lib/midi/MidiOut.ahk
-#Include midi/midiRequest.ahk
-#Include midi/midiInput.ahk
-#Include midi/midiInit.ahk
-#Include midi/PYnotes.ahk
+#Include io/midiRequest.ahk
+#Include io/midiInput.ahk
+#Include io/midiInit.ahk
+#Include io/Osc.ahk
+#Include io/PYnotes.ahk
 #Include hotkeys/mouseCtl.ahk
 
 
@@ -121,30 +123,32 @@ toolTip("starting")
 #Include run/run.ahk
 #Include run/clock.ahk
 #Include run/obsCheckMousePos.ahk
+
 splashScreenToggle := False
 setFlahkWallpaper()
-showSplashScreen()
+; showSplashScreen()
 makeWindow()
 hideSplashScreen()
-;WinActivate, ahk_exe FL64.exe
+WinActivate, ahk_exe FL64.exe
 ;isSaved := freezeExecute("loadSaveFileIfExists")
+startClocks()
 if (isSaved)
-    bringStepSeq(True)
+    StepSeq.bringWin(True)
 toolTip()
-;displayRandomOpeningMessage()
+;displayRandomOpeningIdea()
 
 
 
 ; -- hotkeys
 #Include %A_MyDocuments%/AutoHotkey/Lib/AutoHotInterception/AutoHotInterception.ahk
-#Include hotkeys/AutoHotInterception.ahk 
-#Include hotkeys/secondMouse.ahk
+;#Include hotkeys/AutoHotInterception.ahk 
+;#Include hotkeys/secondMouse.ahk
 #Include hotkeys/numpad.ahk
 #Include hotkeys/arrows.ahk
 #Include hotkeys/winRelated/patcherMap.ahk
 #Include hotkeys/numbers.ahk
 #Include hotkeys/fKeys.ahk
-#Include midi/midiHotkeys.ahk
+#Include io/midiInputHotkeys.ahk
 #Include hotkeys/mouse.ahk  
 #Include hotkeys/scroll.ahk  
 #Include hotkeys/hotkeys.ahk
@@ -159,7 +163,3 @@ toolTip()
 #Include hotkeys/winRelated/patcherSlicex.ahk
 #Include hotkeys/winRelated/transferSounds.ahk
 #Include hotkeys/winRelated/plugin.ahk
-
-; -- goto
-#Include run/goto.ahk
-#Include %A_MyDocuments%/AutoHotkey/Lib/libGoto.ahk

@@ -1,4 +1,4 @@
-global mouseCursorPath := FLahkPath "\mouse_cursror.png"
+global mouseCursorPath := Paths.FLahk "\mouse_cursror.png"
 global MouseCursorGuiId :=
 global MouseCursorImageId :=
 

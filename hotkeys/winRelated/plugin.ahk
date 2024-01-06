@@ -4,9 +4,9 @@
 ^!LButton Up::
     waitForModifierKeys()
     if (isPianoRollLfo())
-        freezeExecute("pianoRollLfoSetTime")
-    else if (isEnvClfo())
-        freezeExecute("envCsetLfoTime")
+        freezeExecute("PianoRoll.lfoSetTime")
+    else if (EnvC.isLfo())
+        freezeExecute("EnvC.setLfoTime")
     else if (isInstr())
     {
         if (mouseOnLeftWindowSide())
@@ -47,8 +47,10 @@
         freezeExecute("reveal3xGross")
     else if (isPatcher4())
         freezeExecute("patcher4ShowPlugin", [], False)
-    else if (mouseOverPercEnvShowPlugin())
-        freezeExecute("percEnvShowPlugin")
+    else if (PercEnv.mouseOverShowEnvC())
+        freezeExecute("PercEnv.showEnvC")
+    else if (PercEnv.mouseOverLfoSpeedSet())
+        freezeExecute("PercEnv.lfoSetSpeed")
     return
 #If
 
@@ -68,17 +70,17 @@
 #If
 
 
-#If WinActive("ahk_exe FL64.exe") and mouseOverKnobsWin()
+#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm") and mouseOverKnobsWin()
 ^c::
-    freezeExecute("copyKnob")
+    freezeExecute("Knob.copy")
     return
     
 ^x::
-    freezeExecute("cutKnob")
+    freezeExecute("Knob.cut")
     return
 
 ^v::
-    freezeExecute("pasteKnob")
+    freezeExecute("Knob.paste")
     return
 
 ;+^LButton::
@@ -89,14 +91,14 @@
     return
 +MButton Up::
     waitForModifierKeys()
-    freezeExecute("knobSideChain")
+    freezeExecute("Knob.linkSideChain")
     return
 
 ^!MButton::
     return
 ^!MButton Up::
     waitForModifierKeys()
-    freezeExecute("knobResetCtl")
+    freezeExecute("Knob.resetLink")
     return
 
 ^MButton::

@@ -1,7 +1,7 @@
 goForwardInSong() {
     ;stopWinHistoryClock()
     ;WinGet, id, ID, A
-    ;bringPlaylist(False)
+    ;Playlist.bringWin(False)
     Send {NumpadMult}
     ;WinActivate, ahk_id %id%
     ;startWinHistoryClock()

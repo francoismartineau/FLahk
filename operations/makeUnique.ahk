@@ -3,7 +3,7 @@ global makingUnique := False
 makeUnique(multipleClips = True)
 {
     makingUnique := True
-    playlistId := bringPlaylist(False)
+    playlistId := Playlist.bringWin(False)
     MouseGetPos, oriX, oriY
 
     Click
@@ -19,7 +19,7 @@ makeUnique(multipleClips = True)
         MouseMove, 20, 0,, R
         Click, 2
         sampleInstrId := waitNewWindowOfClass("TPluginForm", playlistId)        
-        bringPlaylist(False)
+        Playlist.bringWin(False)
     }
     else if (clipType == "pattern")
     {
@@ -71,7 +71,7 @@ selectSimilarClips()
     else
     {
         WinGet, id, ID, A
-        if (isPlaylist(id))
+        if (Playlist.isWin(id))
         {
             Click
             Sleep, 50
@@ -98,7 +98,7 @@ clipCtxMenuType()
     y2 := my + 229
 
     PixelGetColor, col1, %x1%, %y1% , RGB
-    if (colorsMatch(x2, y2, [col1], 10, "", False))
+    if (colorsMatch(x2, y2, [col1], 10))
         res := "sound"
     else
         res := "pattern"
@@ -111,7 +111,7 @@ reverseSound()
     winId := waitNewWindowOfClass("TPluginForm", id)
     if (winId)
     {
-        QuickClick(299, 244)     
+        quickClick(299, 244)     
         Send {Esc}
     }
 }

@@ -1,13 +1,13 @@
 global readyToDrag := False
 
+global packsRow := 0
 
 ; --- Packs ----------------------------------------
-browsePacks(folderRow, mode := "postGen")
+browsePacks(folderRow, mode := "postGen", fileRow := "")
 {
     toolTip("Reaching pos")
     moveWinsOverBrowser()
     wasRevealed := revealBrowserPacks()
-    packsRow := 2
 
     i := 1
     while (i < folderRow)
@@ -31,6 +31,10 @@ browsePacks(folderRow, mode := "postGen")
         } 
     Case "postGen":
         fileRow := getRandomFileRowInFolderInPacks(folderRow)
+        browserJumpToFile(folderRow + packsRow, fileRow)        
+        startHighlight("browser")
+        readyToDrag := True    
+    Case "fileRow":
         browserJumpToFile(folderRow + packsRow, fileRow)        
         startHighlight("browser")
         readyToDrag := True    
@@ -66,7 +70,6 @@ revealBrowserPacks()
 
 getRandomFileRowInFolderInPacks(folderRow)
 {
-    packsRow := 2
     global Mon2Bottom
     a := Mon2Bottom - (browserGetFolderY(folderRow + packsRow) + 10)
     fileHeight := 21
@@ -141,7 +144,6 @@ closeCurrentlyOpenPacksFolder()
     bringMainFLWindow()
     mouseGetPos(_, mY)
     n := browserGetFolderN(mY)
-    packsRow := 2
     while (n > 0 and !foundOpenFolder)
     {
         foundOpenFolder := browserFolderOpen(n + packsRow, folderY)
@@ -335,27 +337,32 @@ isBrowserFolder(n, ByRef y := "")
 ; -- File info --------------------------------------------------
 getSoundAndFolderQtyInFolderInsidePacks(folderRow)
 {
-    path := packsPath "\" getSortedPacksFolders()[folderRow]
+    path := Paths.packs "\" getSortedPacksFolders()[folderRow]
     return soundNumInDir(path) + folderNumInDir(path)
 }
 
 getSortedPacksFolders()
 {
-    packsFolders := []
-    underscorePacksFolders := []
-    Loop, Files, %packsPath%\*, D
+    return getSortedFilesInFolder(Paths.packs, "D")
+}
+
+getSortedFilesInFolder(folderPath, mode := "FD")
+{
+    files := []
+    underscoreFiles := []
+    Loop, Files, %folderPath%\*, %mode%
     {
 
-        folder := A_LoopFileName
-        if (StrSplit(folder)[1] == "_")
-            underscorePacksFolders.Push(folder)
+        currFile := A_LoopFileName
+        if (StrSplit(currFile)[1] == "_")
+            underscoreFiles.Push(currFile)
         else
-            packsFolders.Push(folder)
+            files.Push(currFile)
     }
-    for _, folder in packsFolders
+    for _, currFile in files    ; keep _files at start
     {
-        underscorePacksFolders.Push(folder)
+        underscoreFiles.Push(currFile)
     }
-    return underscorePacksFolders
+    return underscoreFiles    
 }
 ; ----

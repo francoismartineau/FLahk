@@ -10,7 +10,7 @@ NumpadEnter Up::
         acceptPressed := True
     else if (mouseOverMixerSlotSection())
         mixerOpenSlot()
-    else if (isPlugin() or isEventEditForm())
+    else if (isPlugin() or isEventEditForm() or isMixer())
         return
     else
         send {Enter}
@@ -24,7 +24,6 @@ NumpadEnter Up::
         SendInput +{Enter}
     return
 #If
-
 
 /*
 
@@ -67,19 +66,6 @@ NumpadEnter::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and acceptPressed and isInstr()
-MButton::
-MButton Up::
-    return
-#If
-
-#If WinActive("ahk_exe Code.exe") or WinActive("ahk_exe FL64.exe") and acceptPressed and !isEventEditForm() and !isStepSeq() and !mouseOverMixerSlotSection() or WinActive("ahk_exe ahk.exe")
-MButton::
-    return
-MButton Up::
-    Send {Enter}
-    pianoRollTempMsg()
-    return
 #If
 */
 ; ----
@@ -94,6 +80,8 @@ Esc Up::
         abortPressed := True 
     else if (whileWaiting)
         stopWaitFunction()
+    else if (scrollingInstr)
+        scrollInstrQuit()
     else if (numpadGShown)
         hideNumpadG()
     else if (PreGenBrowser.running)
@@ -103,21 +91,18 @@ Esc Up::
     else if (freezeExecuting)  
         stopExec := True
 
-    else if (isStepSeq())
+    else if (StepSeq.isWin())
         Send {F6}
     else if (isPianoRollTool())
     {
         Send {Enter}
     }        
-    else if (isPlaylist() or isMainFlWindow())
+    else if (Playlist.isWin() or isMainFlWindow())
         freezeExecute("bringHistoryWins")
     else if (isMasterEdison() or isControlSurface())
         freezeExecute("activatePrevPlugin")
     else if (isInstr())
-    {
         WinClose, A
-        freezeExecute("bringStepSeq")
-    }
     else if (isWrapperPlugin())
     {
         closeWrapperPlugin()
@@ -128,6 +113,8 @@ Esc Up::
         WinClose, A
         freezeExecute("activatePrevPlugin")
     }
+    else if (mouseFrozen)
+        unfreezeMouse()
     else
         Send {Esc}
     return
@@ -150,7 +137,7 @@ Esc Up::
 #If
 
 ; -- Space -----------------------------------------
-#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm") and !isFormulaCtl()
+#If WinActive("ahk_exe FL64.exe") and !WinActive("ahk_class TNameEditForm") and !isFormulaCtl() and !isBrowser()
 Space::
     if (!freezeExecuting)
     {
@@ -214,7 +201,7 @@ Space::
 #If WinActive("ahk_exe FL64.exe")
 ^s Up::                                                         ; save
     if (isEdison())
-        saveEdisonSound(packsPath)
+        saveEdisonSound(Paths.packs)
     else
         freezeExecute("saveProject")
     return
@@ -235,39 +222,57 @@ Space::
 ^y::                                                            ; redo
     Send {Ctrl Down}z{Ctrl Up}
     return
+#If
 ; ----
 
 
 ; -- Win History -------------------
+;Tab::
+;    freezeExecute("activatePrevPlugin")
+;    return
+;^Tab::
+;    freezeExecute("activateNextPlugin")
+;    return
+
+;CapsLock::
+;    freezeExecute("activatePrevMainWin")
+;    return 
+;^CapsLock::
+;    freezeExecute("activateNextMainWin")
+;    return     
+
+
+
+#If WinActive("ahk_exe FL64.exe") and !whileToolTipChoiceActivateWin
 Tab::
-    freezeExecute("activatePrevPlugin")
-    return
-^Tab::
-    freezeExecute("activateNextPlugin")
-    return
-
-CapsLock::
-    freezeExecute("activatePrevMainWin")
-    return 
-^CapsLock::
-    freezeExecute("activateNextMainWin")
-    return     
-
-+^Tab::
     freezeExecute("toolTipChoiceActivatePlugin")
     return
-+^CapsLock::
+CapsLock::
     freezeExecute("toolTipChoiceActivateMainWin")
     return
 #If
+
+
 #If whileToolTipChoiceActivateWin and !acceptPressed
-~Shift & Ctrl Up::
-~Ctrl & Shift Up::
+Tab::
+Capslock::
+    return
+Capslock Up::
+Tab Up::
     acceptPressed := True
     return
 #If
 
+#If WinActive("ahk_exe FL64.exe") and whileToolTipChoiceActivateWin and !alternativeChoicePressed
+RButton::
+    alternativeChoicePressed := True
+    return
+#If
 #If WinActive("ahk_exe FL64.exe")
+^Tab::
+    incrLoadKnobPosIndex()
+    freezeExecute("loadKnobPos", [], False)
+    return
 ;LWin & Tab::
 ;    toolTip("History: last 3 plugins")
 ;    winHistoryClosePluginsExceptLast(3)
@@ -275,11 +280,6 @@ CapsLock::
 ;    Sleep, 200
 ;    toolTip()
 ;    return
-
-+Tab::
-    incrLoadKnobPosIndex()
-    freezeExecute("loadKnobPos", [], False)
-    return
 #If
 ; ----
 
@@ -302,7 +302,7 @@ s::
 ; ----
 
 ; -- Event Editor tools ----------------------------------
-#If WinActive("ahk_exe FL64.exe") and (isPlaylist() or isPianoRoll())
+#If WinActive("ahk_exe FL64.exe") and (Playlist.isWin() or PianoRoll.isWin())
 q::
     freezeExecute("activatePencilTool")
     return
@@ -352,7 +352,7 @@ p::
     return
 #If
 
-#If WinActive("ahk_exe FL64.exe") and !(isPlaylist() or isPianoRoll())
+#If WinActive("ahk_exe FL64.exe") and !(Playlist.isWin() or PianoRoll.isWin())
 ~b::
     return
 

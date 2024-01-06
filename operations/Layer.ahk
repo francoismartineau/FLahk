@@ -1,23 +1,32 @@
 ﻿Layer()
 {
-    res := prompLayerName(name)
-    if (!res)
+    if (!isInstr())
+    {
+        msg("Layer: not an instrument")
         return
-
-    res := groupChannels(name)
-    if (!res)
-        return
-    
+    }
+    WinGet, chanId, ID, A
+    chanName := copyName()
+    ;chanName := filterPluginTitle()
+    StepSeq.bringWin(False, False)
+    oriChanIndex := StepSeq.getFirstSelChanIndex()
     loadInstrInStepSeq(3, False, "", False)             ; load 3_Layer
     Sleep, 100
-    layerId := bringLayer()
+    layerIndex := StepSeq.getFirstSelChanIndex()
+    if (oriChanIndex == layerIndex)
+    {
+        msg("Couldn't load Layer")
+        return
+    }
+    StepSeq.moveSelectedChannel(oriChanIndex+1, layerIndex)
+    layerId := StepSeq.bringChanUnderMouse(False)
     if (layerId)
     {
-        setChildren(layerId)
+        setChildren(layerId, [oriChanIndex])
         setLayerVolume()
         pasteColor("", True)
-        rename("Layer " name)
-        lockChanFromInstrWin()
+        rename("Layer " chanName)
+        ;lockChanFromInstrWin()
     }
 }
 
@@ -36,7 +45,7 @@ prompLayerName(ByRef name)
 groupChannels(name)
 {
     res := True
-    stepSeqID := bringStepSeq(False)
+    stepSeqID := StepSeq.bringWin(False)
     Send {AltDown}g{AltUp}                                      ; Alt G
     nameEditWin := waitNewWindowOfClass("TNameEditForm", stepSeqID)
     if (nameEditWin)
@@ -52,19 +61,6 @@ groupChannels(name)
     return res
 }
 
-; Pour l'activer une première fois, il faut cliquer dessus dans le step seq
-bringLayer()
-{
-    stepSeqID := bringStepSeq(False)
-    WinGetPos,,,, winH, ahk_id %stepSeqID%
-
-    layerY := winH - 60
-    Click, 147, %layerY% 
-    layerId := waitNewWindowOfClass("TPluginForm", stepSeqID)
-    moveWinRightScreen(layerId)
-    return layerId
-}
-
 currentWinIsPlugin()
 {
     id :=
@@ -75,25 +71,17 @@ currentWinIsPlugin()
 }
 
 
-setChildren(layerId)
+setChildren(layerId, childIndexes)
 {
-    WinActivate, ahk_class TStepSeqForm
-    Sleep, 500
-    sepX := 274
-    MouseClick, Left, %sepX%, 62, 2                             ; sélectionne tous les channels en double-cliquant
+    StepSeq.bringWin(False, False)
+    StepSeq.selChanIndexes(childIndexes)
     WinActivate, ahk_id %layerId%
-    MouseClick, Left, 82, 226                                   ; Set Children
-    WinActivate, ahk_class TStepSeqForm
-    WinGetPos,,,, h, A
-    LayerY := h - 60
-    MouseClick, Left, %sepX%, %LayerY%
-    WinActivate, ahk_id %layerId%
-    Sleep, 100
+    quickClick(82, 226)                  ; Set Children
 }
 
 setLayerVolume()
 {
-    setKnobValue(70, 125, .6)
+    Knob.setVal(70, 125, .6)
 }
 
 ;; inutile pour l'instant
