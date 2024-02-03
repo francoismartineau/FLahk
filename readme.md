@@ -13,3 +13,6 @@ This feature is a small portion of the whole project. It features:
 Throughout this project, randomization takes a major role in order to make every step of music production unique and to challenge the musician. (Sounds, notes, rythms, names, etc)
 
 During the development process, I experimented with multiple keyboards and mice with specific roles, but this required a lot of physical movement. In order to keep my hands almost static while composing music, I now use virtual button pads that appear on demand or depending on the current state of FL Studio.
+
+
+[How the window history works](windowHistoryTutorial.md)
